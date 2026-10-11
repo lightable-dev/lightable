@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-552000 -9852000 13104000 11104000" width="800" height="678">
+<rect x="-552000" y="-9852000" width="13104000" height="11104000" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="8736" stroke-linecap="round">
+<g data-layer="BLOCK__ARCHTICK">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="BLOCK__CLOSEDBLANK">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape001">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape002">
+<path d="M0 0L12000000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape003">
+<path d="M12000000 0L12000000 8000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape004">
+<path d="M12000000 8000000L0 8000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape005">
+<path d="M0 8000000L0 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape006">
+<path d="M200000 200000L11800000 200000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape007">
+<path d="M11800000 200000L11800000 7800000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape008">
+<path d="M11800000 7800000L200000 7800000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape009">
+<path d="M200000 7800000L200000 200000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape010">
+<path d="M4000000 200000L4000000 7800000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape011">
+<path d="M8000000 200000L8000000 7800000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape012">
+<path d="M200000 4000000L4000000 4000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape013">
+<path d="M1900000 4000000A900000 900000 0 0 1 1636396.1031 4636396.1031A900000 900000 0 0 1 1000000 4900000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape014">
+<path d="M1000000 4000000L1000000 4900000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape015">
+<path d="M5900000 200000A900000 900000 0 0 1 5636396.1031 836396.1031A900000 900000 0 0 1 5000000 1100000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape016">
+<path d="M5000000 200000L5000000 1100000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape017">
+<path d="M8000000 5900000A900000 900000 0 0 1 7363603.8969 5636396.1031A900000 900000 0 0 1 7100000 5000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape018">
+<path d="M8000000 5000000L7100000 5000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape019">
+<path d="M1500000 0L2700000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape020">
+<path d="M1500000 200000L2700000 200000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape021">
+<path d="M6000000 0L7200000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape022">
+<path d="M6000000 200000L7200000 200000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape023">
+<path d="M9500000 0L10700000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape024">
+<path d="M9500000 200000L10700000 200000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape025">
+<path d="M0 -1000000L0 9000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape026">
+<path d="M300000 9300000A300000 300000 0 0 1 -300000 9300000A300000 300000 0 0 1 300000 9300000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape027">
+<path d="M4000000 -1000000L4000000 9000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape028">
+<path d="M4300000 9300000A300000 300000 0 0 1 3700000 9300000A300000 300000 0 0 1 4300000 9300000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape029">
+<path d="M8000000 -1000000L8000000 9000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape030">
+<path d="M8300000 9300000A300000 300000 0 0 1 7700000 9300000A300000 300000 0 0 1 8300000 9300000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape031">
+<path d="M12000000 -1000000L12000000 9000000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape032">
+<path d="M12300000 9300000A300000 300000 0 0 1 11700000 9300000A300000 300000 0 0 1 12300000 9300000" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

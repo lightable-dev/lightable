@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-858.3825 -9858.0075 13416.39 11116.015" width="800" height="663">
+<rect x="-858.3825" y="-9858.0075" width="13416.39" height="11116.015" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="8.9443" stroke-linecap="round">
+<g data-layer="WALLS">
+<path d="M0 0L12000 0" stroke="#ffffff"/>
+<path d="M12000 0L12000 8000" stroke="#ffffff"/>
+<path d="M12000 8000L0 8000" stroke="#ffffff"/>
+<path d="M0 8000L0 0" stroke="#ffffff"/>
+<path d="M200 200L11800 200" stroke="#ffffff"/>
+<path d="M11800 200L11800 7800" stroke="#ffffff"/>
+<path d="M11800 7800L200 7800" stroke="#ffffff"/>
+<path d="M200 7800L200 200" stroke="#ffffff"/>
+<path d="M4000 200L4000 7800" stroke="#ffffff"/>
+<path d="M8000 200L8000 7800" stroke="#ffffff"/>
+<path d="M200 4000L4000 4000" stroke="#ffffff"/>
+</g>
+<g data-layer="DOORS">
+<path d="M1900 4000A900 900 0 0 1 1636.3961 4636.3961A900 900 0 0 1 1000 4900" stroke="#00ff00"/>
+<path d="M1000 4000L1000 4900" stroke="#00ff00"/>
+<path d="M5900 200A900 900 0 0 1 5636.3961 836.3961A900 900 0 0 1 5000 1100" stroke="#00ff00"/>
+<path d="M5000 200L5000 1100" stroke="#00ff00"/>
+<path d="M8000 5900A900 900 0 0 1 7363.6039 5636.3961A900 900 0 0 1 7100 5000" stroke="#00ff00"/>
+<path d="M8000 5000L7100 5000" stroke="#00ff00"/>
+</g>
+<g data-layer="WINDOWS">
+<path d="M1500 0L2700 0" stroke="#00ffff"/>
+<path d="M1500 200L2700 200" stroke="#00ffff"/>
+<path d="M6000 0L7200 0" stroke="#00ffff"/>
+<path d="M6000 200L7200 200" stroke="#00ffff"/>
+<path d="M9500 0L10700 0" stroke="#00ffff"/>
+<path d="M9500 200L10700 200" stroke="#00ffff"/>
+</g>
+<g data-layer="GRID">
+<path d="M0 -1000L0 9000" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M300 9300A300 300 0 0 1 -300 9300A300 300 0 0 1 300 9300" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M4000 -1000L4000 9000" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M4300 9300A300 300 0 0 1 3700 9300A300 300 0 0 1 4300 9300" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M8000 -1000L8000 9000" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M8300 9300A300 300 0 0 1 7700 9300A300 300 0 0 1 8300 9300" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M12000 -1000L12000 9000" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+<path d="M12300 9300A300 300 0 0 1 11700 9300A300 300 0 0 1 12300 9300" stroke="#808080" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="ROOMS">
+<text transform="translate(2000 6000) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">LIVING</text>
+<text transform="translate(2000 2000) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">KITCHEN</text>
+<text transform="translate(6000 4000) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BED 1</text>
+<text transform="translate(10000 4000) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BATH</text>
+</g>
+<g data-layer="DIMS">
+<path d="M0 -0.125L0 -600.375" stroke="#ff0000"/>
+<path d="M12000 -0.125L12000 -600.375" stroke="#ff0000"/>
+<path d="M0.0875 -599.9125L-0.0875 -600.0875" stroke="#ff0000"/>
+<path d="M11999.9125 -600.0875L12000.0875 -599.9125" stroke="#ff0000"/>
+<path d="M0 -600L12000 -600" stroke="#ff0000"/>
+<text transform="translate(6000 -599.9) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ff0000" stroke="none">1200000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="0" cy="-600" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="12000" cy="0" r="13.4164" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M-0.125 0L-600.375 0" stroke="#ff0000"/>
+<path d="M-0.125 8000L-600.375 8000" stroke="#ff0000"/>
+<path d="M-600.0875 0.0875L-599.9125 -0.0875" stroke="#ff0000"/>
+<path d="M-599.9125 7999.9125L-600.0875 8000.0875" stroke="#ff0000"/>
+<path d="M-600 0L-600 8000" stroke="#ff0000"/>
+<text transform="translate(-600.1 4000) rotate(90) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ff0000" stroke="none">800000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="-600" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="8000" r="13.4164" fill="#ffffff"/>
+</g>
+</g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.6 -41.6 83.2 43.2" width="800" height="415">
+<rect x="-1.6" y="-41.6" width="83.2" height="43.2" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0555" stroke-linecap="round">
+<g data-layer="0">
+<path d="M0,20 L20,20 L20,40 L0,40 Z" fill="#646464" fill-rule="evenodd"/>
+<path d="M30,20 L50,20 L40,40 Z" fill="#0000ff" fill-rule="evenodd"/>
+<path d="M60,20 L80,20 L80,40 L60,40 Z" fill="#ffffff" fill-rule="evenodd"/>
+<polygon points="0,0 10,0 10,10 0,10" fill="#ffffff"/>
+<path d="M20 0L30 0L30 10L20 10Z" stroke="#ffffff"/>
+<polygon points="40,0 50,0 50,2 40,2" fill="#ffffff"/>
+<path d="M0 20L20 20L20 40L0 40Z" stroke="#ffffff"/>
+<path d="M30 20L50 20L40 40Z" stroke="#0000ff"/>
+<path d="M60 20L80 20L80 40L60 40Z" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

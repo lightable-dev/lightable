@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2620 -51620 84240 53740" width="800" height="510">
+<rect x="-2620" y="-51620" width="84240" height="53740" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="56.16" stroke-linecap="round">
+<g data-layer="BLOCK__ARCHTICK">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="BLOCK__CLOSEDBLANK">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape001">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline">
+<path d="M0 0L10000 0" stroke="#ffffff"/>
+<path d="M10000 0L10000 10000" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline001">
+<path d="M20000 0L30000 0" stroke="#ffffff"/>
+<path d="M30000 0L30000 10000" stroke="#ffffff"/>
+<path d="M30000 10000L20000 10000" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline002">
+<path d="M0 20000L10000 20000" stroke="#ffffff"/>
+<path d="M10000 20000L20000 30000" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline003">
+<path d="M40000 0L50000 0" stroke="#ffffff"/>
+<path d="M50000 0A5000 5000 0 0 1 55000 5000A5000 5000 0 0 1 50000 10000" stroke="#ffffff"/>
+<path d="M50000 10000L40000 10000" stroke="#ffffff"/>
+<path d="M40000 0A6250 6250 0 0 1 42500 5000A6250 6250 0 0 1 40000 10000" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline004">
+<path d="M60000 0L70000 0" stroke="#ffffff"/>
+<path d="M70000 0L80000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline005">
+<path d="M0 30000L1000 31635.9735" stroke="#ffffff"/>
+<path d="M1000 31635.9735L2000 33091.849" stroke="#ffffff"/>
+<path d="M2000 33091.849L3000 34207.3549" stroke="#ffffff"/>
+<path d="M3000 34207.3549L4000 34859.6895" stroke="#ffffff"/>
+<path d="M4000 34859.6895L5000 34977.0398" stroke="#ffffff"/>
+<path d="M5000 34977.0398L6000 34546.4871" stroke="#ffffff"/>
+<path d="M6000 34546.4871L7000 33615.4294" stroke="#ffffff"/>
+<path d="M7000 33615.4294L8000 32286.3631" stroke="#ffffff"/>
+<path d="M8000 32286.3631L9000 30705.6" stroke="#ffffff"/>
+<path d="M9000 30705.6L10000 29047.1602" stroke="#ffffff"/>
+<path d="M10000 29047.1602L11000 27493.6148" stroke="#ffffff"/>
+<path d="M11000 27493.6148L12000 26215.9875" stroke="#ffffff"/>
+<path d="M12000 26215.9875L13000 25354.9275" stroke="#ffffff"/>
+<path d="M13000 25354.9275L14000 25005.2254" stroke="#ffffff"/>
+<path d="M14000 25005.2254L15000 25205.3786" stroke="#ffffff"/>
+<path d="M15000 25205.3786L16000 25933.353" stroke="#ffffff"/>
+<path d="M16000 25933.353L17000 27109.0088" stroke="#ffffff"/>
+<path d="M17000 27109.0088L18000 28602.9225" stroke="#ffffff"/>
+<path d="M18000 28602.9225L19000 30250.635" stroke="#ffffff"/>
+<path d="M19000 30250.635L20000 31870.7562" stroke="#ffffff"/>
+<path d="M20000 31870.7562L21000 33284.933" stroke="#ffffff"/>
+<path d="M21000 33284.933L22000 34337.4843" stroke="#ffffff"/>
+<path d="M22000 34337.4843L23000 34912.5389" stroke="#ffffff"/>
+<path d="M23000 34912.5389L24000 34946.7912" stroke="#ffffff"/>
+<path d="M24000 34946.7912L25000 34436.4705" stroke="#ffffff"/>
+<path d="M25000 34436.4705L26000 33437.7561" stroke="#ffffff"/>
+<path d="M26000 33437.7561L27000 32060.5924" stroke="#ffffff"/>
+<path d="M27000 32060.5924L28000 30456.5862" stroke="#ffffff"/>
+<path d="M28000 30456.5862L29000 28802.3161" stroke="#ffffff"/>
+<path d="M29000 28802.3161L30000 27279.8944" stroke="#ffffff"/>
+<path d="M30000 27279.8944L31000 26056.9186" stroke="#ffffff"/>
+<path d="M31000 26056.9186L32000 25268.0212" stroke="#ffffff"/>
+<path d="M32000 25268.0212L33000 25000.049" stroke="#ffffff"/>
+<path d="M33000 25000.049L34000 25282.5019" stroke="#ffffff"/>
+<path d="M34000 25282.5019L35000 26084.2858" stroke="#ffffff"/>
+<path d="M35000 26084.2858L36000 27317.1354" stroke="#ffffff"/>
+<path d="M36000 27317.1354L37000 28845.3312" stroke="#ffffff"/>
+<path d="M37000 28845.3312L38000 30500.6399" stroke="#ffffff"/>
+<path d="M38000 30500.6399L39000 32100.8352" stroke="#ffffff"/>
+<path d="M39000 32100.8352L40000 33469.7577" stroke="#ffffff"/>
+<path d="M40000 33469.7577L41000 34456.708" stroke="#ffffff"/>
+<path d="M41000 34456.708L42000 34953.0368" stroke="#ffffff"/>
+<path d="M42000 34953.0368L43000 34904.105" stroke="#ffffff"/>
+<path d="M43000 34904.105L44000 34315.2993" stroke="#ffffff"/>
+<path d="M44000 34315.2993L45000 33251.4392" stroke="#ffffff"/>
+<path d="M45000 33251.4392L46000 31829.6408" stroke="#ffffff"/>
+<path d="M46000 31829.6408L47000 30206.4243" stroke="#ffffff"/>
+<path d="M47000 30206.4243L48000 28560.4834" stroke="#ffffff"/>
+<path d="M48000 28560.4834L49000 27073.0133" stroke="#ffffff"/>
+<path d="M49000 27073.0133L50000 25907.7637" stroke="#ffffff"/>
+<path d="M50000 25907.7637L51000 25193.0125" stroke="#ffffff"/>
+<path d="M51000 25193.0125L52000 25007.4439" stroke="#ffffff"/>
+<path d="M52000 25007.4439L53000 25371.4863" stroke="#ffffff"/>
+<path d="M53000 25371.4863L54000 26245.0638" stroke="#ffffff"/>
+<path d="M54000 26245.0638L55000 27532.0075" stroke="#ffffff"/>
+<path d="M55000 27532.0075L56000 29090.643" stroke="#ffffff"/>
+<path d="M56000 29090.643L57000 30749.386" stroke="#ffffff"/>
+<path d="M57000 30749.386L58000 32325.6321" stroke="#ffffff"/>
+<path d="M58000 32325.6321L59000 33645.8583" stroke="#ffffff"/>
+</g>
+<g data-layer="Polyline006">
+<path d="M0 50000L10000 50000" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

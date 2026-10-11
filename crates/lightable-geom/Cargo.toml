@@ -1,0 +1,19 @@
+[package]
+name = "lightable-geom"
+version = "0.1.0"
+description = "Pure, tested 2D geometry for CAD: polyline bulge arcs, ellipse and NURBS sampling, object coordinate systems and transforms, and even-odd region filling."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/lightable-geom"
+readme = "README.md"
+keywords = ["geometry", "cad", "nurbs", "transform", "triangulation"]
+categories = ["mathematics", "graphics"]
+# Only what users of the library need: the tests, benchmarks and fuzz
+# targets read the repository's test files and stay in the repository.
+include = ["/src/**/*", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
+publish = true
+
+[dependencies]

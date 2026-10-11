@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.5 -15.5 26 21" width="800" height="646">
+<rect x="-5.5" y="-15.5" width="26" height="21" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0173" stroke-linecap="round">
+<g data-layer="Site">
+<path d="M-5 -5L20 15" stroke="#ff0000"/>
+<path d="M5 0A5 5 0 0 1 -5 0A5 5 0 0 1 5 0" stroke="#ffffff"/>
+<path d="M11.7678 11.7678A2.5 2.5 0 0 1 7.5 10A2.5 2.5 0 0 1 11.7678 8.2322" stroke="#ff8000"/>
+</g>
+<g data-layer="0">
+<path d="M3 3A0 0 0 0 1 3 3A0 0 0 0 1 3 3" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

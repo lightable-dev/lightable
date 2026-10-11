@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "changed",
+      "type": "TEXT",
+      "handle": "41",
+      "details": [
+        "text changed from \"LIVING\" to \"LOUNGE\""
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "LINE",
+      "handle": "3A",
+      "details": [
+        "layer changed from WALLS to OTHER"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "CIRCLE",
+      "handle": "3F",
+      "details": [
+        "color changed"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "MTEXT",
+      "handle": "42",
+      "details": [
+        "text changed"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "INSERT",
+      "handle": "43",
+      "details": [
+        "attribute TAG changed from \"B1\" to \"B2\""
+      ]
+    }
+  ],
+  "zero_geometry_changes": false
+}

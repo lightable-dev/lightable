@@ -1,0 +1,49 @@
+{
+  "changes": [
+    {
+      "kind": "changed",
+      "type": "CIRCLE",
+      "handle": "3F",
+      "details": [
+        "moved by (10, 5)"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "TEXT",
+      "handle": "41",
+      "details": [
+        "moved by (-4, 2)"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "LWPOLYLINE",
+      "handle": "40",
+      "details": [
+        "moved by (0, 3)"
+      ]
+    },
+    {
+      "kind": "deleted",
+      "type": "LINE",
+      "handle": "3D",
+      "details": []
+    },
+    {
+      "kind": "added",
+      "type": "ARC",
+      "handle": "4B",
+      "details": []
+    },
+    {
+      "kind": "changed",
+      "type": "LINE",
+      "handle": "3A",
+      "details": [
+        "layer changed from WALLS to DOORS"
+      ]
+    }
+  ],
+  "zero_geometry_changes": false
+}

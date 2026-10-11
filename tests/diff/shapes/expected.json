@@ -1,0 +1,37 @@
+{
+  "changes": [
+    {
+      "kind": "changed",
+      "type": "CIRCLE",
+      "handle": "3F",
+      "details": [
+        "radius changed from 4 to 6"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "ARC",
+      "handle": "3E",
+      "details": [
+        "end angle changed from 90 to 120"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "INSERT",
+      "handle": "43",
+      "details": [
+        "rotation changed from 0 to 45"
+      ]
+    },
+    {
+      "kind": "changed",
+      "type": "LINE",
+      "handle": "3B",
+      "details": [
+        "end moved by (0, 10)"
+      ]
+    }
+  ],
+  "zero_geometry_changes": false
+}

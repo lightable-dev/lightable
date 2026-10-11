@@ -1,0 +1,16 @@
+/target
+**/*.rs.bk
+
+# Local DXF files that can't be redistributed; corpus tests load them when present.
+/tests/corpus-private/
+
+# Python venv for corpus tools (ezdxf)
+/tools/.venv/
+__pycache__/
+
+# Fuzzing logs
+/crates/lightable-dxf/fuzz/*.log
+
+# Change reports exported next to drawings
+*.changes.json
+*.changes.png

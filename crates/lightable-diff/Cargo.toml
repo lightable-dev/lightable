@@ -1,0 +1,17 @@
+[package]
+name = "lightable-diff"
+description = "Compares two drawings on their data: added, deleted and changed entities, in plain words."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+lightable-dxf.workspace = true
+lightable-geom.workspace = true
+lightable-render.workspace = true
+
+[dev-dependencies]
+# Reading the test manifests and checking the JSON export. MIT OR Apache-2.0.
+serde_json = "=1.0.151"

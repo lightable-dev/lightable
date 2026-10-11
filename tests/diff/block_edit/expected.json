@@ -1,0 +1,16 @@
+{
+  "changes": [
+    {
+      "kind": "changed",
+      "type": "CIRCLE",
+      "handle": "37",
+      "details": [
+        "radius changed from 2 to 3"
+      ],
+      "used_by": [
+        "43"
+      ]
+    }
+  ],
+  "zero_geometry_changes": false
+}

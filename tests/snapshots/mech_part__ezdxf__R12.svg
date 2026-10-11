@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12.652 -62.652 113.204 75.204" width="800" height="531">
+<rect x="-12.652" y="-62.652" width="113.204" height="75.204" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0755" stroke-linecap="round">
+<g data-layer="OUTLINE">
+<path d="M0 0L80 0" stroke="#ffffff"/>
+<path d="M80 0A10 10 0 0 1 87.0711 2.9289A10 10 0 0 1 90 10" stroke="#ffffff"/>
+<path d="M90 10L90 40" stroke="#ffffff"/>
+<path d="M90 40A10 10 0 0 1 87.0711 47.0711A10 10 0 0 1 80 50" stroke="#ffffff"/>
+<path d="M80 50L0 50" stroke="#ffffff"/>
+<path d="M0 50L0 0" stroke="#ffffff"/>
+<path d="M26 25A6 6 0 0 1 14 25A6 6 0 0 1 26 25" stroke="#ffffff"/>
+</g>
+<g data-layer="HIDDEN">
+<path d="M29 25A9 9 0 0 1 11 25A9 9 0 0 1 29 25" stroke="#0000ff"/>
+</g>
+<g data-layer="CENTER">
+<path d="M8 25L32 25" stroke="#ff0000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+<path d="M20 13L20 37" stroke="#ff0000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="OUTLINE">
+<path d="M66 25A6 6 0 0 1 54 25A6 6 0 0 1 66 25" stroke="#ffffff"/>
+</g>
+<g data-layer="HIDDEN">
+<path d="M69 25A9 9 0 0 1 51 25A9 9 0 0 1 69 25" stroke="#0000ff"/>
+</g>
+<g data-layer="CENTER">
+<path d="M48 25L72 25" stroke="#ff0000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+<path d="M60 13L60 37" stroke="#ff0000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="DIMS">
+<path d="M0 -0.125L0 -10.375" stroke="#00ff00"/>
+<path d="M90 -0.125L90 -10.375" stroke="#00ff00"/>
+<path d="M0.0875 -9.9125L-0.0875 -10.0875" stroke="#00ff00"/>
+<path d="M89.9125 -10.0875L90.0875 -9.9125" stroke="#00ff00"/>
+<path d="M0 -10L90 -10" stroke="#00ff00"/>
+<text transform="translate(45 -9.775) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">9000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="0" cy="-10" r="0.1132" fill="#ffffff"/>
+<circle cx="0" cy="0" r="0.1132" fill="#ffffff"/>
+<circle cx="90" cy="0" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M-0.125 0L-10.375 0" stroke="#00ff00"/>
+<path d="M-0.125 50L-10.375 50" stroke="#00ff00"/>
+<path d="M-10.0875 0.0875L-9.9125 -0.0875" stroke="#00ff00"/>
+<path d="M-9.9125 49.9125L-10.0875 50.0875" stroke="#00ff00"/>
+<path d="M-10 0L-10 50" stroke="#00ff00"/>
+<text transform="translate(-10.225 25) rotate(90) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">5000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="-10" cy="0" r="0.1132" fill="#ffffff"/>
+<circle cx="0" cy="0" r="0.1132" fill="#ffffff"/>
+<circle cx="0" cy="50" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M20 25.125L20 60.375" stroke="#00ff00"/>
+<path d="M60 25.125L60 60.375" stroke="#00ff00"/>
+<path d="M20.0875 60.0875L19.9125 59.9125" stroke="#00ff00"/>
+<path d="M59.9125 59.9125L60.0875 60.0875" stroke="#00ff00"/>
+<path d="M20 60L60 60" stroke="#00ff00"/>
+<text transform="translate(40 60.225) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">4000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="20" cy="60" r="0.1132" fill="#ffffff"/>
+<circle cx="20" cy="25" r="0.1132" fill="#ffffff"/>
+<circle cx="60" cy="25" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M80.0884 50.0884L83.8007 53.8007" stroke="#00ff00"/>
+<path d="M90.0884 40.0884L93.8007 43.8007" stroke="#00ff00"/>
+<path d="M83.6593 53.5355L83.4118 53.5355" stroke="#00ff00"/>
+<path d="M93.4118 43.5355L93.6593 43.5355" stroke="#00ff00"/>
+<path d="M83.5355 53.5355L93.5355 43.5355" stroke="#00ff00"/>
+<text transform="translate(88.6946 48.6946) rotate(-45) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">1414.21</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="83.5355" cy="53.5355" r="0.1132" fill="#ffffff"/>
+<circle cx="80" cy="50" r="0.1132" fill="#ffffff"/>
+<circle cx="90" cy="40" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M87.2188 2.7231L87.0711 2.9289L87.2769 2.7812Z" stroke="#00ff00"/>
+<path d="M87.2478 2.7522L88.2024 1.7976" stroke="#00ff00"/>
+<text transform="translate(87.9196 2.3986) rotate(-45) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">R1000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="80" cy="10" r="0.1132" fill="#ffffff"/>
+<circle cx="87.0711" cy="2.9289" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M24.3904 20.5515L24.2426 20.7574L24.4485 20.6096Z" stroke="#00ff00"/>
+<path d="M24.4194 20.5806L25.374 19.626" stroke="#00ff00"/>
+<text transform="translate(25.0912 20.227) rotate(-45) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">⌀1200</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="20" cy="25" r="0.1132" fill="#ffffff"/>
+<circle cx="24.2426" cy="20.7574" r="0.1132" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M90.125 40L98.375 40" stroke="#00ff00"/>
+<path d="M80 50.125L80 58.375" stroke="#00ff00"/>
+<polygon points="98.0394,40.2503 98,40 97.9572,40.2497 97.9572,40.2497" fill="#00ff00"/>
+<polygon points="80.2497,57.9572 80,58 80.2503,58.0394 80.2503,58.0394" fill="#00ff00"/>
+<text transform="translate(92.887 52.887) rotate(-45) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#00ff00" stroke="none">90°</text>
+<path d="M97.9983 40.25A18 18 0 0 1 92.7279 52.7279A18 18 0 0 1 80.25 57.9983" stroke="#00ff00"/>
+</g>
+<g data-layer="Defpoints">
+<circle cx="92.7279" cy="52.7279" r="0.1132" fill="#ffffff"/>
+<circle cx="90" cy="40" r="0.1132" fill="#ffffff"/>
+<circle cx="80" cy="50" r="0.1132" fill="#ffffff"/>
+<circle cx="80" cy="40" r="0.1132" fill="#ffffff"/>
+</g>
+</g>
+</svg>

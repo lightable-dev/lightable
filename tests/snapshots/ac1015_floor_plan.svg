@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-120 -4120 6240 4240" width="800" height="544">
+<rect x="-120" y="-4120" width="6240" height="4240" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="4.16" stroke-linecap="round">
+<g data-layer="WALLS">
+<path d="M0 0L6000 0" stroke="#ff0000"/>
+<path d="M6000 0L6000 4000" stroke="#ff0000"/>
+<path d="M6000 4000L0 4000" stroke="#ff0000"/>
+<path d="M0 4000L0 0" stroke="#ff0000"/>
+</g>
+</g>
+</svg>

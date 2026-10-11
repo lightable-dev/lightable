@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-62400 -52400 124800 104800" width="800" height="672">
+<rect x="-62400" y="-52400" width="124800" height="104800" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="83.2" stroke-linecap="round">
+<g data-layer="BLOCK__ARCHTICK">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="BLOCK__CLOSEDBLANK">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape001">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape002">
+<path d="M50000 0A50000 50000 0 0 1 -50000 0A50000 50000 0 0 1 50000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape003">
+<path d="M-60000 0L60000 0" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

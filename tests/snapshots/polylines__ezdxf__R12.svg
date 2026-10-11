@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.6 -30.6 31.2 31.2" width="800" height="800">
+<rect x="-0.6" y="-30.6" width="31.2" height="31.2" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0208" stroke-linecap="round">
+<g data-layer="P2D">
+<path d="M0 0L10 0L10 10" stroke="#ffffff"/>
+</g>
+<g data-layer="0">
+<path d="M20 0L30 0L30 10L20 10Z" stroke="#ffffff"/>
+<path d="M0 20L10 20L20 30" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

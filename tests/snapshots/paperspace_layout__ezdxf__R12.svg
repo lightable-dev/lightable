@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-62.4 -67.4 124.8 119.8" width="800" height="768">
+<rect x="-62.4" y="-67.4" width="124.8" height="119.8" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0832" stroke-linecap="round">
+<g data-layer="0">
+<path d="M50 0A50 50 0 0 1 -50 0A50 50 0 0 1 50 0" stroke="#ffffff"/>
+<path d="M-60 0L60 0" stroke="#ffffff"/>
+<text transform="translate(0 60) rotate(0) scale(1 -1) skewX(0)" font-size="5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">MODEL</text>
+</g>
+</g>
+</svg>

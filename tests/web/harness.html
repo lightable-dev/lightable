@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- No icon file, so the browser does not ask the server for one. -->
+  <link rel="icon" href="data:,">
+  <link rel="apple-touch-icon" href="data:,">
+  <!-- Same policy as web/index.html. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; base-uri 'none'; form-action 'none'">
+  <title>harness</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #212121; }
+    canvas { width: 100%; height: calc(100% - 64px); display: block; }
+    #report { height: 64px; overflow: auto; color: #fff; background: #000; font: 12px monospace; padding: 2px 6px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <canvas id="cad_canvas"></canvas>
+  <div id="report">starting…</div>
+  <script type="module" src="harness.js"></script>
+</body>
+</html>

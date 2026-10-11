@@ -1,0 +1,20 @@
+{
+  "changes": [
+    {
+      "kind": "changed",
+      "type": "HATCH",
+      "handle": "45",
+      "details": [
+        "pattern changed from ANSI31 to ANSI32",
+        "patterns are not drawn yet"
+      ]
+    },
+    {
+      "kind": "added",
+      "type": "HATCH",
+      "handle": "4B",
+      "details": []
+    }
+  ],
+  "zero_geometry_changes": false
+}

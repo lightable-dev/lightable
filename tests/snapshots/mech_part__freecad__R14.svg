@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2820 -51820 94640 54140" width="800" height="458">
+<rect x="-2820" y="-51820" width="94640" height="54140" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="63.0933" stroke-linecap="round">
+<g data-layer="BLOCK__ARCHTICK">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="BLOCK__CLOSEDBLANK">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape001">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape002">
+<path d="M0 0L80000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape003">
+<path d="M80000 0A10000 10000 0 0 1 87071.0678 2928.9322A10000 10000 0 0 1 90000 10000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape004">
+<path d="M90000 10000L90000 40000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape005">
+<path d="M90000 40000A10000 10000 0 0 1 87071.0678 47071.0678A10000 10000 0 0 1 80000 50000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape006">
+<path d="M80000 50000L0 50000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape007">
+<path d="M0 50000L0 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape008">
+<path d="M26000 25000A6000 6000 0 0 1 14000 25000A6000 6000 0 0 1 26000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape009">
+<path d="M29000 25000A9000 9000 0 0 1 11000 25000A9000 9000 0 0 1 29000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape010">
+<path d="M8000 25000L32000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape011">
+<path d="M20000 13000L20000 37000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape012">
+<path d="M66000 25000A6000 6000 0 0 1 54000 25000A6000 6000 0 0 1 66000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape013">
+<path d="M69000 25000A9000 9000 0 0 1 51000 25000A9000 9000 0 0 1 69000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape014">
+<path d="M48000 25000L72000 25000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape015">
+<path d="M60000 13000L60000 37000" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

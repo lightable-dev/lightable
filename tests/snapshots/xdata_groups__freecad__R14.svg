@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1506.6025 -8506.6025 26343.3321 14013.2051" width="800" height="426">
+<rect x="-1506.6025" y="-8506.6025" width="26343.3321" height="14013.2051" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="17.5622" stroke-linecap="round">
+<g data-layer="BLOCK__ARCHTICK">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape">
+<path d="M-500 -500L500 500" stroke="#ffffff"/>
+</g>
+<g data-layer="BLOCK__CLOSEDBLANK">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape001">
+<path d="M-1000 164.399L0 0" stroke="#ffffff"/>
+<path d="M0 0L-1000 -164.399" stroke="#ffffff"/>
+<path d="M-1000 -164.399L-1000 164.399" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape002">
+<path d="M0 0L10000 0" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape003">
+<path d="M8000 5000A3000 3000 0 0 1 2000 5000A3000 3000 0 0 1 8000 5000" stroke="#ffffff"/>
+</g>
+<g data-layer="Shape004">
+<path d="M24330.127 2500A5000 5000 0 0 1 15170.3709 1294.0952A5000 5000 0 0 1 22500 -4330.127" stroke="#ffffff"/>
+</g>
+</g>
+</svg>

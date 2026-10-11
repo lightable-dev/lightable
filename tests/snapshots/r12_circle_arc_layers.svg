@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="29.2 -45.8 41.6 31.6" width="800" height="608">
+<rect x="29.2" y="-45.8" width="41.6" height="31.6" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0277" stroke-linecap="round">
+<g data-layer="GEOMETRY">
+<path d="M60 25A10 10 0 0 1 40 25A10 10 0 0 1 60 25" stroke="#00ff00"/>
+<path d="M70 25A20 20 0 0 1 50 45A20 20 0 0 1 30 25" stroke="#00ff00"/>
+</g>
+</g>
+</svg>

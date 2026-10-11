@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.4 -200.4 280.8 220.8" width="800" height="629">
+<rect x="-5.4" y="-200.4" width="280.8" height="220.8" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.1872" stroke-linecap="round">
+<g data-layer="L02_CENTER">
+<path d="M0 10L100 10" stroke="#00ff00" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L03_PHANTOM">
+<path d="M0 15L100 15" stroke="#00ffff" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L04_DOT">
+<path d="M0 20L100 20" stroke="#0000ff" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="L05_DASHDOT">
+<path d="M0 25L100 25" stroke="#ff00ff" stroke-dasharray="2.54 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L06_DIVIDE">
+<path d="M0 30L100 30" stroke="#ffffff" stroke-dasharray="2.54 0.508 0.0936 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L07_CONTINUOUS">
+<path d="M0 35L100 35" stroke="#808080"/>
+</g>
+<g data-layer="L08_DASHED">
+<path d="M0 40L100 40" stroke="#c0c0c0" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="L09_CENTER">
+<path d="M0 45L100 45" stroke="#ff0000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L10_PHANTOM">
+<path d="M0 50L100 50" stroke="#ff8080" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L11_DOT">
+<path d="M0 55L100 55" stroke="#a60000" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="L12_DASHDOT">
+<path d="M0 60L100 60" stroke="#a65353" stroke-dasharray="2.54 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L13_DIVIDE">
+<path d="M0 65L100 65" stroke="#800000" stroke-dasharray="2.54 0.508 0.0936 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L14_CONTINUOUS">
+<path d="M0 70L100 70" stroke="#804040"/>
+</g>
+<g data-layer="L15_DASHED">
+<path d="M0 75L100 75" stroke="#4d0000" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="L16_CENTER">
+<path d="M0 80L100 80" stroke="#4d2626" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L17_PHANTOM">
+<path d="M0 85L100 85" stroke="#260000" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L18_DOT">
+<path d="M0 90L100 90" stroke="#261313" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="L19_DASHDOT">
+<path d="M0 95L100 95" stroke="#ff4000" stroke-dasharray="2.54 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L20_DIVIDE">
+<path d="M0 100L100 100" stroke="#ff9f80" stroke-dasharray="2.54 0.508 0.0936 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L21_CONTINUOUS">
+<path d="M0 105L100 105" stroke="#a62900"/>
+</g>
+<g data-layer="L22_DASHED">
+<path d="M0 110L100 110" stroke="#a66853" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="L23_CENTER">
+<path d="M0 115L100 115" stroke="#802000" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L24_PHANTOM">
+<path d="M0 120L100 120" stroke="#805040" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L25_DOT">
+<path d="M0 125L100 125" stroke="#4d1300" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="L26_DASHDOT">
+<path d="M0 130L100 130" stroke="#4d3026" stroke-dasharray="2.54 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L27_DIVIDE">
+<path d="M0 135L100 135" stroke="#260a00" stroke-dasharray="2.54 0.508 0.0936 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L28_CONTINUOUS">
+<path d="M0 140L100 140" stroke="#261813"/>
+</g>
+<g data-layer="L29_DASHED">
+<path d="M0 145L100 145" stroke="#ff8000" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="L30_CENTER">
+<path d="M0 150L100 150" stroke="#ffbf80" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L31_PHANTOM">
+<path d="M0 155L100 155" stroke="#a65300" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L32_DOT">
+<path d="M0 160L100 160" stroke="#a67c53" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="L33_DASHDOT">
+<path d="M0 165L100 165" stroke="#804000" stroke-dasharray="2.54 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L34_DIVIDE">
+<path d="M0 170L100 170" stroke="#806040" stroke-dasharray="2.54 0.508 0.0936 0.508 0.0936 0.508"/>
+</g>
+<g data-layer="L35_CONTINUOUS">
+<path d="M0 175L100 175" stroke="#4d2600"/>
+</g>
+<g data-layer="L36_DASHED">
+<path d="M0 180L100 180" stroke="#4d3926" stroke-dasharray="1.27 0.254"/>
+</g>
+<g data-layer="L37_CENTER">
+<path d="M0 185L100 185" stroke="#261300" stroke-dasharray="3.175 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L38_PHANTOM">
+<path d="M0 190L100 190" stroke="#261d13" stroke-dasharray="3.175 0.635 0.635 0.635 0.635 0.635"/>
+</g>
+<g data-layer="L39_DOT">
+<path d="M0 195L100 195" stroke="#ffbf00" stroke-dasharray="0.0936 0.508"/>
+</g>
+<g data-layer="0">
+<path d="M120 0L200 0" stroke="#ffffff"/>
+<path d="M120 5L200 5" stroke="#ffffff"/>
+<path d="M120 10L200 10" stroke="#ffffff"/>
+<path d="M120 15L200 15" stroke="#ffffff"/>
+<path d="M120 20L200 20" stroke="#ffffff"/>
+<path d="M120 25L200 25" stroke="#ffffff"/>
+<path d="M120 30L200 30" stroke="#ffffff"/>
+<path d="M120 35L200 35" stroke="#ffffff"/>
+<path d="M120 40L200 40" stroke="#ffffff"/>
+<path d="M120 45L200 45" stroke="#ffffff"/>
+<path d="M120 50L200 50" stroke="#ffffff"/>
+<path d="M120 55L200 55" stroke="#ffffff"/>
+<path d="M120 60L200 60" stroke="#ffffff"/>
+<path d="M225 0A5 5 0 0 1 215 0A5 5 0 0 1 225 0" stroke="#00ff00"/>
+<path d="M240 0A5 5 0 0 1 230 0A5 5 0 0 1 240 0" stroke="#00ff00"/>
+<path d="M255 0A5 5 0 0 1 245 0A5 5 0 0 1 255 0" stroke="#00ff00"/>
+<path d="M270 0A5 5 0 0 1 260 0A5 5 0 0 1 270 0" stroke="#00ff00"/>
+<path d="M0 -10L100 -10" stroke="#ffffff"/>
+<path d="M0 -15L100 -15" stroke="#ffffff" stroke-dasharray="2.54 0.508"/>
+</g>
+</g>
+</svg>

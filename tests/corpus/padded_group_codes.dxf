@@ -1,0 +1,48 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1009
+  9
+$INSUNITS
+ 70
+     1
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+LINE
+  8
+0
+ 10
+  1.25
+ 20
+  2.50
+ 30
+0.0
+ 11
+  3.75
+ 21
+  5.00
+ 31
+0.0
+  0
+CIRCLE
+  8
+0
+ 10
+ 1e1
+ 20
+ -1E-1
+ 40
+  .5
+  0
+ENDSEC
+  0
+EOF

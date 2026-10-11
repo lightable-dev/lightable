@@ -1,0 +1,23 @@
+{
+  "changes": [
+    {
+      "kind": "deleted",
+      "type": "LINE",
+      "handle": "3C",
+      "details": []
+    },
+    {
+      "kind": "deleted",
+      "type": "ARC",
+      "handle": "3E",
+      "details": []
+    },
+    {
+      "kind": "deleted",
+      "type": "POINT",
+      "handle": "46",
+      "details": []
+    }
+  ],
+  "zero_geometry_changes": false
+}

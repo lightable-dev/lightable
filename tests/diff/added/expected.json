@@ -1,0 +1,23 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "type": "LINE",
+      "handle": "4B",
+      "details": []
+    },
+    {
+      "kind": "added",
+      "type": "CIRCLE",
+      "handle": "4C",
+      "details": []
+    },
+    {
+      "kind": "added",
+      "type": "TEXT",
+      "handle": "4D",
+      "details": []
+    }
+  ],
+  "zero_geometry_changes": false
+}

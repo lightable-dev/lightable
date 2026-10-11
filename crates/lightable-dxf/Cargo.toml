@@ -1,0 +1,28 @@
+[package]
+name = "lightable-dxf"
+version = "0.1.0"
+description = "Reads and writes ASCII DXF drawings (R12 to 2018) without losing what it does not understand: typed entities, blocks and tables, code pages, and byte-identical save-back."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/lightable-dxf"
+readme = "README.md"
+keywords = ["dxf", "cad", "drafting", "parser", "drawing"]
+categories = ["parser-implementations", "encoding", "graphics"]
+# Only what users of the library need: the tests, benchmarks and fuzz
+# targets read the repository's test files and stay in the repository.
+include = ["/src/**/*", "/README.md", "/LICENSE-MIT", "/LICENSE-APACHE"]
+publish = true
+
+[dependencies]
+# Code pages for pre-2007 files (MIT OR Apache-2.0; data BSD-3-Clause).
+encoding_rs = "=0.8.35"
+# Curve flattening for R12 downgrades.
+lightable-geom.workspace = true
+
+[[bench]]
+name = "load"
+harness = false
+

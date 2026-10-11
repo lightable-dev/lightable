@@ -1,0 +1,39 @@
+[package]
+name = "lightable-dxf-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+# Dev tooling only, never shipped: (MIT OR Apache-2.0) AND NCSA (libFuzzer).
+libfuzzer-sys = "=0.4.13"
+lightable-dxf = { path = ".." }
+
+# Kept out of the main workspace: it needs a nightly toolchain.
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "tokenizer"
+path = "fuzz_targets/tokenizer.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "reader"
+path = "fuzz_targets/reader.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "text"
+path = "fuzz_targets/text.rs"
+test = false
+doc = false
+bench = false

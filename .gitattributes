@@ -1,0 +1,2 @@
+# Corpus files are test fixtures: keep their bytes (including CRLF) exactly.
+tests/corpus/** -text
