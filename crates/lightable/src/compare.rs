@@ -1,6 +1,16 @@
 //! The compare view: two drawings, their changes as an overlay or side by
 //! side, a change list and a "next change" button. The comparison itself
 //! is `lightable_diff`; this only displays it.
+//!
+//! Complexity comes in layers:
+//! - layer 1, no clicks: the overlay, one summary line and the colour
+//!   legend;
+//! - layer 2: the change list in plain words (a click zooms to the change);
+//! - layer 3: the side-by-side toggle;
+//! - layers 4–5, behind "Details": exact values, uncertain and not-shown
+//!   notes, what is not compared yet, layers, exports.
+//!
+//! One hint at a time points at the next layer, and goes once it is used.
 
 use std::sync::Arc;
 
@@ -20,11 +30,18 @@ pub struct Action {
     pub fit: bool,
     pub zoom: Option<Bounds>,
     pub message: Option<String>,
+    /// An example chosen in the picker.
+    pub example: Option<&'static str>,
 }
 
 pub struct Compare {
     a_name: String,
     b_name: String,
+    /// What the summary calls the two drawings ("Rev B", "Rev C").
+    a_label: String,
+    b_label: String,
+    /// The built-in example shown, if any.
+    pub example: Option<&'static str>,
     diff: Diff,
     overlay: Doc,
     left: Doc,
@@ -36,15 +53,32 @@ pub struct Compare {
     /// Gap between the side-by-side panes, in points.
     gap: f32,
     report: Report,
+    /// Layers 4–5 shown.
+    pub details: bool,
+    /// Scroll the change list to "Not compared yet" on the next frame.
+    pub reveal_not_compared: bool,
+    /// Which hints have been acted on: clicking a change, side by side,
+    /// details.
+    used: [bool; 3],
+    /// Where the controls the hints point at were drawn last frame.
+    anchors: [Option<Rect>; 3],
 }
 
-/// The PNG report: shown for a few frames, then captured.
+/// The PNG report: shown for a few frames, then captured (or, in the demo,
+/// only shown).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Report {
     Off,
     Preparing(u32),
     Capturing,
+    Preview,
 }
+
+const HINTS: [&str; 3] = [
+    "Click a change to zoom in.",
+    "Try Side by side to see both revisions next to each other.",
+    "Open Details for exact values, exports and what is not compared yet.",
+];
 
 /// For a change inside a block: which references show it.
 fn block_refs(c: &Change) -> Option<String> {
@@ -100,11 +134,29 @@ fn short_name(path: &str) -> &str {
     path.rsplit(['/', '\\']).next().unwrap_or(path)
 }
 
+fn legend(ui: &mut egui::Ui) {
+    for (color, label) in [
+        (dview::ADDED, "added"),
+        (dview::DELETED, "deleted"),
+        (dview::CHANGED, "changed"),
+        (dview::UNCHANGED, "unchanged"),
+    ] {
+        let (rect, _) = ui.allocate_exact_size(egui::vec2(11.0, 11.0), egui::Sense::hover());
+        ui.painter().rect_filled(rect, 2.0, rgb(color));
+        ui.label(egui::RichText::new(label).color(Color32::from_gray(200)));
+        ui.add_space(6.0);
+    }
+}
+
 impl Compare {
+    /// Compares `a` (before) with `b` (after). `labels` name them in the
+    /// summary; by default their file names.
     pub fn new(
         gl: Option<&Arc<glow::Context>>,
         (a_name, a): (String, Arc<lightable_dxf::Drawing>),
         (b_name, b): (String, Arc<lightable_dxf::Drawing>),
+        labels: Option<(String, String)>,
+        example: Option<&'static str>,
     ) -> Result<Self, String> {
         let diff = lightable_diff::diff(&a, &b, &lightable_diff::DiffOptions::default());
         let (sa, sb) = (lightable_render::build(&a), lightable_render::build(&b));
@@ -118,9 +170,18 @@ impl Compare {
         let overlay = Doc::new(gl, "overlay".into(), dview::overlay(&sa, &sb, &diff), 0)?;
         let left = Doc::new(gl, a_name.clone(), dview::side(&sa, &diff, Side::A), 0)?;
         let right = Doc::new(gl, b_name.clone(), dview::side(&sb, &diff, Side::B), 0)?;
+        let (a_label, b_label) = labels.unwrap_or_else(|| {
+            (
+                short_name(&a_name).to_owned(),
+                short_name(&b_name).to_owned(),
+            )
+        });
         Ok(Self {
             a_name,
             b_name,
+            a_label,
+            b_label,
+            example,
             diff,
             overlay,
             left,
@@ -130,6 +191,10 @@ impl Compare {
             extent,
             gap: 4.0,
             report: Report::Off,
+            details: false,
+            reveal_not_compared: false,
+            used: [false; 3],
+            anchors: [None; 3],
         })
     }
 
@@ -163,12 +228,116 @@ impl Compare {
         if !zoomable(c) {
             return None;
         }
-        Some(dview::zoom_box(c.bounds?, self.extent, 0.05))
+        // At least a quarter of the drawing, so the change is seen in its
+        // surroundings.
+        Some(dview::zoom_box(c.bounds?, self.extent, 0.25))
     }
 
-    fn select(&mut self, i: usize) -> Option<Bounds> {
+    /// Selects change `i`; returns where to zoom.
+    pub fn select(&mut self, i: usize) -> Option<Bounds> {
         self.current = Some(i);
+        self.used[0] = true;
         self.zoom_for(i)
+    }
+
+    /// The headline of change `i`.
+    pub fn headline(&self, i: usize) -> &str {
+        self.diff.changes.get(i).map_or("", |c| c.headline.as_str())
+    }
+
+    /// Where the revision cloud is, if the changes include one.
+    pub fn cloud_bounds(&self) -> Option<Bounds> {
+        let c = self.diff.changes.iter().find(|c| c.revision_cloud)?;
+        // The cloud and a little around it.
+        Some(dview::zoom_box(c.bounds?, self.extent, 0.2))
+    }
+
+    /// The built-in example's note on how it was drawn ("Example: the
+    /// drafter clouded only the bolt note."); never for the user's files.
+    pub fn example_note(&self) -> Option<&'static str> {
+        let id = self.example?;
+        crate::examples::EXAMPLES.iter().find(|e| e.id == id)?.note
+    }
+
+    /// How many design changes (not revision markup) were found.
+    pub fn design_count(&self) -> usize {
+        self.diff.design_changes().count()
+    }
+
+    /// Design changes whose centre is inside an added revision cloud. For
+    /// the demo's narration only: the product does not judge what a cloud
+    /// is meant to cover.
+    fn clouded(&self) -> Vec<usize> {
+        let clouds: Vec<Bounds> = self
+            .diff
+            .changes
+            .iter()
+            .filter(|c| c.revision_cloud)
+            .filter_map(|c| c.bounds)
+            .collect();
+        let inside = |b: &Bounds| {
+            let (x, y) = ((b.min[0] + b.max[0]) / 2.0, (b.min[1] + b.max[1]) / 2.0);
+            clouds
+                .iter()
+                .any(|k| (k.min[0]..=k.max[0]).contains(&x) && (k.min[1]..=k.max[1]).contains(&y))
+        };
+        (0..self.diff.changes.len())
+            .filter(|&i| {
+                let c = &self.diff.changes[i];
+                !c.markup && c.bounds.as_ref().is_some_and(inside)
+            })
+            .collect()
+    }
+
+    /// How many design changes the revision cloud surrounds (demo only).
+    pub fn clouded_count(&self) -> usize {
+        self.clouded().len()
+    }
+
+    /// Up to three design changes outside the clouds for the demo to click:
+    /// a different kind each where it can (circle, dimension, text), then
+    /// whatever comes next.
+    pub fn demo_picks(&self) -> Vec<usize> {
+        let clouded = self.clouded();
+        let open: Vec<usize> = (0..self.diff.changes.len())
+            .filter(|&i| {
+                let c = &self.diff.changes[i];
+                !c.markup && zoomable(c) && !clouded.contains(&i)
+            })
+            .collect();
+        let mut picks: Vec<usize> = ["CIRCLE", "DIMENSION", "TEXT"]
+            .iter()
+            .filter_map(|t| {
+                open.iter()
+                    .copied()
+                    .find(|&i| self.diff.changes[i].entity_type == *t)
+            })
+            .collect();
+        for i in open {
+            if picks.len() >= 3 {
+                break;
+            }
+            if !picks.contains(&i) {
+                picks.push(i);
+            }
+        }
+        picks.truncate(3);
+        picks
+    }
+
+    /// "10 changes found between Rev B and Rev C".
+    pub fn summary(&self) -> String {
+        let n = self.diff.design_changes().count();
+        let what = match n {
+            0 => "No changes found".to_owned(),
+            1 => "1 change found".to_owned(),
+            n => format!("{n} changes found"),
+        };
+        format!("{what} between {} and {}", self.a_label, self.b_label)
+    }
+
+    pub fn labels(&self) -> (&str, &str) {
+        (&self.a_label, &self.b_label)
     }
 
     fn step(&mut self, forward: bool) -> Option<Bounds> {
@@ -188,56 +357,153 @@ impl Compare {
     pub fn toolbar(&mut self, ui: &mut egui::Ui) -> Action {
         let mut action = Action::default();
         ui.horizontal(|ui| {
-            ui.strong(short_name(&self.a_name));
-            ui.label("vs");
-            ui.strong(short_name(&self.b_name));
+            let current = self
+                .example
+                .map(|id| crate::examples::find(id).title)
+                .unwrap_or("Your drawings");
+            egui::ComboBox::from_id_salt("example")
+                .selected_text(format!("Example: {current}"))
+                .show_ui(ui, |ui| {
+                    for e in &crate::examples::EXAMPLES {
+                        if ui.selectable_label(self.example == Some(e.id), e.title).clicked() {
+                            action.example = Some(e.id);
+                        }
+                    }
+                })
+                .response
+                .on_hover_text("Built-in examples. Drop two DXF files on the window to compare your own.");
             ui.separator();
-            ui.selectable_value(&mut self.side_by_side, false, "Overlay");
-            ui.selectable_value(&mut self.side_by_side, true, "Side by side");
-            ui.separator();
-            let has = !self.diff.changes.is_empty();
-            if ui
-                .add_enabled(has, egui::Button::new("◀ Previous"))
-                .clicked()
-            {
-                action.zoom = self.step(false);
+            let side = ui
+                .selectable_label(self.side_by_side, "Side by side")
+                .on_hover_text("Show both drawings next to each other");
+            if side.clicked() {
+                self.side_by_side = !self.side_by_side;
+                self.used[1] = true;
             }
-            if ui
-                .add_enabled(has, egui::Button::new("Next change ▶"))
-                .on_hover_text("Zoom to the next change (N)")
-                .clicked()
-                || (has && ui.input(|i| i.key_pressed(egui::Key::N)))
-            {
-                action.zoom = self.step(true);
+            self.anchors[1] = Some(side.rect);
+            let details = ui
+                .selectable_label(self.details, "Details")
+                .on_hover_text("Exact values, uncertain items, what is not compared yet, layers and exports");
+            if details.clicked() {
+                self.details = !self.details;
+                self.used[2] = true;
             }
-            if ui.button("Zoom extents").clicked() {
-                action.fit = true;
+            self.anchors[2] = Some(details.rect);
+            if self.details {
+                ui.separator();
+                if ui.button("Zoom extents").clicked() {
+                    action.fit = true;
+                }
+                if ui.button("Export JSON").clicked() {
+                    action.message = Some(self.export());
+                }
+                if ui
+                    .button("Export PNG report")
+                    .on_hover_text("The overlay and the change list as one image")
+                    .clicked()
+                {
+                    self.start_report();
+                    action.fit = true;
+                }
             }
-            ui.separator();
-            if ui.button("Export JSON").clicked() {
-                action.message = Some(self.export());
-            }
-            if ui
-                .button("Export PNG report")
-                .on_hover_text("The overlay and the change list as one image")
-                .clicked()
-            {
-                self.start_report();
-                action.fit = true;
-            }
-            if ui.button("Close compare").clicked() {
-                action.close = true;
-            }
-            ui.separator();
-            if ui
-                .button("Feedback")
-                .on_hover_text("Opens a pre-filled issue on GitHub in your browser; nothing is sent until you submit it there")
-                .clicked()
-            {
-                action.message = crate::feedback::open(ui.ctx());
-            }
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.button("Close").on_hover_text("Close this comparison").clicked() {
+                    action.close = true;
+                }
+                if ui
+                    .button("Feedback")
+                    .on_hover_text("Opens a pre-filled issue on GitHub in your browser; nothing is sent until you submit it there")
+                    .clicked()
+                {
+                    action.message = crate::feedback::open(ui.ctx());
+                }
+            });
         });
         action
+    }
+
+    /// Layer 1: the summary line and the legend, with previous/next.
+    pub fn summary_bar(&mut self, ui: &mut egui::Ui) -> Option<Bounds> {
+        let mut zoom = None;
+        ui.add_space(6.0);
+        ui.horizontal(|ui| {
+            ui.label(
+                egui::RichText::new(self.summary())
+                    .size(20.0)
+                    .strong()
+                    .color(Color32::WHITE),
+            );
+            if let Some(markup) = self.diff.markup_summary() {
+                ui.label(egui::RichText::new(markup).color(Color32::from_gray(150)));
+            }
+            ui.add_space(16.0);
+            legend(ui);
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                let has = !self.diff.changes.is_empty();
+                if ui
+                    .add_enabled(has, egui::Button::new("Next ▶"))
+                    .on_hover_text("Zoom to the next change (N)")
+                    .clicked()
+                    || (has && ui.input(|i| i.key_pressed(egui::Key::N)))
+                {
+                    zoom = self.step(true);
+                }
+                if ui
+                    .add_enabled(has, egui::Button::new("◀ Previous"))
+                    .clicked()
+                {
+                    zoom = self.step(false);
+                }
+            });
+        });
+        if let Some(note) = self.example_note() {
+            ui.label(
+                egui::RichText::new(note)
+                    .italics()
+                    .color(Color32::from_gray(185)),
+            );
+        }
+        ui.add_space(6.0);
+        zoom
+    }
+
+    /// Shows the first hint not yet acted on, next to what it is about.
+    pub fn hints(&self, ctx: &egui::Context) {
+        if self.reporting() {
+            return;
+        }
+        let Some(k) = (0..3).find(|&k| !self.used[k]) else {
+            return;
+        };
+        let Some(anchor) = self.anchors[k] else {
+            return;
+        };
+        // The change-list hint sits to the left of the list; the others
+        // in the toolbar.
+        let (pos, pivot) = if k == 0 {
+            (
+                anchor.left_center() - egui::vec2(10.0, 0.0),
+                Align2::RIGHT_CENTER,
+            )
+        } else {
+            // After the Details button, so no button is covered.
+            let right = self.anchors[2].map_or(anchor.right_center(), |d| d.right_center());
+            (right + egui::vec2(10.0, 0.0), Align2::LEFT_CENTER)
+        };
+        egui::Area::new(egui::Id::new(("hint", k)))
+            .order(egui::Order::Foreground)
+            .fixed_pos(pos)
+            .pivot(pivot)
+            .interactable(false)
+            .show(ctx, |ui| {
+                egui::Frame::new()
+                    .fill(Color32::from_rgb(0x2b, 0x5f, 0xd9))
+                    .corner_radius(6.0)
+                    .inner_margin(egui::Margin::symmetric(10, 6))
+                    .show(ui, |ui| {
+                        ui.label(egui::RichText::new(HINTS[k]).color(Color32::WHITE).strong());
+                    });
+            });
     }
 
     /// Saves the JSON change report (next to drawing B, or downloaded on
@@ -258,6 +524,11 @@ impl Compare {
 
     pub fn reporting(&self) -> bool {
         self.report != Report::Off
+    }
+
+    /// Shows (or hides) the report layout without saving it (the demo).
+    pub fn preview_report(&mut self, on: bool) {
+        self.report = if on { Report::Preview } else { Report::Off };
     }
 
     /// Called once per report frame; true when it is time to capture.
@@ -296,19 +567,22 @@ impl Compare {
     pub fn report_header(&self, ui: &mut egui::Ui) {
         ui.add_space(4.0);
         ui.horizontal(|ui| {
-            ui.heading(format!(
-                "Changes from {} to {}",
+            ui.heading(self.summary());
+            if let Some(markup) = self.diff.markup_summary() {
+                ui.label(egui::RichText::new(markup).color(Color32::from_gray(150)));
+            }
+        });
+        if let Some(note) = self.example_note() {
+            ui.label(egui::RichText::new(note).italics());
+        }
+        ui.horizontal(|ui| {
+            legend(ui);
+            ui.separator();
+            ui.label(format!(
+                "{} to {}",
                 short_name(&self.a_name),
                 short_name(&self.b_name)
             ));
-        });
-        ui.horizontal(|ui| {
-            ui.colored_label(rgb(dview::ADDED), "■ added");
-            ui.colored_label(rgb(dview::DELETED), "■ deleted");
-            ui.colored_label(rgb(dview::CHANGED), "■ changed");
-            ui.colored_label(rgb(dview::UNCHANGED), "■ unchanged");
-            ui.separator();
-            ui.label(self.status());
         });
         ui.add_space(4.0);
     }
@@ -317,21 +591,7 @@ impl Compare {
     /// fit, then a count of the rest.
     pub fn report_list(&self, ui: &mut egui::Ui) {
         let d = &self.diff;
-        ui.heading("Changes");
-        ui.horizontal_wrapped(|ui| {
-            ui.colored_label(
-                rgb(dview::ADDED),
-                format!("{} added", d.count(ChangeKind::Added)),
-            );
-            ui.colored_label(
-                rgb(dview::DELETED),
-                format!("{} deleted", d.count(ChangeKind::Deleted)),
-            );
-            ui.colored_label(
-                rgb(dview::CHANGED),
-                format!("{} changed", d.count(ChangeKind::Changed)),
-            );
-        });
+        ui.heading("What changed");
         ui.separator();
         // Room for the "not compared" note at the bottom.
         let reserve = 30.0 + 16.0 * d.not_compared.len() as f32;
@@ -347,17 +607,14 @@ impl Compare {
                 let (rect, _) =
                     ui.allocate_exact_size(egui::vec2(10.0, 10.0), egui::Sense::hover());
                 ui.painter().rect_filled(rect, 2.0, kind_color(c));
-                ui.label(egui::RichText::new(title(c)).strong());
+                let mut t = egui::RichText::new(&c.headline).strong();
+                if c.markup {
+                    t = t.color(Color32::from_gray(170));
+                }
+                // Wrapped to the report's column, so long headlines are not
+                // cut off.
+                ui.add(egui::Label::new(t).wrap());
             });
-            let details: Vec<&str> = c
-                .details
-                .iter()
-                .map(String::as_str)
-                .filter(|d| *d != "not shown")
-                .collect();
-            if !details.is_empty() {
-                ui.indent(i, |ui| ui.small(details.join("; ")));
-            }
             if let Some(text) = block_refs(c) {
                 ui.indent((i, "refs"), |ui| {
                     ui.small(egui::RichText::new(text).color(rgb(dview::CHANGED)))
@@ -407,99 +664,121 @@ impl Compare {
         }
     }
 
-    /// The change list; returns where to zoom when a change is clicked.
+    /// Layer 2 (and 4–5 with details): the change list; returns where to
+    /// zoom when a change is clicked.
     pub fn change_list(&mut self, ui: &mut egui::Ui) -> Option<Bounds> {
         let mut zoom = None;
+        let details = self.details;
         let d = &self.diff;
-        ui.heading("Changes");
-        ui.horizontal_wrapped(|ui| {
-            ui.colored_label(
-                rgb(dview::ADDED),
-                format!("{} added", d.count(ChangeKind::Added)),
-            );
-            ui.colored_label(
-                rgb(dview::DELETED),
-                format!("{} deleted", d.count(ChangeKind::Deleted)),
-            );
-            ui.colored_label(
-                rgb(dview::CHANGED),
-                format!("{} changed", d.count(ChangeKind::Changed)),
-            );
-        });
-        let not_shown = d.changes.iter().filter(|c| !c.shown).count();
-        let uncertain = d.changes.iter().filter(|c| !c.certain).count();
-        if not_shown + uncertain > 0 {
-            ui.label(format!("{not_shown} not shown, {uncertain} uncertain"));
-        }
-        ui.separator();
+        ui.add_space(6.0);
+        ui.heading("What changed");
+        ui.add_space(4.0);
         let mut clicked = None;
+        let mut first_row = None;
         egui::ScrollArea::vertical().show(ui, |ui| {
+            let markup_start = d.changes.iter().position(|c| c.markup);
             for (i, c) in d.changes.iter().enumerate() {
+                if Some(i) == markup_start {
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("Revision markup").color(Color32::from_gray(150)));
+                }
                 let selected = self.current == Some(i);
-                let title = title(c);
+                let mut text = egui::RichText::new(&c.headline).size(15.0);
+                if c.markup {
+                    text = text.color(Color32::from_gray(170));
+                }
                 let response = ui
                     .horizontal(|ui| {
-                        let (rect, _) = ui.allocate_exact_size(egui::vec2(10.0, 10.0), egui::Sense::hover());
+                        let (rect, _) =
+                            ui.allocate_exact_size(egui::vec2(10.0, 10.0), egui::Sense::hover());
                         ui.painter().rect_filled(rect, 2.0, kind_color(c));
-                        ui.selectable_label(selected, title)
+                        ui.selectable_label(selected, text)
                     })
                     .inner;
+                if first_row.is_none() {
+                    first_row = Some(response.rect);
+                }
                 if response.clicked() {
                     clicked = Some(i);
                 }
-                let mut notes = Vec::new();
-                if !c.shown {
-                    notes.push("changed but not shown");
-                }
-                if !c.certain {
-                    notes.push("uncertain");
-                }
-                if !c.geometry && c.kind == ChangeKind::Changed {
-                    notes.push("properties only");
-                }
-                let details: Vec<&str> = c.details.iter().map(String::as_str).filter(|d| *d != "not shown").collect();
-                ui.indent(i, |ui| {
-                    if !details.is_empty() {
-                        ui.small(details.join("; "));
+                if details {
+                    let mut notes = Vec::new();
+                    if !c.shown {
+                        notes.push("changed but not shown");
                     }
-                    if !notes.is_empty() {
-                        ui.small(egui::RichText::new(notes.join(", ")).italics().color(Color32::GRAY));
+                    if !c.certain {
+                        notes.push("uncertain");
                     }
-                    if let Some(text) = block_refs(c) {
-                        ui.small(egui::RichText::new(text).color(rgb(dview::CHANGED)));
+                    if !c.geometry && c.kind == ChangeKind::Changed {
+                        notes.push("properties only");
                     }
-                });
+                    let exact: Vec<&str> = c
+                        .details
+                        .iter()
+                        .map(String::as_str)
+                        .filter(|d| *d != "not shown")
+                        .collect();
+                    ui.indent(i, |ui| {
+                        ui.small(egui::RichText::new(title(c)).color(Color32::from_gray(140)));
+                        if !exact.is_empty() {
+                            ui.small(exact.join("; "));
+                        }
+                        if !notes.is_empty() {
+                            ui.small(egui::RichText::new(notes.join(", ")).italics().color(Color32::GRAY));
+                        }
+                        if let Some(text) = block_refs(c) {
+                            ui.small(egui::RichText::new(text).color(rgb(dview::CHANGED)));
+                        }
+                    });
+                }
                 if selected && response.clicked() {
                     response.scroll_to_me(None);
                 }
             }
-            if !d.not_compared.is_empty() {
-                ui.separator();
-                egui::CollapsingHeader::new(egui::RichText::new("Not compared yet").strong())
-                    .default_open(true)
-                    .show(ui, |ui| {
-                        ui.small("These parts of the files are not compared, so differences there are not listed above:");
-                        for n in &d.not_compared {
-                            ui.small(format!("• {n}"));
-                        }
-                    });
+            if d.changes.is_empty() {
+                ui.label("The two drawings are the same in everything compared.");
             }
-            if !d.redrawn.is_empty() {
+            if details {
+                let not_shown = d.changes.iter().filter(|c| !c.shown).count();
+                let uncertain = d.changes.iter().filter(|c| !c.certain).count();
                 ui.separator();
-                egui::CollapsingHeader::new(format!("Same drawing, other entities ({})", d.redrawn.len()))
-                    .show(ui, |ui| {
-                        ui.small("Drawn identically by other entities in the other file (for example a polyline saved as separate lines). Not counted as changes.");
-                        for c in &d.redrawn {
-                            ui.small(format!(
-                                "{} {}{}",
-                                if c.kind == ChangeKind::Deleted { "in A:" } else { "in B:" },
-                                c.entity_type,
-                                c.handle().map(|h| format!(" {h}")).unwrap_or_default()
-                            ));
-                        }
-                    });
+                ui.small(format!(
+                    "{} added, {} deleted, {} changed; {not_shown} not shown, {uncertain} uncertain",
+                    d.count(ChangeKind::Added),
+                    d.count(ChangeKind::Deleted),
+                    d.count(ChangeKind::Changed)
+                ));
+                if !d.not_compared.is_empty() {
+                    let shown = egui::CollapsingHeader::new(egui::RichText::new("Not compared yet").strong())
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            ui.small("These parts of the files are not compared, so differences there are not listed above:");
+                            for n in &d.not_compared {
+                                ui.small(format!("• {n}"));
+                            }
+                        });
+                    // The demo scrolls here once when it opens Details.
+                    if std::mem::take(&mut self.reveal_not_compared) {
+                        shown.header_response.scroll_to_me(Some(egui::Align::TOP));
+                    }
+                }
+                if !d.redrawn.is_empty() {
+                    egui::CollapsingHeader::new(format!("Same drawing, other entities ({})", d.redrawn.len()))
+                        .show(ui, |ui| {
+                            ui.small("Drawn identically by other entities in the other file (for example a polyline saved as separate lines). Not counted as changes.");
+                            for c in &d.redrawn {
+                                ui.small(format!(
+                                    "{} {}{}",
+                                    if c.kind == ChangeKind::Deleted { "in A:" } else { "in B:" },
+                                    c.entity_type,
+                                    c.handle().map(|h| format!(" {h}")).unwrap_or_default()
+                                ));
+                            }
+                        });
+                }
             }
         });
+        self.anchors[0] = first_row;
         if let Some(i) = clicked {
             zoom = self.select(i);
         }
@@ -508,7 +787,16 @@ impl Compare {
 
     pub fn status(&self) -> String {
         let d = &self.diff;
-        let mut s = format!("{} changes ({} unchanged", d.changes.len(), d.unchanged);
+        let design = d.design_changes().count();
+        let mut s = format!("{design} change{}", if design == 1 { "" } else { "s" });
+        let markup = d.markup_count();
+        if markup > 0 {
+            s.push_str(&format!(
+                " + {markup} revision markup item{}",
+                if markup == 1 { "" } else { "s" }
+            ));
+        }
+        s.push_str(&format!(" ({} unchanged", d.unchanged));
         if d.equivalent > 0 {
             s.push_str(&format!(", {} redrawn the same", d.equivalent));
         }
@@ -524,7 +812,10 @@ impl Compare {
 
     pub fn paint(&self, ui: &egui::Ui, panes: &[Rect], view: &View) {
         let docs: Vec<(&Doc, &str)> = if self.side_by_side && !self.reporting() {
-            vec![(&self.left, "A (before)"), (&self.right, "B (after)")]
+            vec![
+                (&self.left, self.a_label.as_str()),
+                (&self.right, self.b_label.as_str()),
+            ]
         } else {
             vec![(&self.overlay, "")]
         };
@@ -541,7 +832,7 @@ impl Compare {
                     rect.left_top() + egui::vec2(8.0, 6.0),
                     Align2::LEFT_TOP,
                     label,
-                    FontId::proportional(13.0),
+                    FontId::proportional(16.0),
                     Color32::LIGHT_GRAY,
                 );
             }
@@ -568,5 +859,44 @@ impl Compare {
             );
             ui.painter().rect_filled(gap, 0.0, Color32::from_gray(60));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn example(id: &str) -> Compare {
+        let e = crate::examples::find(id);
+        let read = |b: &[u8]| Arc::new(lightable_dxf::read_bytes(b).unwrap().0);
+        Compare::new(
+            None,
+            (e.a_name.into(), read(e.a)),
+            (e.b_name.into(), read(e.b)),
+            Some((e.a_label.into(), e.b_label.into())),
+            Some(e.id),
+        )
+        .unwrap()
+    }
+
+    /// The demo's captions for the bracket, from the comparison itself.
+    #[test]
+    fn the_demo_narrates_the_bracket_from_real_results() {
+        let c = example("bracket");
+        assert_eq!(c.design_count(), 10);
+        assert_eq!(c.clouded_count(), 1);
+        let picks: Vec<&str> = c.demo_picks().iter().map(|&i| c.headline(i)).collect();
+        assert_eq!(picks.len(), 3);
+        assert!(picks[0].starts_with("Circle diameter changed from 13.5 mm to 17.5 mm"));
+        assert!(picks[1].starts_with("Dimension changed from"));
+        assert_eq!(picks[2], "Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU");
+    }
+
+    #[test]
+    fn the_plan_has_no_cloud_and_still_has_picks() {
+        let c = example("plan");
+        assert!(c.cloud_bounds().is_none());
+        assert_eq!(c.clouded_count(), 0);
+        assert_eq!(c.demo_picks().len(), 3);
     }
 }

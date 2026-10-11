@@ -231,6 +231,31 @@ fn corner_fields(out: &mut Fields, u: &Unknown) {
     out.push(name("data", rest.join(" ")));
 }
 
+/// What a dimension measures, from its points (for files that do not
+/// store group 42): along the dimension's direction for linear ones,
+/// between the points for aligned ones, centre or opposite point to the
+/// chord point for radius and diameter. `None` for angular and ordinate
+/// dimensions.
+fn measured(d: &lightable_dxf::Dimension) -> Option<f64> {
+    let dist = |a: Point3, b: Point3| (b.x - a.x).hypot(b.y - a.y);
+    match &d.kind {
+        DimensionKind::Linear {
+            first,
+            second,
+            angle,
+            ..
+        } => {
+            let (s, c) = angle.to_radians().sin_cos();
+            Some(((second.x - first.x) * c + (second.y - first.y) * s).abs())
+        }
+        DimensionKind::Aligned { first, second, .. } => Some(dist(*first, *second)),
+        DimensionKind::Diameter { chord_point, .. } | DimensionKind::Radius { chord_point, .. } => {
+            Some(dist(d.definition_point, *chord_point))
+        }
+        _ => None,
+    }
+}
+
 /// The features of an entity.
 pub fn features(e: &Entity) -> Features {
     let mut common = vec![
@@ -432,6 +457,15 @@ pub fn features(e: &Entity) -> Features {
                 ),
             };
             s.push(name("dimension type", kind));
+            // The value the dimension shows: group 42 when stored, else
+            // measured from its points as a CAD program does.
+            if let Some(m) = d.measurement.or_else(|| measured(d)) {
+                if kind == "angular" {
+                    s.push(angle("measurement", m.to_degrees()));
+                } else {
+                    s.push(len("measurement", m));
+                }
+            }
             s.push(name("dimension style", d.style.to_uppercase()));
             s.push(text("text override", d.text_override.clone()));
             s.push(pos("definition point", d.definition_point));

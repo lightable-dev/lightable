@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-200.091 -7200.0035 10400.182 8000.382" width="800" height="615">
+<rect x="-200.091" y="-7200.0035" width="10400.182" height="8000.382" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="6.9335" stroke-linecap="round">
+<g data-layer="FLOOR">
+<path d="M6200,4700 L9600,4700 L9600,6600 L6200,6600 Z" fill="#c0c0c0" fill-rule="evenodd"/>
+</g>
+<g data-layer="WALLS">
+<path d="M0 0L10000 0L10000 7000L0 7000Z" stroke="#ffffff"/>
+<path d="M200 200L9800 200L9800 6800L200 6800Z" stroke="#ffffff"/>
+<path d="M6000 200L6000 3000" stroke="#ffffff"/>
+<path d="M6000 3900L6000 6800" stroke="#ffffff"/>
+<path d="M6000 4500L9800 4500" stroke="#ffffff"/>
+<path d="M200 4200L2600 4200" stroke="#ffffff"/>
+</g>
+<g data-layer="DOORS">
+<path d="M4900 200A900 900 0 0 1 4636.3961 836.3961A900 900 0 0 1 4000 1100" stroke="#00ff00"/>
+<path d="M4000 200L4000 1100" stroke="#00ff00"/>
+<path d="M6000 3900A900 900 0 0 1 5363.6039 3636.3961A900 900 0 0 1 5100 3000" stroke="#00ff00"/>
+<path d="M6000 3000L5100 3000" stroke="#00ff00"/>
+</g>
+<g data-layer="WINDOWS">
+<path d="M1000 6800L2200 6800L2200 7000L1000 7000Z" stroke="#00ffff"/>
+<path d="M3000 6800L4200 6800L4200 7000L3000 7000Z" stroke="#00ffff"/>
+<path d="M7500 6800L8700 6800L8700 7000L7500 7000Z" stroke="#00ffff"/>
+</g>
+<g data-layer="FURNITURE">
+<path d="M3500 2500A500 500 0 0 1 2500 2500A500 500 0 0 1 3500 2500" stroke="#808080"/>
+<path d="M2780 1530L3220 1530L3220 1970L2780 1970Z" stroke="#808080"/>
+<path d="M2780 1910L3220 1910" stroke="#808080"/>
+<path d="M3220 3470L2780 3470L2780 3030L3220 3030Z" stroke="#808080"/>
+<path d="M3220 3090L2780 3090" stroke="#808080"/>
+<path d="M2030 2720L2030 2280L2470 2280L2470 2720Z" stroke="#808080"/>
+<path d="M2410 2720L2410 2280" stroke="#808080"/>
+<path d="M3970 2280L3970 2720L3530 2720L3530 2280Z" stroke="#808080"/>
+<path d="M3590 2280L3590 2720" stroke="#808080"/>
+</g>
+<g data-layer="FLOOR">
+<path d="M6200 4700L9600 4700L9600 6600L6200 6600Z" stroke="#c0c0c0"/>
+</g>
+<g data-layer="TEXT">
+<text transform="translate(3000 3800) rotate(0) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">LIVING / DINING</text>
+<text transform="translate(1400 4600) rotate(0) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">KITCHEN</text>
+<text transform="translate(7900 2400) rotate(0) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BEDROOM</text>
+<text transform="translate(7900 5600) rotate(0) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BATH</text>
+</g>
+<g data-layer="DIMENSIONS">
+<path d="M0 -0.125L0 -600.375" stroke="#ff0000"/>
+<path d="M10000 -0.125L10000 -600.375" stroke="#ff0000"/>
+<path d="M0.0875 -599.9125L-0.0875 -600.0875" stroke="#ff0000"/>
+<path d="M9999.9125 -600.0875L10000.0875 -599.9125" stroke="#ff0000"/>
+<path d="M0 -600L10000 -600" stroke="#ff0000"/>
+<text transform="translate(5000 -599.9) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ff0000" stroke="none">1000000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="0" cy="-600" r="10.4002" fill="#ffffff"/>
+<circle cx="0" cy="0" r="10.4002" fill="#ffffff"/>
+<circle cx="10000" cy="0" r="10.4002" fill="#ffffff"/>
+</g>
+</g>
+</svg>

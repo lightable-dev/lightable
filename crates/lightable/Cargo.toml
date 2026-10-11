@@ -14,12 +14,21 @@ lightable-render.workspace = true
 # PNG encoding of exported reports. MIT OR Apache-2.0.
 png = "=0.18.1"
 # UI and canvas (glow = OpenGL / WebGL2). MIT OR Apache-2.0.
-eframe = { version = "=0.36.2", default-features = false, features = ["glow", "default_fonts"] }
+# Only egui's text fonts (Ubuntu-Light, Hack), not its default set with
+# two emoji fonts: see `app::fonts`. MIT OR Apache-2.0; the fonts are under
+# the Ubuntu Font Licence and the Hack (MIT + Bitstream Vera) licence.
+eframe = { version = "=0.36.2", default-features = false, features = ["glow"] }
+epaint_default_fonts = "=0.36.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-eframe = { version = "=0.36.2", default-features = false, features = ["glow", "default_fonts", "x11", "wayland"] }
+eframe = { version = "=0.36.2", default-features = false, features = ["glow", "x11", "wayland"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen-futures = "=0.4.79"
 web-sys = { version = "=0.3.106", features = ["Blob", "BlobPropertyBag", "Document", "Element", "HtmlAnchorElement", "HtmlCanvasElement", "Url", "Window"] }
 js-sys = "=0.3.106"
+
+[dev-dependencies]
+# Reading font character maps in a test (already used by egui's text
+# renderer). MIT OR Apache-2.0.
+skrifa = "=0.44.0"

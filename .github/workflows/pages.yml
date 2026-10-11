@@ -28,7 +28,23 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       # The version must match wasm-bindgen in Cargo.lock.
       - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
-      - run: tools/build_web.sh
+      # wasm-opt (binaryen) makes the download smaller; required here so a
+      # deploy never ships the larger file by accident. Version 133, the one
+      # the web build was tested with, from the official release; the
+      # checksum is the one published with it.
+      - name: Install binaryen 133
+        env:
+          BINARYEN: version_133
+          SHA256: 2dc9c7813f5375db93d96ead4b78222fcc3e2677bbb832297af4797782a37489
+        run: |
+          file=binaryen-$BINARYEN-x86_64-linux.tar.gz
+          curl -fsSL -o "$RUNNER_TEMP/$file" \
+            "https://github.com/WebAssembly/binaryen/releases/download/$BINARYEN/$file"
+          echo "$SHA256  $RUNNER_TEMP/$file" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$file" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/binaryen-$BINARYEN/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/binaryen-$BINARYEN/bin/wasm-opt" --version
+      - run: WASM_OPT_REQUIRED=1 tools/build_web.sh
       # Custom domain for GitHub Pages.
       - run: echo lightable.dev > target/web/CNAME
       - uses: actions/upload-pages-artifact@v3

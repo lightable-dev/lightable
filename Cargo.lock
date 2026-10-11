@@ -577,7 +577,6 @@ dependencies = [
  "bytemuck",
  "ecolor",
  "emath",
- "epaint_default_fonts",
  "font-types",
  "harfrust",
  "log",
@@ -1094,11 +1093,13 @@ name = "lightable"
 version = "0.0.1"
 dependencies = [
  "eframe",
+ "epaint_default_fonts",
  "js-sys",
  "lightable-diff",
  "lightable-dxf",
  "lightable-render",
  "png",
+ "skrifa",
  "wasm-bindgen-futures",
  "web-sys",
 ]

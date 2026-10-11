@@ -38,6 +38,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(204)
             self.end_headers()
             return
+        # Compress as GitHub Pages does, so load times match the real site.
+        path = Path(self.translate_path(self.path))
+        if (path.suffix in (".wasm", ".js", ".html", ".svg") and path.is_file()
+                and "gzip" in self.headers.get("Accept-Encoding", "")):
+            import gzip
+            body = gzip.compress(path.read_bytes(), 6)
+            self.send_response(200)
+            self.send_header("Content-Type", self.guess_type(str(path)))
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         super().do_GET()
 
     def end_headers(self):

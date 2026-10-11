@@ -1,0 +1,44 @@
+Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm up
+    changed CIRCLE A4 on HOLES (model): center moved by (5, 5); radius changed from 6.75 to 8.75
+Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm left and 5 mm up
+    changed CIRCLE A5 on HOLES (model): center moved by (-5, 5); radius changed from 6.75 to 8.75
+Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm left and 5 mm down
+    changed CIRCLE A6 on HOLES (model): center moved by (-5, -5); radius changed from 6.75 to 8.75
+Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm down
+    changed CIRCLE A7 on HOLES (model): center moved by (5, -5); radius changed from 6.75 to 8.75
+Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU
+    changed TEXT A8 on NOTES (model): text changed from "4x Ø13.5 THRU" to "4x Ø17.5 THRU"
+Text changed from BOLTS: 4x M12 ISO 4017 - 8.8 to BOLTS: 4x M16 ISO 4017 - 8.8
+    changed TEXT A9 on NOTES (model): text changed from "BOLTS: 4x M12 ISO 4017 - 8.8" to "BOLTS: 4x M16 ISO 4017 - 8.8"
+Dimension changed from 20 mm to 25 mm
+    changed DIMENSION CA on DIMS (model): measurement changed from 20 to 25; text position moved by (2.5, 0); second point moved by (5, -5)
+Dimension changed from 120 mm to 110 mm
+    changed DIMENSION D9 on DIMS (model): measurement changed from 120 to 110; definition point moved by (5, 0); first point moved by (5, -5); second point moved by (-5, -5)
+Dimension changed from 20 mm to 25 mm
+    changed DIMENSION E8 on DIMS (model): measurement changed from 20 to 25; text position moved by (0, -2.5); second point moved by (-5, -5)
+Dimension changed from 60 mm to 50 mm
+    changed DIMENSION F7 on DIMS (model): measurement changed from 60 to 50; definition point moved by (0, -5); first point moved by (-5, -5); second point moved by (-5, 5)
+Text changed from REV B to REV C (revision markup)
+    changed TEXT 9B on TITLE (model): text changed from "REV B" to "REV C"
+Polyline added (revision markup)
+    added LWPOLYLINE 141 on TITLE (model)
+Line added (revision markup)
+    added LINE 142 on TITLE (model)
+Text “C” added (revision markup)
+    added TEXT 143 on TITLE (model)
+Text “BOLTS M12 TO M16 (ECN-017)” added (revision markup)
+    added TEXT 144 on TITLE (model)
+Revision cloud added (revision markup)
+    added LWPOLYLINE 145 on REVISION (model)
+Polyline added (revision markup)
+    added LWPOLYLINE 146 on REVISION (model)
+Text “C” added (revision markup)
+    added TEXT 147 on REVISION (model)
+7 added, 0 deleted, 11 changed, 25 unchanged, 0 equivalent
+not compared yet: text styles (the same in both files)
+not compared yet: dimension styles (the same in both files)
+not compared yet: linetype definitions (the same in both files); the linetype names entities use are compared
+not compared yet: other tables: APPID, UCS, VIEW, VPORT
+not compared yet: drawing settings other than units ($INSUNITS) and linetype scale ($LTSCALE)
+not compared yet: objects (layouts and page setups, dictionaries, groups, ...)
+not compared yet: anonymous blocks (dimension pictures, ...); the dimensions themselves are compared

@@ -321,6 +321,9 @@ mod tests {
             }),
             used_by_old: Vec::new(),
             used_by_new: Vec::new(),
+            headline: "Hatch added".into(),
+            markup: false,
+            revision_cloud: false,
         });
         let o = side(&s, &d, Side::B);
         assert_eq!(o.items.len(), 1);

@@ -24,6 +24,13 @@ fn corpus_renders_match_the_snapshots() {
         &mut changed,
     );
     assert!(public >= 63, "only {public} public corpus files");
+    // The app's built-in examples.
+    let examples = check(
+        &root().join("crates/lightable/assets"),
+        &root().join("tests/snapshots/examples"),
+        &mut changed,
+    );
+    assert!(examples >= 4, "only {examples} example drawings");
     let converted = root().join("tests/corpus-private/converted");
     if converted.exists() {
         let n = check(&converted, &converted.join("snapshots"), &mut changed);

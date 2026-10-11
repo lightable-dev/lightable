@@ -1,0 +1,21 @@
+{
+  "about": "Expected differences between bracket-rev-b.dxf and bracket-rev-c.dxf, written from the engineering change (ECN-017, M12 -> M16 bolts) before the drawings were compared. See bracket-rev-c-inventory.md.",
+  "design": [
+    {"id": "E1", "type": "TEXT", "layer": "NOTES", "words": ["Text changed from BOLTS: 4x M12 ISO 4017 - 8.8 to BOLTS: 4x M16 ISO 4017 - 8.8"], "clouded": true},
+    {"id": "E2", "type": "CIRCLE", "layer": "HOLES", "words": ["diameter changed from 13.5 mm to 17.5 mm", "center moved 5 mm right and 5 mm up"]},
+    {"id": "E3", "type": "CIRCLE", "layer": "HOLES", "words": ["diameter changed from 13.5 mm to 17.5 mm", "center moved 5 mm left and 5 mm up"]},
+    {"id": "E4", "type": "CIRCLE", "layer": "HOLES", "words": ["diameter changed from 13.5 mm to 17.5 mm", "center moved 5 mm left and 5 mm down"]},
+    {"id": "E5", "type": "CIRCLE", "layer": "HOLES", "words": ["diameter changed from 13.5 mm to 17.5 mm", "center moved 5 mm right and 5 mm down"]},
+    {"id": "E6", "type": "TEXT", "layer": "NOTES", "words": ["Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU"]},
+    {"id": "E7", "type": "DIMENSION", "layer": "DIMS", "words": ["Dimension changed from 20 mm to 25 mm"]},
+    {"id": "E8", "type": "DIMENSION", "layer": "DIMS", "words": ["Dimension changed from 120 mm to 110 mm"]},
+    {"id": "E9", "type": "DIMENSION", "layer": "DIMS", "words": ["Dimension changed from 20 mm to 25 mm"]},
+    {"id": "E10", "type": "DIMENSION", "layer": "DIMS", "words": ["Dimension changed from 60 mm to 50 mm"]}
+  ],
+  "markup": [
+    {"id": "M1", "type": "TEXT", "layer": "TITLE", "words": ["Text changed from REV B to REV C"]},
+    {"id": "M2", "layer": "TITLE", "words": ["added"], "note": "revision-table row C (one or more entities)"},
+    {"id": "M3", "type": "LWPOLYLINE", "layer": "REVISION", "words": ["Revision cloud added"]},
+    {"id": "M4", "layer": "REVISION", "words": ["added"], "note": "revision triangle and its letter C"}
+  ]
+}

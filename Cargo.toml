@@ -18,3 +18,12 @@ lightable-geom = { path = "crates/lightable-geom", version = "0.1.0" }
 lightable-core = { path = "crates/lightable-core" }
 lightable-render = { path = "crates/lightable-render" }
 lightable-diff = { path = "crates/lightable-diff" }
+
+# The browser build (tools/build_web.sh): small download first. Native
+# release builds keep the default speed settings.
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = "debuginfo"

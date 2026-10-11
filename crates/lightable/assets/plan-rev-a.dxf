@@ -493,7 +493,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461324.690787037
+2461325.575810185
   9
 $TDUCREATE
  40
@@ -501,7 +501,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461324.690787037
+2461325.575810185
   9
 $TDUUPDATE
  40
@@ -553,7 +553,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-DA
+C8
   9
 $SURFTAB1
  70
@@ -933,11 +933,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{88C55BA5-8694-4FEF-8349-82E0982A125E}
+{A34096A9-E204-4D1E-ACC5-A7C89D77BF9B}
   9
 $VERSIONGUID
   2
-{E99DCAA0-D85D-4C64-A06B-51C4CE68692D}
+{44E3F9F1-D9C7-429C-9418-31736D9C4427}
   9
 $EXTNAMES
 290
@@ -1327,9 +1327,9 @@ ISM
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1343,9 +1343,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -2375,7 +2375,7 @@ FURNITURE
  70
 0
  62
-6
+8
   6
 Continuous
 370
@@ -4973,7 +4973,7 @@ BLOCK_RECORD
 100
 AcDbSymbolTable
  70
-9
+8
   0
 BLOCK_RECORD
   5
@@ -5126,26 +5126,6 @@ AcDbSymbolTableRecord
 AcDbBlockTableRecord
   2
 *D1
-340
-0
- 70
-0
-280
-1
-281
-0
-  0
-BLOCK_RECORD
-  5
-CC
-330
-9
-100
-AcDbSymbolTableRecord
-100
-AcDbBlockTableRecord
-  2
-*D2
 340
 0
  70
@@ -5537,70 +5517,6 @@ AcDbLine
  31
 0.0
   0
-LWPOLYLINE
-  5
-C8
-330
-91
-100
-AcDbEntity
-  8
-0
-100
-AcDbPolyline
- 90
-4
- 70
-0
- 10
--260.0
- 20
--180.0
- 10
--220.0
- 20
--180.0
- 10
--220.0
- 20
-180.0
- 10
--260.0
- 20
-180.0
-  0
-LWPOLYLINE
-  5
-C9
-330
-91
-100
-AcDbEntity
-  8
-0
-100
-AcDbPolyline
- 90
-4
- 70
-0
- 10
-260.0
- 20
--180.0
- 10
-220.0
- 20
--180.0
- 10
-220.0
- 20
-180.0
- 10
-260.0
- 20
-180.0
-  0
 ENDBLK
   5
 93
@@ -5911,250 +5827,6 @@ AcDbEntity
 100
 AcDbBlockEnd
   0
-BLOCK
-  5
-CD
-330
-CC
-100
-AcDbEntity
-  8
-0
-100
-AcDbBlockBegin
-  2
-*D2
- 70
-1
- 10
-0.0
- 20
-0.0
- 30
-0.0
-  3
-*D2
-  1
-
-  0
-LINE
-  5
-CF
-330
-CC
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-10000.125
- 20
-0.0
- 30
-0.0
- 11
-10600.375
- 21
-0.0
- 31
-0.0
-  0
-LINE
-  5
-D0
-330
-CC
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-10000.125
- 20
-7000.0
- 30
-0.0
- 11
-10600.375
- 21
-7000.0
- 31
-0.0
-  0
-INSERT
-  5
-D1
-330
-CC
-100
-AcDbEntity
-  8
-DIMENSIONS
-100
-AcDbBlockReference
-  2
-_ARCHTICK
- 10
-10600.0
- 20
-0.0
- 30
-0.0
- 41
-0.175
- 42
-0.175
- 50
-270.0
-  0
-INSERT
-  5
-D3
-330
-CC
-100
-AcDbEntity
-  8
-DIMENSIONS
-100
-AcDbBlockReference
-  2
-_ARCHTICK
- 10
-10600.0
- 20
-7000.0
- 30
-0.0
- 41
-0.175
- 42
-0.175
- 50
-90.0
-  0
-LINE
-  5
-D5
-330
-CC
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-10600.0
- 20
-0.0
- 30
-0.0
- 11
-10600.0
- 21
-7000.0
- 31
-0.0
-  0
-MTEXT
-  5
-D6
-330
-CC
-100
-AcDbEntity
-  8
-DIMENSIONS
-100
-AcDbMText
- 10
-10599.775
- 20
-3500.0
- 30
-0.0
- 40
-0.25
- 71
-5
-  1
-700000
-  7
-OpenSansCondensed-Light
- 50
-90.0
-  0
-POINT
-  5
-D7
-330
-CC
-100
-AcDbEntity
-  8
-Defpoints
-100
-AcDbPoint
- 10
-10600.0
- 20
-0.0
- 30
-0.0
-  0
-POINT
-  5
-D8
-330
-CC
-100
-AcDbEntity
-  8
-Defpoints
-100
-AcDbPoint
- 10
-10000.0
- 20
-0.0
- 30
-0.0
-  0
-POINT
-  5
-D9
-330
-CC
-100
-AcDbEntity
-  8
-Defpoints
-100
-AcDbPoint
- 10
-10000.0
- 20
-7000.0
- 30
-0.0
-  0
-ENDBLK
-  5
-CE
-330
-CC
-100
-AcDbEntity
-  8
-0
-100
-AcDbBlockEnd
-  0
 ENDSEC
   0
 SECTION
@@ -6297,6 +5969,30 @@ AcDbLine
  31
 0.0
   0
+LINE
+  5
+9F
+330
+17
+100
+AcDbEntity
+  8
+WALLS
+100
+AcDbLine
+ 10
+200.0
+ 20
+4200.0
+ 30
+0.0
+ 11
+2600.0
+ 21
+4200.0
+ 31
+0.0
+  0
 ARC
   5
 A0
@@ -6361,7 +6057,7 @@ AcDbCircle
  10
 6000.0
  20
-3600.0
+3000.0
  30
 0.0
  40
@@ -6387,13 +6083,13 @@ AcDbLine
  10
 6000.0
  20
-3600.0
+3000.0
  30
 0.0
  11
 5100.0
  21
-3600.0
+3000.0
  31
 0.0
   0
@@ -6623,9 +6319,9 @@ AcDbHatch
 230
 1.0
   2
-ANSI37
+SOLID
  70
-0
+1
  71
 0
  91
@@ -6657,41 +6353,9 @@ ANSI37
  97
 0
  75
-1
+0
  76
 1
- 52
-0.0
- 41
-20.0
- 77
-0
- 78
-2
- 53
-45.0
- 43
-0.0
- 44
-0.0
- 45
--44.901280606
- 46
-44.901280606
- 79
-0
- 53
-135.0
- 43
-0.0
- 44
-0.0
- 45
--44.901280606
- 46
--44.901280606
- 79
-0
  98
 0
   0
@@ -6743,7 +6407,7 @@ AcDbText
  10
 1400.0
  20
-6200.0
+4600.0
  30
 0.0
  40
@@ -6755,7 +6419,7 @@ KITCHEN
  11
 1400.0
  21
-6200.0
+4600.0
  31
 0.0
 100
@@ -6783,7 +6447,7 @@ AcDbText
  40
 200.0
   1
-MASTER BEDROOM
+BEDROOM
  72
 1
  11
@@ -6882,92 +6546,6 @@ AcDbAlignedDimension
 0.0
  50
 0.0
-100
-AcDbRotatedDimension
-  0
-LWPOLYLINE
-  5
-CA
-330
-17
-100
-AcDbEntity
-  8
-FURNITURE
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-900.0
- 20
-5000.0
- 10
-2700.0
- 20
-5000.0
- 10
-2700.0
- 20
-5800.0
- 10
-900.0
- 20
-5800.0
-  0
-DIMENSION
-  5
-CB
-330
-17
-100
-AcDbEntity
-  8
-DIMENSIONS
-100
-AcDbDimension
-280
-0
-  2
-*D2
-  3
-EZDXF
- 10
-10600.0
- 20
-0.0
- 30
-0.0
- 11
-10599.775
- 21
-3500.0
- 31
-0.0
- 70
-32
- 71
-5
-  1
-<>
-100
-AcDbAlignedDimension
- 13
-10000.0
- 23
-0.0
- 33
-0.0
- 14
-10000.0
- 24
-7000.0
- 34
-0.0
- 50
-90.0
 100
 AcDbRotatedDimension
   0
@@ -8073,7 +7651,7 @@ DictionaryVariables
 280
 0
   1
-1.4.3 @ 2026-10-10T11:04:44.597392+00:00
+1.4.3 @ 2026-10-11T08:19:10.295206+00:00
   0
 VISUALSTYLE
   5
@@ -14635,7 +14213,7 @@ DictionaryVariables
 280
 0
   1
-1.4.3 @ 2026-10-10T11:04:44.639284+00:00
+1.4.3 @ 2026-10-11T08:19:10.304552+00:00
   0
 ENDSEC
   0

@@ -15,13 +15,40 @@
   <style>
     html, body { margin: 0; height: 100%; overflow: hidden; background: #212121; }
     canvas { width: 100%; height: 100%; display: block; outline: none; }
-    #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-               color: #bbb; font: 15px system-ui, sans-serif; }
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px;
+               padding: 16px; box-sizing: border-box; background: #212121; color: #bbb;
+               font: 14px system-ui, sans-serif; }
+    #preview-row { flex: 1; min-height: 0; display: flex; gap: 20px; align-items: center; justify-content: center; }
+    #preview { flex: 1 1 auto; min-width: 0; max-width: 900px; max-height: 100%; object-fit: contain; }
+    #changes { flex: 0 1 380px; max-height: 100%; overflow-y: auto; }
+    #changes h1 { font-size: 15px; font-weight: 600; color: #ddd; margin: 0 0 4px; }
+    #changes h2 { font-size: 13px; font-weight: 600; color: #999; margin: 14px 0 4px; }
+    #changes .summary { font-size: 15px; color: #f0d040; margin: 0 0 2px; }
+    #changes .markup-summary { color: #969696; margin: 0 0 2px; }
+    #changes .example-note { font-style: italic; color: #b9b9b9; margin: 0 0 8px; }
+    #changes ol { margin: 0; padding-left: 22px; line-height: 1.45; }
+    #changes .markup { color: #8a8a8a; }
+    #changes .note { font-size: 12px; color: #777; margin-top: 12px; }
+    #status { text-align: center; }
+    @media (max-width: 760px) {
+      #preview-row { flex-direction: column; align-items: stretch; overflow-y: auto; justify-content: flex-start; }
+      #preview { max-height: 40vh; }
+      #changes { flex: none; max-height: none; overflow: visible; }
+    }
   </style>
 </head>
 <body>
   <canvas id="cad_canvas"></canvas>
-  <div id="loading">Loading…</div>
+  <!-- While the app loads: the default example's overlay and its change
+       list, both made by the comparison when the page was built
+       (tools/build_web.sh, crates/lightable-diff/examples/web_preview.rs). -->
+  <div id="loading">
+    <div id="preview-row">
+      <img id="preview" src="preview.svg" alt="Rev B and Rev C of a steel bracket drawing, overlaid: changed parts in yellow, added in green">
+      <!-- CHANGES -->
+    </div>
+    <div id="status" data-wasm-bytes="__WASM_BYTES__">Loading Lightable…</div>
+  </div>
   <script type="module" src="main.js"></script>
 </body>
 </html>

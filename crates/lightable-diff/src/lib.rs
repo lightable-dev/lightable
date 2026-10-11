@@ -29,6 +29,7 @@ pub mod coverage;
 pub mod features;
 mod json;
 pub mod view;
+pub mod words;
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -138,6 +139,15 @@ pub struct Change {
     pub used_by_old: Vec<EntityRef>,
     /// The same in B.
     pub used_by_new: Vec<EntityRef>,
+    /// The change in one line of plain words, e.g. "Circle Ø12 moved 5 mm
+    /// right" (see [`words`]).
+    pub headline: String,
+    /// Revision markup (a revision cloud, title block text) rather than a
+    /// change to the design; see [`words::is_markup`].
+    pub markup: bool,
+    /// A revision cloud (a closed polyline made only of arcs) was added,
+    /// deleted or changed; see [`words::is_revision_cloud`]. Always markup.
+    pub revision_cloud: bool,
 }
 
 impl Change {
@@ -210,9 +220,46 @@ pub struct Diff {
     /// What this diff does not compare yet, in plain words, with a hint
     /// when the two files differ there.
     pub not_compared: Vec<String>,
+    /// The length unit from `$INSUNITS` (of B, else A), if it names one;
+    /// headlines use it.
+    pub units: Option<String>,
 }
 
 impl Diff {
+    /// Changes to the design: everything but revision markup.
+    pub fn design_changes(&self) -> impl Iterator<Item = &Change> {
+        self.changes.iter().filter(|c| !c.markup)
+    }
+
+    /// Number of revision markup changes.
+    pub fn markup_count(&self) -> usize {
+        self.changes.iter().filter(|c| c.markup).count()
+    }
+
+    /// Number of revision clouds among the markup changes.
+    pub fn cloud_count(&self) -> usize {
+        self.changes.iter().filter(|c| c.revision_cloud).count()
+    }
+
+    /// The markup part of the summary: "plus revision markup (8 items,
+    /// including 1 revision cloud)"; `None` without markup.
+    pub fn markup_summary(&self) -> Option<String> {
+        let m = self.markup_count();
+        if m == 0 {
+            return None;
+        }
+        let items = if m == 1 {
+            "1 item".to_owned()
+        } else {
+            format!("{m} items")
+        };
+        Some(match self.cloud_count() {
+            0 => format!("plus revision markup ({items})"),
+            1 => format!("plus revision markup ({items}, including 1 revision cloud)"),
+            k => format!("plus revision markup ({items}, including {k} revision clouds)"),
+        })
+    }
+
     pub fn count(&self, kind: ChangeKind) -> usize {
         self.changes.iter().filter(|c| c.kind == kind).count()
     }
@@ -747,6 +794,19 @@ impl<'a> PlaceDiff<'a> {
                 // The fill is drawn, the pattern itself is not.
                 details.push("patterns are not drawn yet".into());
             }
+            let words = words::changed(
+                tol,
+                x.entity,
+                &x.f().common,
+                &x.f().shape,
+                y.entity,
+                &y.f().common,
+                &y.f().shape,
+                out.units.as_deref(),
+            );
+            details.extend(words.details);
+            let headline = words.headline;
+            let markup = words::is_markup(x.entity) || words::is_markup(y.entity);
             out.changes.push(Change {
                 kind: ChangeKind::Changed,
                 place: self.place.clone(),
@@ -760,6 +820,10 @@ impl<'a> PlaceDiff<'a> {
                 bounds: union(bounds_of(&da, x), bounds_of(&db, y)),
                 used_by_old: Vec::new(),
                 used_by_new: Vec::new(),
+                headline,
+                markup,
+                revision_cloud: words::is_revision_cloud(x.entity)
+                    || words::is_revision_cloud(y.entity),
             });
         }
         let single =
@@ -793,6 +857,9 @@ impl<'a> PlaceDiff<'a> {
                     bounds: bounds_of(m, e),
                     used_by_old: Vec::new(),
                     used_by_new: Vec::new(),
+                    headline: words::added_or_deleted(e.entity, kind == ChangeKind::Added),
+                    markup: words::is_markup(e.entity),
+                    revision_cloud: words::is_revision_cloud(e.entity),
                 }
             };
         for (i, e) in self.a.iter().enumerate() {
@@ -892,6 +959,7 @@ pub fn diff(a: &Drawing, b: &Drawing, options: &DiffOptions) -> Diff {
     names.dedup_by(|x, y| x.eq_ignore_ascii_case(y));
     let mut out = Diff {
         tolerance: length,
+        units: words::units_of(b).or(words::units_of(a)).map(str::to_owned),
         ..Diff::default()
     };
     let mut block_scenes = Vec::new();
@@ -929,6 +997,9 @@ pub fn diff(a: &Drawing, b: &Drawing, options: &DiffOptions) -> Diff {
                     bounds: None,
                     used_by_old: Vec::new(),
                     used_by_new: Vec::new(),
+                    headline: String::new(),
+                    markup: false,
+                    revision_cloud: false,
                 });
             }
         }
@@ -961,7 +1032,6 @@ pub fn diff(a: &Drawing, b: &Drawing, options: &DiffOptions) -> Diff {
     }
     link_block_uses(a, b, &scene_a, &scene_b, &mut out.changes);
     out.not_compared = not_compared(a, b);
-
     // Layers.
     for la in a.tables.layers.iter() {
         match b.tables.layers.get(&la.name) {
@@ -1014,9 +1084,35 @@ pub fn diff(a: &Drawing, b: &Drawing, options: &DiffOptions) -> Diff {
                 bounds: None,
                 used_by_old: Vec::new(),
                 used_by_new: Vec::new(),
+                headline: String::new(),
+                markup: false,
+                revision_cloud: false,
             });
         }
     }
+    for c in out.changes.iter_mut() {
+        if c.headline.is_empty() {
+            c.headline = match &c.place {
+                Place::Layers => format!(
+                    "Layer {}: {}",
+                    c.layer(),
+                    c.details.first().map_or("changed", String::as_str)
+                ),
+                _ => words::sentence(c.details.first().map_or("changed", String::as_str)),
+            };
+            if c.kind != ChangeKind::Changed && c.place == Place::Layers {
+                c.headline = words::sentence(&c.details.join("; "));
+            }
+        }
+        if let Place::Block(name) = &c.place
+            && c.entity_type != "BLOCK"
+        {
+            c.headline = format!("In block {name}: {}", c.headline);
+        }
+    }
+
+    // Design changes first, revision markup after (stable otherwise).
+    out.changes.sort_by_key(|c| c.markup);
     out
 }
 
@@ -1212,12 +1308,49 @@ fn table_change(kind: ChangeKind, name: &str, mut details: Vec<String>) -> Chang
         bounds: None,
         used_by_old: Vec::new(),
         used_by_new: Vec::new(),
+        headline: String::new(),
+        markup: false,
+        revision_cloud: false,
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_markup_summary_counts_items_and_clouds() {
+        let change = |markup: bool, cloud: bool| Change {
+            markup,
+            revision_cloud: cloud,
+            ..table_change(ChangeKind::Added, "X", Vec::new())
+        };
+        let summary = |c: Vec<Change>| {
+            Diff {
+                changes: c,
+                ..Default::default()
+            }
+            .markup_summary()
+        };
+        assert_eq!(summary(vec![change(false, false)]), None);
+        assert_eq!(
+            summary(vec![change(true, false)]).as_deref(),
+            Some("plus revision markup (1 item)")
+        );
+        assert_eq!(
+            summary(vec![change(true, true), change(true, false)]).as_deref(),
+            Some("plus revision markup (2 items, including 1 revision cloud)")
+        );
+        assert_eq!(
+            summary(vec![
+                change(true, true),
+                change(true, true),
+                change(false, false)
+            ])
+            .as_deref(),
+            Some("plus revision markup (2 items, including 2 revision clouds)")
+        );
+    }
     use lightable_dxf::{Circle, Line, Point3};
 
     fn line(handle: u64, layer: &str, a: (f64, f64), b: (f64, f64)) -> Entity {

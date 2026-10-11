@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-31.848 -216.448 335.296 222.896" width="800" height="532">
+<rect x="-31.848" y="-216.448" width="335.296" height="222.896" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.2235" stroke-linecap="round">
+<g data-layer="BORDER">
+<path d="M0 0L297 0L297 210L0 210Z" stroke="#808080"/>
+</g>
+<g data-layer="TITLE">
+<path d="M187 5L292 5L292 45L187 45Z" stroke="#808080"/>
+<path d="M187 15L292 15" stroke="#808080"/>
+<path d="M187 25L292 25" stroke="#808080"/>
+<path d="M187 35L292 35" stroke="#808080"/>
+<path d="M262 5L262 15" stroke="#808080"/>
+<text transform="translate(190 38.5) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">STEEL MOUNTING BRACKET</text>
+<text transform="translate(190 29) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">MATERIAL: S235JR (EN 10025-2), 10 mm PLATE</text>
+<text transform="translate(190 19) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">DRAWING No. LT-0042    SCALE 1:1    mm</text>
+<text transform="translate(190 9) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">LIGHTABLE EXAMPLE</text>
+<text transform="translate(266 8.5) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">REV B</text>
+<path d="M187 45L292 45L292 59L187 59Z" stroke="#808080"/>
+<path d="M187 52L292 52" stroke="#808080"/>
+<path d="M197 45L197 59" stroke="#808080"/>
+<text transform="translate(189 54.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">REV</text>
+<text transform="translate(200 54.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">DESCRIPTION</text>
+<text transform="translate(190 47.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">B</text>
+<text transform="translate(200 47.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">FIRST ISSUE</text>
+</g>
+<g data-layer="OUTLINE">
+<path d="M25 80L185 80L185 180L25 180Z" stroke="#ffffff"/>
+</g>
+<g data-layer="HOLES">
+<path d="M51.75 100A6.75 6.75 0 0 1 38.25 100A6.75 6.75 0 0 1 51.75 100" stroke="#00ffff"/>
+<path d="M171.75 100A6.75 6.75 0 0 1 158.25 100A6.75 6.75 0 0 1 171.75 100" stroke="#00ffff"/>
+<path d="M171.75 160A6.75 6.75 0 0 1 158.25 160A6.75 6.75 0 0 1 171.75 160" stroke="#00ffff"/>
+<path d="M51.75 160A6.75 6.75 0 0 1 38.25 160A6.75 6.75 0 0 1 51.75 160" stroke="#00ffff"/>
+</g>
+<g data-layer="NOTES">
+<text transform="translate(57 88) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">4x Ø13.5 THRU</text>
+<text transform="translate(25 34) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">BOLTS: 4x M12 ISO 4017 - 8.8</text>
+<text transform="translate(25 27) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">GENERAL TOLERANCES ISO 2768-m</text>
+<text transform="translate(25 21) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">BREAK ALL SHARP EDGES</text>
+</g>
+<g data-layer="DIMS">
+<path d="M25 78L25 64" stroke="#00ff00"/>
+<path d="M185 78L185 64" stroke="#00ff00"/>
+<path d="M26.5 67.5L23.5 64.5" stroke="#00ff00"/>
+<path d="M183.5 64.5L186.5 67.5" stroke="#00ff00"/>
+<path d="M25 66L185 66" stroke="#00ff00"/>
+<text transform="translate(105 67) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">160</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="25" cy="66" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="80" r="0.3353" fill="#ffffff"/>
+<circle cx="185" cy="80" r="0.3353" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M23 80L9 80" stroke="#00ff00"/>
+<path d="M23 180L9 180" stroke="#00ff00"/>
+<path d="M9.5 81.5L12.5 78.5" stroke="#00ff00"/>
+<path d="M12.5 178.5L9.5 181.5" stroke="#00ff00"/>
+<path d="M11 80L11 180" stroke="#00ff00"/>
+<text transform="translate(10 130) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">100</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="11" cy="80" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="80" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="180" r="0.3353" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M25 182L25 194" stroke="#00ff00"/>
+<path d="M45 162L45 194" stroke="#00ff00"/>
+<path d="M26.5 193.5L23.5 190.5" stroke="#00ff00"/>
+<path d="M43.5 190.5L46.5 193.5" stroke="#00ff00"/>
+<path d="M25 192L45 192" stroke="#00ff00"/>
+<text transform="translate(35 193) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">20</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="25" cy="192" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="180" r="0.3353" fill="#ffffff"/>
+<circle cx="45" cy="160" r="0.3353" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M45 162L45 194" stroke="#00ff00"/>
+<path d="M165 162L165 194" stroke="#00ff00"/>
+<path d="M46.5 193.5L43.5 190.5" stroke="#00ff00"/>
+<path d="M163.5 190.5L166.5 193.5" stroke="#00ff00"/>
+<path d="M45 192L165 192" stroke="#00ff00"/>
+<text transform="translate(105 193) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">120</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="45" cy="192" r="0.3353" fill="#ffffff"/>
+<circle cx="45" cy="160" r="0.3353" fill="#ffffff"/>
+<circle cx="165" cy="160" r="0.3353" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M187 180L199 180" stroke="#00ff00"/>
+<path d="M167 160L199 160" stroke="#00ff00"/>
+<path d="M195.5 181.5L198.5 178.5" stroke="#00ff00"/>
+<path d="M198.5 158.5L195.5 161.5" stroke="#00ff00"/>
+<path d="M197 180L197 160" stroke="#00ff00"/>
+<text transform="translate(201.5 170) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">20</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="197" cy="180" r="0.3353" fill="#ffffff"/>
+<circle cx="185" cy="180" r="0.3353" fill="#ffffff"/>
+<circle cx="165" cy="160" r="0.3353" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M167 160L199 160" stroke="#00ff00"/>
+<path d="M167 100L199 100" stroke="#00ff00"/>
+<path d="M195.5 161.5L198.5 158.5" stroke="#00ff00"/>
+<path d="M198.5 98.5L195.5 101.5" stroke="#00ff00"/>
+<path d="M197 160L197 100" stroke="#00ff00"/>
+<text transform="translate(201.5 130) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">60</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="197" cy="160" r="0.3353" fill="#ffffff"/>
+<circle cx="165" cy="160" r="0.3353" fill="#ffffff"/>
+<circle cx="165" cy="100" r="0.3353" fill="#ffffff"/>
+</g>
+</g>
+</svg>

@@ -725,6 +725,176 @@ Also settled:
    marker in the reader's code stays: it is the literal header that binary
    DXF files start with, and must be recognised.
 
+## First-run experience
+
+1. **The app opens on a comparison.** With no file to open (desktop with no
+   arguments, or the web page), the default example opens at once, so the
+   first screen shows what Lightable does. `?example=plan` (web) or
+   `--example plan` (desktop) picks the other example; the example picker
+   in the toolbar switches between them.
+2. **Default example: a steel mounting bracket, Rev B → Rev C**
+   (`tools/gen_example.py`, ezdxf, millimetres, `$INSUNITS = 4`), with a
+   sheet border and title block. Rev C has exactly 4 design changes (one
+   hole moved 5 mm, one hole Ø12 → Ø14, thread note M12 → M16, a 10 × 10
+   chamfer on one corner), a revision cloud around the chamfer and the
+   title block's revision letter. Rev C is Rev B edited in place, so
+   handles are kept. The apartment plan is kept as the second example
+   (`plan-rev-a/b.dxf`, renamed from `example-rev-a/b.dxf`).
+3. **Headlines in plain words, mechanically true** (`lightable_diff::words`,
+   `Change::headline`): "Circle Ø12 moved 5 mm right", "Circle diameter
+   changed from 12 mm to 14 mm", "Text changed from M12 to M16", "Polyline
+   corner at (200, 160) chamfered 10 × 10 mm". Every part comes from the
+   values compared: moves are split into right/left/up/down; circles are
+   named by diameter; a chamfer is reported only when one vertex is
+   replaced by two points that lie on its two edges with a straight
+   segment between them (a curved one is "rounded"); other vertex changes
+   are counted. Lengths carry the unit named by `$INSUNITS` (of B, else A)
+   and none otherwise; angles carry "°". The exact property values stay in
+   `details` (shown under "Details").
+4. **Revision markup is counted apart from design changes**
+   (`Change::markup`, `words::is_markup`): a closed polyline made only of
+   arcs (a revision cloud), and anything on a layer whose name starts with
+   TITLE, BORDER or REV. The summary counts design changes ("4 changes
+   found between Rev B and Rev C") and adds "plus 2 revision markups";
+   the list shows markup under its own heading, after the design changes.
+   This is a stated rule on names and shapes, not a guess about intent;
+   JSON reports it per change (`markup`) and in `summary.markup`.
+5. **Layers of the UI.** 1: no clicks: overlay, summary line, legend.
+   2: the change list as headlines; a click zooms (smoothly, to at least a
+   quarter of the drawing). 3: the "Side by side" toggle. 4–5: "Details"
+   shows the exact values, entity type/handle/layer, uncertain and
+   not-shown notes, "Not compared yet", the layer panel, the status bar,
+   Zoom extents and the exports. The status bar also appears, without
+   details, to report an export or a problem.
+6. **Hints:** one at a time, in order ("Click a change to zoom in.", then
+   Side by side, then Details), each next to what it is about; a hint goes
+   once its action is used (in any order). They are not remembered
+   between sessions.
+7. **Demo mode** (`?demo`, `--demo`): about 30 seconds, then an end card.
+   0 s overview, 3.5 s side by side, 7 s zoom on the revision cloud, 11 s
+   overlay, 14 / 17 / 20 s the first three changes (captions are their
+   headlines), 23 s the report layout, 26.5 s the end card "Free. Open
+   source. Your files never leave your computer. lightable.dev". The
+   export step shows the report layout without saving a file, so no
+   download dialog interrupts a recording. View changes are animated
+   (1.2 s in the demo, 0.6 s for clicks).
+8. **Text placement fix.** egui positions a text by its top-left corner
+   and only rotates around the given anchor, so text was drawn about one
+   text height too low since M4. The app now puts the alignment point (the
+   font's real baseline for baseline-aligned text) on the insertion point
+   and rotates around it; screen text now matches the SVG snapshots.
+9. **Snapshots** now also cover the four example drawings
+   (`tests/snapshots/examples/`).
+
+## Demo refinement
+
+Replaces First-run decisions 2, 4 (the layer rule), 7 and part of 3.
+
+1. **The bracket example is one engineering change with its real
+   consequences** (`tools/gen_example.py`). ECN-017: bolts M12 → M16
+   (ISO 4017, property class 8.8) through clearance holes in a 160 × 100 ×
+   10 mm S235JR plate (EN 10025-2). Holes Ø13.5 → Ø17.5 (ISO 273 medium
+   series); edge distance 20 → 25 mm because EN 1993-1-8 Table 3.3 asks for
+   at least 1.2 d₀ = 21 mm with d₀ = 17.5; so the hole pattern goes
+   120 × 60 → 110 × 50 (spacing still above 2.4 d₀ = 42 mm); the callout,
+   bolt note and four dimensions follow. Clearance holes, not tapped ones.
+   The drafter's cloud and revision triangle surround only the bolt note;
+   the title block gets REV C and a revision-table row. The part sits clear
+   of the title block and revision table. The previous example (unrelated
+   changes, a cloud on a chamfer, M12 holes of Ø12, tapped holes) did not
+   hold up to a manufacturing review.
+2. **Expected changes written first.** `bracket-rev-c-inventory.md` (for
+   people) and `.json` (for the test) list the 10 design-content and 4
+   markup items, written from the ECN before comparing.
+   `bracket_rev_c_matches_the_expected_change_inventory` checks both ways:
+   every item found, nothing unexplained. Counts are not forced: one
+   intention, 10 design differences, 8 markup entities.
+3. **Dimensions compare their measurement**, the stored one (group 42) or,
+   when a writer leaves it out, the one computed from the definition
+   points (linear along the dimension's angle, aligned, diameter, radius;
+   angular in degrees). The headline says "Dimension changed from 20 mm to
+   25 mm" instead of listing moved points.
+4. **Revision-markup layers** are named exactly REV, or start with REV-,
+   REV_, REVISION, TITLE or BORDER (case ignored). REVIEW, REVOLVE,
+   REVERSE, PREV and SUBTITLE are not markup layers. Revision clouds count
+   on any layer.
+5. **Headlines carry no coordinates.** Moves are said as distances and
+   directions ("Line end moved 10 mm up"), corners by what happened to them
+   ("Corner chamfered 10 × 10 mm"), and other changed positions or
+   directions as "changed"; the coordinates are in the details ("corner at
+   (100, 50) chamfered 10 × 10 mm"). Tested over the examples and every
+   `tests/diff` pair.
+6. **Demo script** (`docs/demo/demo-script.md`): before and after, the
+   cloud zoom ("The revision cloud marks 1 change."), the overlay
+   ("Lightable found 10 changes."), three clicks on uncloudded changes
+   (circle, dimension, text) with their headlines, Details with "Not
+   compared yet", the report, a scope line ("Lightable shows what changed.
+   Whether it is right is still your call."), the end card. Every number
+   and headline is computed from the comparison when the demo runs. The
+   cloud count (centre of a design change inside an added cloud) exists for
+   the demo's narration only; the product makes no claim about what clouds
+   cover, and none about manufacturing readiness or safety.
+7. **Instant preview on the web.** While the wasm loads, the page shows
+   the default example's overlay and, next to it, its change list: the
+   summary line, the design-change headlines and the revision markup. Both
+   are made when the page is built (`tools/build_web.sh` runs
+   `crates/lightable-diff/examples/web_preview.rs`): the SVG from the
+   comparison's overlay scene, the list from the JSON diff report the app
+   exports. Nothing is checked in, so they cannot go stale; a test keeps
+   the example's names in the build script the same as in the app. The
+   preview is hidden when `?example=` names another example, and removed
+   when the app starts.
+8. **Download progress.** `web/main.js` fetches the wasm itself and passes
+   the response on through a byte-counting stream, so
+   `WebAssembly.instantiateStreaming` still compiles while it downloads
+   (the browser tests record that call). The bytes counted are unpacked,
+   so the percentage is against the unpacked size the build writes into
+   the page; with a compressed response the Content-Length is the packed
+   size and would overshoot.
+9. **No emoji fonts.** egui's `default_fonts` feature is off; the app
+   installs only Ubuntu-Light (text) and Hack (monospace) from
+   `epaint_default_fonts`, dropping Noto Emoji and the emoji icon font
+   (743 kB). Hack is also the fallback of the proportional family: it
+   has the ◀ ▶ of Previous / Next, which Ubuntu-Light lacks. A test reads
+   the fonts' character maps and fails if any character the app writes
+   has no glyph (egui's own `has_glyph` misreports characters of its
+   replacement-glyph font, so the test does not use it). egui uses
+   emoji-font glyphs only in widgets the app does not use (submenu arrows,
+   key names, inspection panels).
+   Drawing text with ☑ ✔ ★ ⚠ or similar now shows egui's replacement
+   glyph. The fonts are under the Ubuntu Font Licence 1.0 and the Hack
+   licence (MIT with Bitstream Vera), both allowed for bundled fonts by
+   CLAUDE.md.
+
+10. **Smaller web download.** `tools/build_web.sh` builds with the
+    `wasm-release` profile (opt-level "s", LTO, one codegen unit, no debug
+    info; "z" came out larger, 6.68 MB against 5.57 MB) and runs
+    `wasm-opt -Oz` (binaryen; required in the Pages workflow). Measured in
+    Chrome with DevTools' "Fast 3G" conditions (562.5 ms, 180 kB/s), from a
+    server that compresses like GitHub Pages:
+
+    | Build | wasm | gzip | First content | App ready |
+    |---|---|---|---|---|
+    | lightable.dev before | 6.62 MB | 2.41 MB | "Loading…" only | 16.2 s |
+    | + size profile | 5.57 MB | 2.15 MB | | 15.8–17.0 s |
+    | + no emoji fonts | 4.82 MB | 1.69 MB | | 12.4–13.3 s |
+    | + wasm-opt -Oz (now) | 3.92 MB | 1.59 MB | list 0.7 s, preview 1.25 s | 11.6–12.0 s |
+
+    `node tools/web_browser_test.mjs chrome URL OUT --throttle` repeats the
+    measurement (OUT/timing.json).
+
+11. **Summary wording.** First screen, for any files: "N changes found
+    between X and Y", beside it "plus revision markup (M items, including
+    K revision cloud(s))", the cloud part left out when K is 0. "Items"
+    because markup is counted per drawing object (the bracket's revision
+    table row is four of them), and layers 1–3 never say "entities". K
+    comes from `Change::revision_cloud` (shape detection, also in the JSON
+    report as `revision_cloud` and `summary.revision_clouds`), not from
+    headline text. A built-in example may carry a note shown under the
+    summary ("Example: the drafter clouded only the bolt note."); it
+    describes the example file and is never shown for the user's files.
+    The PNG report header and the web preview use the same words.
+
 ## Rules for M5 (decided before M5)
 
 1. **Saving an edited drawing keeps its DXF version and copies every

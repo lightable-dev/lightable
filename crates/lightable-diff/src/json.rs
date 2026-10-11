@@ -64,7 +64,7 @@ fn change(c: &Change) -> String {
         )
     });
     format!(
-        "    {{\"kind\": {}, \"place\": {}, \"type\": {}, \"layer\": {}, \"handle\": {}, \"details\": [{}], \"geometry\": {}, \"shown\": {}, \"certain\": {}, \"old\": {}, \"new\": {}, \"bounds\": {}, \"used_by_before\": [{}], \"used_by\": [{}]}}",
+        "    {{\"kind\": {}, \"place\": {}, \"type\": {}, \"layer\": {}, \"handle\": {}, \"details\": [{}], \"geometry\": {}, \"shown\": {}, \"certain\": {}, \"old\": {}, \"new\": {}, \"bounds\": {}, \"used_by_before\": [{}], \"used_by\": [{}], \"headline\": {}, \"markup\": {}, \"revision_cloud\": {}}}",
         string(c.kind.as_str()),
         string(&c.place.to_string()),
         string(&c.entity_type),
@@ -78,7 +78,10 @@ fn change(c: &Change) -> String {
         side(&c.new),
         bounds,
         refs(&c.used_by_old),
-        refs(&c.used_by_new)
+        refs(&c.used_by_new),
+        string(&c.headline),
+        c.markup,
+        c.revision_cloud
     )
 }
 
@@ -88,16 +91,20 @@ pub fn report(d: &Diff, a: &str, b: &str) -> String {
     let _ = writeln!(s, "  \"a\": {},\n  \"b\": {},", string(a), string(b));
     let _ = writeln!(
         s,
-        "  \"tolerance\": {},\n  \"handles_trusted\": {},",
+        "  \"tolerance\": {},\n  \"units\": {},\n  \"handles_trusted\": {},",
         number(d.tolerance),
+        d.units.as_deref().map_or("null".into(), string),
         d.handles_trusted
     );
     let _ = writeln!(
         s,
-        "  \"summary\": {{\"added\": {}, \"deleted\": {}, \"changed\": {}, \"unchanged\": {}, \"equivalent\": {}, \"not_shown\": {}, \"uncertain\": {}}},",
+        "  \"summary\": {{\"added\": {}, \"deleted\": {}, \"changed\": {}, \"design_changes\": {}, \"markup\": {}, \"revision_clouds\": {}, \"unchanged\": {}, \"equivalent\": {}, \"not_shown\": {}, \"uncertain\": {}}},",
         d.count(ChangeKind::Added),
         d.count(ChangeKind::Deleted),
         d.count(ChangeKind::Changed),
+        d.design_changes().count(),
+        d.markup_count(),
+        d.cloud_count(),
         d.unchanged,
         d.equivalent,
         d.changes.iter().filter(|c| !c.shown).count(),

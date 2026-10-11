@@ -1,5 +1,26 @@
 # Changelog
 
+## Demo refinement (unreleased)
+
+- The bracket example is now one engineering change (bolts M12 → M16) with its real consequences: clearance holes Ø13.5 → Ø17.5 (ISO 273) moved 5 mm inward for edge distance (EN 1993-1-8), the hole callout, the bolt note and four dimensions. The revision cloud surrounds only the bolt note. An expected-change inventory, written before comparing, is checked by a test both ways.
+- Dimensions are compared by their measurement ("Dimension changed from 20 mm to 25 mm"), computed from the definition points when the file does not store it.
+- Revision-markup layers: exactly REV, or starting with REV-, REV_, REVISION, TITLE or BORDER (REVIEW, REVOLVE and the like no longer count).
+- Headlines contain no coordinates ("Corner chamfered 10 × 10 mm"); coordinates are in the details.
+- Demo script rewritten around a pre-release review; every number and headline in it is computed from the comparison (`docs/demo/`).
+- Web: while the app loads, the example's overlay and change list (made by the comparison at build time) and a download progress line; the app is 3.92 MB (1.59 MB compressed, was 6.62 / 2.41 MB) through a size profile, wasm-opt and dropping egui's emoji fonts; ready in about 12 s on "Fast 3G" (was 16 s), with the change list visible after 0.7 s.
+- Fixed: the first view of a comparison was fitted before the change list settled its width, cutting off part of the drawing (most visibly the floor plan); the view now refits when the panes resize until it is moved.
+- Fixed: demo zooms fitted to the previous pane size when a step switched side by side or Details; long headlines in the PNG report were cut off.
+- `lightable diff A B --svg OUT` writes the overlay as SVG.
+- Summary: "plus revision markup (M items, including K revision clouds)"; the bracket example adds "Example: the drafter clouded only the bolt note." JSON: `revision_cloud` per change, `summary.revision_clouds`.
+
+## First-run experience (unreleased)
+
+- The app opens on a comparison: a new default example, a steel bracket drawing Rev B → Rev C with exactly 4 design changes, a revision cloud and a title block; the floor plan stays as a second example in an example picker.
+- Plain-words headlines for every change ("Circle Ø12 moved 5 mm right", "Circle diameter changed from 12 mm to 14 mm", "Text changed from M12 to M16"), with units from `$INSUNITS`; revision clouds and title-block changes counted as revision markup.
+- Layered UI: summary and legend with no clicks; change list; side by side; everything else behind "Details". One hint at a time.
+- Demo mode (`?demo`, `--demo`): a captioned 30-second walkthrough ending on "Free. Open source. Your files never leave your computer. lightable.dev".
+- Fixed: text on screen was drawn about one text height too low.
+
 ## Public repository (unreleased)
 
 - `lightable-dxf`: every public item documented; `missing_docs` enforced.

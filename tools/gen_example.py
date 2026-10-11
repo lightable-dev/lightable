@@ -1,14 +1,24 @@
-"""The built-in example: two revisions of a small apartment floor plan.
+"""The built-in examples (millimetres, $INSUNITS = 4).
 
 Usage: tools/.venv/bin/python tools/gen_example.py crates/lightable/assets
 
-Writes example-rev-a.dxf and example-rev-b.dxf (millimetres). Everything
-in them is generated here with ezdxf (MIT), so the files are ours to ship
-under the project's licence. Revision B shows each kind of change the
-diff reports: a moved door, a removed wall, a new kitchen island, a
-renamed room, a changed floor hatch, an edited block definition (the
-chair, used by several references), a layer colour change and a new
-dimension.
+- bracket-rev-b.dxf / bracket-rev-c.dxf (the default example): a steel
+  mounting bracket drawing (160 x 100 x 10 mm plate, four bolts through
+  clearance holes). Rev C is one engineering change, bolts M12 -> M16,
+  with its consequences: larger clearance holes, holes moved for edge
+  distance, the callout and dimensions updated. The drafter clouds only
+  the bolt note. The expected changes were written down first, in
+  bracket-rev-c-inventory.md / .json.
+- plan-rev-a.dxf / plan-rev-b.dxf: two revisions of a small apartment
+  plan showing each kind of change the diff reports: a moved door, a
+  removed wall, a new kitchen island, a renamed room, a changed floor
+  hatch, an edited block definition (the chair, used by several
+  references), a layer colour change and a new dimension.
+
+Everything in them is generated here with ezdxf (MIT), so the files are
+ours to ship under the project's licence. Each later revision is the same
+document edited, so unchanged entities keep their handles, as when a CAD
+program saves a new revision.
 """
 
 import sys
@@ -90,11 +100,131 @@ def revise(doc, e):
                        dxfattribs={"layer": "DIMENSIONS"}).render()
 
 
+def bracket():
+    """Rev B of the bracket; returns the document and what Rev C edits.
+
+    A 160 x 100 mm plate, 10 mm S235JR, four M12 bolts through Ø13.5
+    clearance holes (ISO 273 medium series) at 20 mm edge distance
+    (EN 1993-1-8 Table 3.3: at least 1.2 d0 = 16.2 mm)."""
+    doc = ezdxf.new("R2018", setup=True)
+    doc.header["$INSUNITS"] = 4
+    for name, color in [("OUTLINE", 7), ("HOLES", 4), ("NOTES", 2), ("DIMS", 3), ("BORDER", 8),
+                        ("TITLE", 8), ("REVISION", 1)]:
+        doc.layers.add(name, color=color)
+    msp = doc.modelspace()
+    e = {}
+    LEFT = TextEntityAlignment.LEFT
+    MID = TextEntityAlignment.MIDDLE_CENTER
+
+    def text(s, x, y, h, layer, align=LEFT):
+        t = msp.add_text(s, height=h, dxfattribs={"layer": layer})
+        t.set_placement((x, y), align=align)
+        return t
+
+    def line(a, b, layer):
+        return msp.add_line(a, b, dxfattribs={"layer": layer})
+
+    # Sheet border, title block and revision table.
+    msp.add_lwpolyline([(0, 0), (297, 0), (297, 210), (0, 210)], close=True, dxfattribs={"layer": "BORDER"})
+    msp.add_lwpolyline([(187, 5), (292, 5), (292, 45), (187, 45)], close=True, dxfattribs={"layer": "TITLE"})
+    for y in (15, 25, 35):
+        line((187, y), (292, y), "TITLE")
+    line((262, 5), (262, 15), "TITLE")
+    text("STEEL MOUNTING BRACKET", 190, 38.5, 3.5, "TITLE")
+    text("MATERIAL: S235JR (EN 10025-2), 10 mm PLATE", 190, 29, 2.5, "TITLE")
+    text("DRAWING No. LT-0042    SCALE 1:1    mm", 190, 19, 2.5, "TITLE")
+    text("LIGHTABLE EXAMPLE", 190, 9, 2.5, "TITLE")
+    e["rev"] = text("REV B", 266, 8.5, 3.5, "TITLE")
+    # Revision table above the title block: header and row B.
+    msp.add_lwpolyline([(187, 45), (292, 45), (292, 59), (187, 59)], close=True, dxfattribs={"layer": "TITLE"})
+    line((187, 52), (292, 52), "TITLE")
+    line((197, 45), (197, 59), "TITLE")
+    text("REV", 189, 54.5, 2.5, "TITLE")
+    text("DESCRIPTION", 200, 54.5, 2.5, "TITLE")
+    text("B", 190, 47.5, 2.5, "TITLE")
+    text("FIRST ISSUE", 200, 47.5, 2.5, "TITLE")
+
+    # The part, clear of the title block and revision table.
+    msp.add_lwpolyline([(25, 80), (185, 80), (185, 180), (25, 180)], close=True, dxfattribs={"layer": "OUTLINE"})
+    e["holes"] = [msp.add_circle(c, 6.75, dxfattribs={"layer": "HOLES"})
+                  for c in [(45, 100), (165, 100), (165, 160), (45, 160)]]
+    e["callout"] = text("4x Ø13.5 THRU", 57, 88, 3, "NOTES")
+    e["bolts"] = text("BOLTS: 4x M12 ISO 4017 - 8.8", 25, 34, 3, "NOTES")
+    text("GENERAL TOLERANCES ISO 2768-m", 25, 27, 2.5, "NOTES")
+    text("BREAK ALL SHARP EDGES", 25, 21, 2.5, "NOTES")
+
+    # Dimensions: readable at 1:1 (3.5 mm text, 3 mm arrows), lengths as
+    # drawn (the EZDXF style otherwise scales them by 100).
+    style = {"dimtxt": 3.5, "dimasz": 3, "dimexe": 2, "dimexo": 2, "dimgap": 1, "dimlfac": 1}
+
+    def dim(base, p1, p2, angle=0):
+        d = msp.add_linear_dim(base=base, p1=p1, p2=p2, angle=angle, dimstyle="EZDXF", override=style,
+                               dxfattribs={"layer": "DIMS"})
+        d.render()
+        return d.dimension
+
+    dim((25, 66), (25, 80), (185, 80))                 # overall width 160
+    dim((11, 80), (25, 80), (25, 180), angle=90)       # overall height 100
+    e["dims"] = {
+        "top_edge": dim((25, 192), (25, 180), (45, 160)),             # 20
+        "top_pitch": dim((25, 192), (45, 160), (165, 160)),           # 120
+        "right_edge": dim((197, 80), (185, 180), (165, 160), angle=90),  # 20
+        "right_pitch": dim((197, 80), (165, 160), (165, 100), angle=90),  # 60
+    }
+    return doc, e
+
+
+def bracket_rev_c(doc, e):
+    """Rev C (ECN-017): bolts M12 -> M16. Holes Ø17.5 (ISO 273 medium for
+    M16), moved 5 mm inward for 25 mm edge distance (EN 1993-1-8: at least
+    1.2 d0 = 21 mm); callout, bolt note and dimensions follow. The drafter
+    clouds only the bolt note. See bracket-rev-c-inventory.md."""
+    msp = doc.modelspace()
+    for hole, c in zip(e["holes"], [(50, 105), (160, 105), (160, 155), (50, 155)]):
+        hole.dxf.center = c
+        hole.dxf.radius = 8.75
+    e["callout"].dxf.text = "4x Ø17.5 THRU"
+    e["bolts"].dxf.text = "BOLTS: 4x M16 ISO 4017 - 8.8"
+    for key, p1, p2 in [("top_edge", (25, 180), (50, 155)), ("top_pitch", (50, 155), (160, 155)),
+                        ("right_edge", (185, 180), (160, 155)), ("right_pitch", (160, 155), (160, 105))]:
+        d = e["dims"][key]
+        d.dxf.defpoint2 = p1
+        d.dxf.defpoint3 = p2
+        d.override().render()
+
+    # Revision markup.
+    e["rev"].dxf.text = "REV C"
+    title = {"layer": "TITLE"}
+    msp.add_lwpolyline([(187, 59), (187, 66), (292, 66), (292, 59)], dxfattribs=title)
+    msp.add_line((197, 59), (197, 66), dxfattribs=title)
+    for s, x in [("C", 190), ("BOLTS M12 TO M16 (ECN-017)", 200)]:
+        t = msp.add_text(s, height=2.5, dxfattribs=title)
+        t.set_placement((x, 61.5), align=TextEntityAlignment.LEFT)
+    # Revision cloud (a closed polyline of arcs) around the bolt note only.
+    x0, y0, x1, y1 = 21, 30, 85, 41
+    step = 5.5
+    pts = []
+    for (ax, ay), (bx, by) in [((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)),
+                               ((x0, y1), (x0, y0))]:
+        n = max(1, round(((bx - ax) ** 2 + (by - ay) ** 2) ** 0.5 / step))
+        for k in range(n):
+            pts.append((ax + (bx - ax) * k / n, ay + (by - ay) * k / n, -0.55))
+    msp.add_lwpolyline(pts, format="xyb", close=True, dxfattribs={"layer": "REVISION"})
+    # Revision triangle "C" next to the cloud.
+    msp.add_lwpolyline([(89, 31), (99, 31), (94, 40)], close=True, dxfattribs={"layer": "REVISION"})
+    t = msp.add_text("C", height=3, dxfattribs={"layer": "REVISION"})
+    t.set_placement((94, 34.5), align=TextEntityAlignment.MIDDLE_CENTER)
+
+
 def main():
+    doc, e = bracket()
+    doc.saveas(OUT / "bracket-rev-b.dxf")
+    bracket_rev_c(doc, e)
+    doc.saveas(OUT / "bracket-rev-c.dxf")
     doc, e = build()
-    doc.saveas(OUT / "example-rev-a.dxf")
+    doc.saveas(OUT / "plan-rev-a.dxf")
     revise(doc, e)
-    doc.saveas(OUT / "example-rev-b.dxf")
+    doc.saveas(OUT / "plan-rev-b.dxf")
 
 
 if __name__ == "__main__":

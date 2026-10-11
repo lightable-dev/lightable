@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- The manual-review baseline for docs/demo/manual-review-benchmark.md:
+     the two revisions as a reviewer sees two PDFs, side by side and as a
+     pixel-difference overlay. Serve the repository root (for example
+     `python3 tools/web_test_server.py`) and open /docs/demo/manual-review.html. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="data:,">
+  <title>Manual review baseline</title>
+  <style>
+    body { margin: 0; padding: 16px; background: #fff; color: #222; font: 14px system-ui, sans-serif; }
+    h2 { font-size: 15px; margin: 18px 0 8px; }
+    .pair { display: flex; gap: 12px; }
+    .pair figure, .stack { margin: 0; flex: 1; }
+    figcaption { margin-top: 4px; color: #555; }
+    /* As printed: dark lines on white. */
+    .paper { filter: invert(1) grayscale(1); width: 100%; display: block; }
+    /* Pixel difference: identical pixels cancel to black. */
+    .stack { position: relative; max-width: 900px; }
+    .stack img { width: 100%; display: block; }
+    .stack img + img { position: absolute; inset: 0; mix-blend-mode: difference; }
+  </style>
+</head>
+<body>
+  <h2>1. Two PDFs side by side</h2>
+  <div class="pair">
+    <figure><img class="paper" src="../../tests/snapshots/examples/bracket-rev-b.svg" alt="Rev B"><figcaption>Rev B</figcaption></figure>
+    <figure><img class="paper" src="../../tests/snapshots/examples/bracket-rev-c.svg" alt="Rev C"><figcaption>Rev C</figcaption></figure>
+  </div>
+  <h2>2. Pixel overlay (difference): what is not black differs</h2>
+  <div class="stack">
+    <img src="../../tests/snapshots/examples/bracket-rev-b.svg" alt="Rev B">
+    <img src="../../tests/snapshots/examples/bracket-rev-c.svg" alt="Rev C">
+  </div>
+</body>
+</html>
