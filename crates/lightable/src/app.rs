@@ -2,9 +2,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use eframe::egui::{
-    self, Align2, Color32, FontId, PointerButton, Pos2, Rect, Sense, epaint::TextShape,
-};
+use eframe::egui::{self, Color32, FontId, PointerButton, Pos2, Rect, Sense, epaint::TextShape};
 use eframe::{egui_glow, glow};
 
 use lightable_render::{HAlign, Scene, Shape, VAlign, View, tess};
@@ -164,16 +162,31 @@ struct Anim {
 /// The demo sequence (`?demo`): about 30 seconds with captions, then an end
 /// card. Times in seconds from the start.
 struct Demo {
-    start: Option<f64>,
-    /// The last step applied.
+    /// When the next step starts (the first a second after the app is up).
+    next_at: Option<f64>,
+    /// The step showing now; `usize::MAX` before the first.
     step: usize,
 }
 
-/// Start time of each demo step; the end card stays after the last.
-const DEMO_STEPS: [f64; 10] = [0.0, 3.5, 7.0, 10.5, 13.5, 16.5, 19.5, 23.0, 26.5, 30.0];
+/// The demo's steps; the last is the end card, which stays.
+const DEMO_LAST_STEP: usize = 9;
 
-/// A file read in the background: name and bytes.
-type FileSlot = Arc<Mutex<Vec<(usize, String, Vec<u8>)>>>;
+/// How long a demo caption stays: reading time at 3 words a second, plus
+/// a second for the zoom to settle; at least 3 seconds.
+pub fn caption_seconds(caption: &str) -> f64 {
+    (caption.split_whitespace().count() as f64 / 3.0 + 1.0).max(3.0)
+}
+
+/// Caption text size for a screen: readable in a 16:9 or 9:16 video.
+pub fn caption_size(width: f32, height: f32) -> f32 {
+    (width.min(height) / 26.0).clamp(20.0, 48.0)
+}
+
+/// The file dialog exists (web); the native app takes files by drag and
+/// drop or on the command line.
+pub const CAN_CHOOSE_FILES: bool = cfg!(target_arch = "wasm32");
+/// The privacy promise, next to "Choose files…".
+pub const PRIVACY: &str = "Files are read in this browser, never uploaded.";
 
 pub struct CadApp {
     doc: Option<Doc>,
@@ -183,14 +196,24 @@ pub struct CadApp {
     frame_times: Vec<f64>,
     bench: Option<Bench>,
     pending: Vec<(String, Vec<u8>)>,
-    /// Files read in the background (the web reads dropped files
-    /// asynchronously): the drop's position and the file.
-    incoming: FileSlot,
-    /// How many dropped files are still being read.
-    awaiting: usize,
+    /// Files read in the background (the web reads dropped and chosen
+    /// files asynchronously).
+    incoming: crate::files::FileSlot,
+    /// Files to read once "Reading…" has been shown (a big file can take
+    /// seconds): the files, whether to put them in revision order, and
+    /// frames left to wait.
+    to_read: Option<(Vec<crate::files::Arrived>, bool, u8)>,
+    /// A file that could not be used, shown in its own window.
+    problem: Option<crate::intake::Problem>,
+    /// Two files waiting for the user to say which is the earlier: the
+    /// files and whether their contents are identical.
+    #[allow(clippy::type_complexity)]
+    ask_order: Option<(
+        (String, Arc<lightable_dxf::Drawing>),
+        (String, Arc<lightable_dxf::Drawing>),
+        bool,
+    )>,
     compare: Option<Compare>,
-    /// The next file received is compared with the open drawing.
-    compare_next: bool,
     /// Start compare views side by side (`--side`).
     side_by_side: bool,
     /// `--report`: save the PNG report of the first comparison and quit.
@@ -210,6 +233,9 @@ pub struct CadApp {
     caption: Option<String>,
     /// The demo's end card is showing.
     end_card: bool,
+    /// Where the drawing was drawn last frame (demo captions sit at its
+    /// bottom).
+    canvas_rect: Option<Rect>,
 }
 
 /// egui's two text fonts without its emoji fonts (about 740 kB of the web
@@ -242,6 +268,12 @@ impl CadApp {
     pub fn new(cc: &eframe::CreationContext<'_>, start: Start) -> Self {
         cc.egui_ctx.set_theme(egui::ThemePreference::Dark);
         cc.egui_ctx.set_fonts(fonts());
+        // Keyboard focus (egui draws a focused widget in its "active" style)
+        // gets a bright 2-point outline, visible from across the room.
+        cc.egui_ctx.all_styles_mut(|style| {
+            style.visuals.widgets.active.bg_stroke =
+                egui::Stroke::new(2.0, Color32::from_rgb(0x6f, 0x9b, 0xff));
+        });
         let Start {
             files,
             example,
@@ -257,6 +289,11 @@ impl CadApp {
         } else {
             example
         };
+        let incoming = crate::files::FileSlot::default();
+        #[cfg(target_arch = "wasm32")]
+        if let Err(e) = crate::files::listen(&incoming, &cc.egui_ctx) {
+            eprintln!("file dialog: {e}");
+        }
         Self {
             doc: None,
             view: View::new([800.0, 600.0]),
@@ -265,10 +302,11 @@ impl CadApp {
             frame_times: Vec::new(),
             bench,
             pending: files,
-            incoming: Arc::default(),
-            awaiting: 0,
+            incoming,
+            to_read: None,
+            problem: None,
+            ask_order: None,
             compare: None,
-            compare_next: false,
             side_by_side,
             report_and_quit,
             example_pending: example,
@@ -276,9 +314,10 @@ impl CadApp {
             demo_zoom: None,
             auto_fit: false,
             demo: demo.then_some(Demo {
-                start: None,
+                next_at: None,
                 step: usize::MAX,
             }),
+            canvas_rect: None,
             caption: None,
             end_card: false,
         }
@@ -339,14 +378,13 @@ impl CadApp {
         true
     }
 
-    fn load(&mut self, gl: Option<&Arc<glow::Context>>, name: String, bytes: &[u8]) {
-        let (drawing, warnings) = match lightable_dxf::read_bytes(bytes) {
-            Ok(r) => r,
-            Err(e) => {
-                self.message = Some(format!("{name}: {e}"));
-                return;
-            }
-        };
+    fn load(
+        &mut self,
+        gl: Option<&Arc<glow::Context>>,
+        name: String,
+        drawing: Arc<lightable_dxf::Drawing>,
+        warnings: usize,
+    ) {
         let scene = lightable_render::build(&drawing);
         if let Some(old) = self.doc.take() {
             old.destroy(gl);
@@ -354,11 +392,10 @@ impl CadApp {
         if let Some(old) = self.compare.take() {
             old.destroy(gl);
         }
-        match Doc::new(gl, name, scene, warnings.len()) {
+        match Doc::new(gl, name, scene, warnings) {
             Ok(mut doc) => {
-                doc.drawing = Some(Arc::new(drawing));
+                doc.drawing = Some(drawing);
                 self.doc = Some(doc);
-                self.message = None;
             }
             Err(e) => self.message = Some(e),
         }
@@ -387,41 +424,157 @@ impl CadApp {
         }
     }
 
-    /// Files that arrived (dropped, or from the command line). Two files
-    /// are compared; one is opened, or compared with the open drawing
-    /// after "Compare with…".
-    fn receive(&mut self, gl: Option<&Arc<glow::Context>>, mut files: Vec<(String, Vec<u8>)>) {
-        let read = |(name, bytes): (String, Vec<u8>)| match lightable_dxf::read_bytes(&bytes) {
-            Ok((d, _)) => Ok((name, Arc::new(d))),
-            Err(e) => Err(format!("{name}: {e}")),
+    /// Compares two files the user handed over, `a` as the earlier.
+    fn compare_files(
+        &mut self,
+        gl: Option<&Arc<glow::Context>>,
+        a: (String, Arc<lightable_dxf::Drawing>),
+        b: (String, Arc<lightable_dxf::Drawing>),
+        same: bool,
+    ) {
+        self.start_compare(gl, a, b, None, None);
+        if let Some(c) = &mut self.compare {
+            c.notes = crate::intake::notes(same, c.diff());
+        }
+    }
+
+    /// Two files whose names and dates do not say which came first: the
+    /// user picks the earlier one.
+    fn order_window(&mut self, ui: &mut egui::Ui, gl: Option<&Arc<glow::Context>>) {
+        let Some((a, b, same)) = self.ask_order.take() else {
+            return;
         };
-        if files.len() >= 2 {
-            files.truncate(2);
-            let b = files.pop().map(read);
-            let a = files.pop().map(read);
-            match (a, b) {
-                (Some(Ok(a)), Some(Ok(b))) => self.start_compare(gl, a, b, None, None),
-                (Some(Err(e)), _) | (_, Some(Err(e))) => self.message = Some(e),
-                _ => {}
+        let (na, nb) = (
+            crate::intake::short(&a.0).to_owned(),
+            crate::intake::short(&b.0).to_owned(),
+        );
+        let mut choice = None;
+        let width = (ui.ctx().content_rect().width() - 32.0).clamp(240.0, 480.0);
+        let modal = egui::Modal::new(egui::Id::new("order")).show(ui.ctx(), |ui| {
+            ui.set_width(width);
+            ui.heading("Which file is the earlier revision?");
+            ui.add_space(6.0);
+            ui.add(
+                egui::Label::new(
+                    "The file names and dates do not say clearly which came first. \
+                     Choose the one to compare from (Before); you can swap them later.",
+                )
+                .wrap(),
+            );
+            ui.add_space(10.0);
+            if ui.button(format!("{na} is Before")).clicked() {
+                choice = Some(true);
+            }
+            if ui.button(format!("{nb} is Before")).clicked() {
+                choice = Some(false);
+            }
+        });
+        match choice {
+            Some(true) => self.compare_files(gl, a, b, same),
+            Some(false) => self.compare_files(gl, b, a, same),
+            // Closing without a choice cancels; the open view stays.
+            None if modal.should_close() => {}
+            None => self.ask_order = Some((a, b, same)),
+        }
+    }
+
+    /// Shows "Reading…" now and reads `files` a frame later, so the
+    /// message is on screen while a big file is parsed.
+    fn stage(&mut self, files: Vec<crate::files::Arrived>, reorder: bool) {
+        if files.is_empty() {
+            return;
+        }
+        let total: usize = files
+            .iter()
+            .map(|f| f.bytes.as_ref().map_or(0, Vec::len))
+            .sum();
+        let names: Vec<&str> = files
+            .iter()
+            .map(|f| crate::intake::short(&f.name))
+            .collect();
+        self.message = Some(format!(
+            "Reading {} ({})…",
+            names.join(" and "),
+            crate::intake::size(total)
+        ));
+        self.problem = None;
+        self.to_read = Some((files, reorder, 2));
+    }
+
+    /// Files that arrived (dropped, chosen or from the command line). Two
+    /// files are compared, the earlier revision first when `reorder` (the
+    /// command line keeps its order); one is opened, or compared with the
+    /// drawing already open on its own.
+    fn receive(
+        &mut self,
+        gl: Option<&Arc<glow::Context>>,
+        mut files: Vec<crate::files::Arrived>,
+        reorder: bool,
+    ) {
+        use crate::intake;
+        self.message = None;
+        files.truncate(2);
+        let mut read = Vec::new();
+        for f in files {
+            let bytes = match f.bytes {
+                Ok(b) => b,
+                Err(e) => {
+                    self.problem = Some(intake::Problem {
+                        title: format!("{} could not be read", intake::short(&f.name)),
+                        body: "The browser could not read the file. Choose it again; if it is on a network drive or in cloud storage, copy it to this device first.".into(),
+                        detail: Some(e),
+                    });
+                    return;
+                }
+            };
+            match lightable_dxf::read_bytes(&bytes) {
+                Ok((drawing, warnings)) => {
+                    if let Some(p) = intake::incomplete(&f.name, &warnings) {
+                        self.problem = Some(p);
+                        return;
+                    }
+                    read.push((f.name, Arc::new(drawing), f.modified, bytes, warnings.len()));
+                }
+                Err(e) => {
+                    self.problem = Some(intake::unreadable(&f.name, &bytes, &e));
+                    return;
+                }
+            }
+        }
+        if read.len() == 2 {
+            let same = read[0].3 == read[1].3;
+            let order = if reorder {
+                intake::revision_order((&read[0].0, read[0].2), (&read[1].0, read[1].2))
+            } else {
+                intake::Order::AsGiven
+            };
+            let b = read.pop().map(|r| (r.0, r.1));
+            let a = read.pop().map(|r| (r.0, r.1));
+            if let (Some(a), Some(b)) = (a, b) {
+                match order {
+                    intake::Order::AsGiven => self.compare_files(gl, a, b, same),
+                    intake::Order::Swapped => self.compare_files(gl, b, a, same),
+                    intake::Order::Ask => self.ask_order = Some((a, b, same)),
+                }
             }
             return;
         }
-        let Some(file) = files.pop() else { return };
-        let current = self
+        let Some((name, drawing, _, _, warnings)) = read.pop() else {
+            return;
+        };
+        // One file while another is open on its own: compare them, the open
+        // one as the earlier revision (Swap changes that).
+        let open = self
             .doc
             .as_ref()
             .and_then(|d| Some((d.name.clone(), d.drawing.clone()?)));
-        if self.compare_next
-            && let Some(a) = current
+        if self.compare.is_none()
+            && let Some(a) = open
         {
-            self.compare_next = false;
-            match read(file) {
-                Ok(b) => self.start_compare(gl, a, b, None, None),
-                Err(e) => self.message = Some(e),
-            }
+            self.start_compare(gl, a, (name, drawing), None, None);
             return;
         }
-        self.load(gl, file.0, &file.1);
+        self.load(gl, name, drawing, warnings);
     }
 
     fn fit(&mut self) {
@@ -439,78 +592,97 @@ impl CadApp {
         }
     }
 
-    fn toolbar(&mut self, ui: &mut egui::Ui, gl: Option<&Arc<glow::Context>>) {
-        if self.compare.is_some() {
-            let mut close = false;
-            let mut fit = false;
-            let mut example = None;
-            let now = ui.input(|i| i.time);
+    /// Opens the file dialog (web). Chosen files arrive in `incoming`.
+    fn choose_files(&mut self, ctx: &egui::Context) {
+        #[cfg(target_arch = "wasm32")]
+        if let Err(e) = crate::files::choose() {
+            self.message = Some(format!("Could not open the file dialog: {e}"));
+        }
+        let _ = ctx;
+    }
+
+    /// Does what the compare toolbar or summary asked for.
+    fn act(&mut self, action: &crate::compare::Action, gl: Option<&Arc<glow::Context>>) {
+        if let Some(m) = &action.message {
+            self.message = Some(m.clone());
+        }
+        if action.close
+            && let Some(c) = self.compare.take()
+        {
+            c.destroy(gl);
+        }
+        if action.fit {
+            self.fit();
+        }
+        if let Some(id) = action.example {
+            self.open_example(gl, id);
+        }
+        if action.swap
+            && let Some(c) = &self.compare
+        {
+            let (a, b, labels) = c.swapped();
+            let notes = c.notes.clone();
+            let side = c.side_by_side;
+            self.start_compare(gl, a, b, labels, None);
             if let Some(c) = &mut self.compare {
-                let action = c.toolbar(ui);
-                close = action.close;
-                fit = action.fit;
-                example = action.example;
-                if let Some(b) = action.zoom {
-                    self.animate_to(&b, 0.15, now, 0.6);
-                }
-                if let Some(m) = action.message {
-                    self.message = Some(m);
-                }
+                c.notes = notes;
+                c.side_by_side = side;
             }
-            if close && let Some(c) = self.compare.take() {
-                c.destroy(gl);
+        }
+    }
+
+    fn toolbar(&mut self, ui: &mut egui::Ui, gl: Option<&Arc<glow::Context>>) {
+        if let Some(c) = &mut self.compare {
+            let action = c.toolbar(ui);
+            if let Some(b) = action.zoom {
+                let now = ui.input(|i| i.time);
+                self.animate_to(&b, 0.15, now, 0.6);
             }
-            if fit {
-                self.fit();
+            if action.choose {
+                self.choose_files(ui.ctx());
             }
-            if let Some(id) = example {
-                self.open_example(gl, id);
-            }
+            self.act(&action, gl);
             return;
         }
         let mut example = false;
-        ui.horizontal(|ui| {
+        let mut choose = false;
+        ui.horizontal_wrapped(|ui| {
+            if CAN_CHOOSE_FILES {
+                choose = ui
+                    .button("Choose files…")
+                    .on_hover_text("Pick the two revisions (DXF) to compare")
+                    .clicked();
+                ui.label(egui::RichText::new(PRIVACY).small().color(Color32::from_gray(160)));
+                ui.separator();
+            }
             example = ui
                 .button("Try the example")
                 .on_hover_text("Compare two revisions of a sample drawing (built in, made for this app)")
                 .clicked();
-            ui.separator();
-            if self.doc.as_ref().is_some_and(|d| d.drawing.is_some()) {
-                let label = if self.compare_next {
-                    "Drop the newer drawing…"
-                } else {
-                    "Compare with…"
-                };
-                if ui
-                    .selectable_label(self.compare_next, label)
-                    .on_hover_text("Then drop the drawing to compare this one with. Dropping two files at once also compares them.")
-                    .clicked()
-                {
-                    self.compare_next = !self.compare_next;
-                }
-                ui.separator();
-            }
-            match &self.doc {
-                Some(doc) => ui.strong(&doc.name),
-                None => ui.label("Drop a DXF file here (or pass one on the command line)"),
-            };
-            if ui.button("Zoom extents").clicked() {
-                self.fit();
-            }
             if let Some(doc) = &self.doc {
-                let stats = doc.stats.lock().map(|s| *s).unwrap_or_default();
                 ui.separator();
-                ui.label(format!(
-                    "{} items, {} vertices",
+                let stats = doc.stats.lock().map(|s| *s).unwrap_or_default();
+                ui.strong(&doc.name).on_hover_text(format!(
+                    "{} items, {} vertices; drawn in {} chunks{}",
                     doc.scene.items.len(),
-                    doc.vertices
+                    doc.vertices,
+                    stats.chunks,
+                    if doc.warnings > 0 {
+                        format!("; {} read warnings", doc.warnings)
+                    } else {
+                        String::new()
+                    }
                 ));
-                ui.label(format!(
-                    "drawn: {} chunks, {} vertices",
-                    stats.chunks, stats.vertices
-                ));
-                if doc.warnings > 0 {
-                    ui.label(format!("{} read warnings", doc.warnings));
+                ui.label(
+                    egui::RichText::new(if CAN_CHOOSE_FILES {
+                        "To compare, choose (or drop) the other revision."
+                    } else {
+                        "To compare, drop the other revision on the window."
+                    })
+                    .color(Color32::from_rgb(0xf5, 0xd0, 0x2a)),
+                );
+                if ui.button("Zoom extents").clicked() {
+                    self.fit();
                 }
             }
             ui.separator();
@@ -521,15 +693,82 @@ impl CadApp {
             {
                 self.message = crate::feedback::open(ui.ctx());
             }
-            if !self.frame_times.is_empty() {
-                let avg = self.frame_times.iter().sum::<f64>() / self.frame_times.len() as f64;
-                ui.separator();
-                ui.label(format!("{:.1} ms/frame", avg * 1000.0));
-            }
         });
+        if choose {
+            self.choose_files(ui.ctx());
+        }
         if example {
             self.open_example(gl, "");
         }
+    }
+
+    /// Nothing open: what Lightable does and how to start.
+    fn welcome(&mut self, ui: &mut egui::Ui, gl: Option<&Arc<glow::Context>>) {
+        let mut example = false;
+        let mut choose = false;
+        ui.vertical_centered(|ui| {
+            ui.add_space((ui.available_height() * 0.25).min(160.0));
+            ui.heading(egui::RichText::new("Compare two revisions of a drawing").size(24.0));
+            ui.add_space(8.0);
+            ui.label("Lightable lists what changed between two DXF files, in plain words, and shows where.");
+            ui.add_space(16.0);
+            if CAN_CHOOSE_FILES {
+                choose = ui
+                    .add(egui::Button::new(egui::RichText::new("Choose two DXF files…").size(18.0)))
+                    .clicked();
+                ui.add_space(6.0);
+                ui.label(egui::RichText::new(PRIVACY).color(Color32::from_gray(170)));
+            } else {
+                ui.label("Drop two DXF files on this window.");
+            }
+            ui.add_space(12.0);
+            example = ui.button("Or try the example").clicked();
+        });
+        if choose {
+            self.choose_files(ui.ctx());
+        }
+        if example {
+            self.open_example(gl, "");
+        }
+    }
+
+    /// A file that could not be used: what happened and what to do.
+    fn problem_window(&mut self, ui: &mut egui::Ui, gl: Option<&Arc<glow::Context>>) {
+        let Some(p) = self.problem.clone() else {
+            return;
+        };
+        let mut close = false;
+        let mut choose = false;
+        let width = (ui.ctx().content_rect().width() - 32.0).clamp(240.0, 480.0);
+        let modal = egui::Modal::new(egui::Id::new("problem")).show(ui.ctx(), |ui| {
+            ui.set_width(width);
+            ui.heading(&p.title);
+            ui.add_space(6.0);
+            ui.add(egui::Label::new(&p.body).wrap());
+            if let Some(d) = &p.detail {
+                ui.add_space(6.0);
+                egui::CollapsingHeader::new(egui::RichText::new("Details").small())
+                    .show(ui, |ui| {
+                        ui.add(egui::Label::new(egui::RichText::new(d).small()).wrap())
+                    });
+            }
+            ui.add_space(10.0);
+            ui.horizontal_wrapped(|ui| {
+                if CAN_CHOOSE_FILES && ui.button("Choose other files…").clicked() {
+                    choose = true;
+                }
+                if ui.button("OK").clicked() {
+                    close = true;
+                }
+            });
+        });
+        if modal.should_close() || close || choose {
+            self.problem = None;
+        }
+        if choose {
+            self.choose_files(ui.ctx());
+        }
+        let _ = gl;
     }
 
     fn layer_panel(&mut self, ui: &mut egui::Ui) {
@@ -565,6 +804,7 @@ impl CadApp {
 
     fn canvas(&mut self, ui: &mut egui::Ui) {
         let (rect, response) = ui.allocate_exact_size(ui.available_size(), Sense::click_and_drag());
+        self.canvas_rect = Some(rect);
         // Side by side: two panes share one view.
         let panes = match &self.compare {
             Some(c) => c.panes(rect),
@@ -687,6 +927,18 @@ pub(crate) fn draw_texts(painter: &egui::Painter, rect: Rect, view: &View, doc: 
     }
 }
 
+/// The list goes under the drawing: portrait screens (phones held
+/// upright, 9:16 video), and narrow windows that are not also short.
+pub fn is_narrow(width: f32, height: f32) -> bool {
+    height > width * 1.2 || (width < 720.0 && !is_short(height))
+}
+
+/// Little height (a phone held sideways): the list stays beside the
+/// drawing and the summary is compact.
+pub fn is_short(height: f32) -> bool {
+    height < 480.0
+}
+
 impl eframe::App for CadApp {
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
         let dt = ui.input(|i| f64::from(i.unstable_dt));
@@ -694,59 +946,93 @@ impl eframe::App for CadApp {
         if self.frame_times.len() > 60 {
             self.frame_times.remove(0);
         }
+        use crate::files::Arrived;
+        // Files named on the command line, in the order given.
         if !self.pending.is_empty() {
-            let files = std::mem::take(&mut self.pending);
-            self.receive(frame.gl(), files);
-            if self.side_by_side
-                && let Some(c) = &mut self.compare
-            {
-                c.side_by_side = true;
-            }
+            let files = std::mem::take(&mut self.pending)
+                .into_iter()
+                .enumerate()
+                .map(|(order, (name, bytes))| Arrived {
+                    order,
+                    name,
+                    bytes: Ok(bytes),
+                    modified: None,
+                })
+                .collect();
+            self.stage(files, false);
         }
         let dropped = ui.input(|i| i.raw.dropped_files.clone());
         #[cfg(not(target_arch = "wasm32"))]
         if !dropped.is_empty() {
-            let mut files = Vec::new();
-            for file in dropped {
-                let name = file.path().display().to_string();
-                match file.bytes() {
-                    Ok(bytes) => files.push((name, bytes)),
-                    Err(e) => self.message = Some(format!("{name}: {e}")),
-                }
-            }
-            self.receive(frame.gl(), files);
+            let files = dropped
+                .into_iter()
+                .enumerate()
+                .map(|(order, file)| {
+                    let path = file.path().to_path_buf();
+                    let modified = std::fs::metadata(&path)
+                        .and_then(|m| m.modified())
+                        .ok()
+                        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                        .map(|d| d.as_secs_f64() * 1000.0);
+                    Arrived {
+                        order,
+                        name: path.display().to_string(),
+                        bytes: file.bytes(),
+                        modified,
+                    }
+                })
+                .collect();
+            self.stage(files, true);
         }
         #[cfg(target_arch = "wasm32")]
         {
             // Browsers read files asynchronously; the bytes arrive in a
             // later frame through `incoming`.
-            if !dropped.is_empty() {
-                self.awaiting = dropped.len();
-                if let Ok(mut slot) = self.incoming.lock() {
-                    slot.clear();
-                }
+            if !dropped.is_empty()
+                && let Ok(mut slot) = self.incoming.lock()
+            {
+                slot.expect(dropped.len());
             }
             for (order, file) in dropped.into_iter().enumerate() {
                 let name = file.path().display().to_string();
+                let modified = file.web_file().map(web_sys::File::last_modified);
                 let incoming = self.incoming.clone();
                 let ctx = ui.ctx().clone();
                 wasm_bindgen_futures::spawn_local(async move {
-                    let bytes = file.bytes_async().await.unwrap_or_default();
+                    let bytes = file.bytes_async().await;
                     if let Ok(mut slot) = incoming.lock() {
-                        slot.push((order, name, bytes));
+                        slot.files.push(Arrived {
+                            order,
+                            name,
+                            bytes,
+                            modified,
+                        });
                         ctx.request_repaint();
                     }
                 });
             }
         }
-        let arrived = self.incoming.lock().ok().and_then(|mut slot| {
-            (self.awaiting > 0 && slot.len() >= self.awaiting).then(|| std::mem::take(&mut *slot))
-        });
-        if let Some(mut files) = arrived {
-            self.awaiting = 0;
-            files.sort_by_key(|f| f.0);
-            let files = files.into_iter().map(|(_, n, b)| (n, b)).collect();
-            self.receive(frame.gl(), files);
+        let arrived = self
+            .incoming
+            .lock()
+            .ok()
+            .and_then(|mut s| s.take_complete());
+        if let Some(files) = arrived {
+            self.stage(files, true);
+        }
+        // Read staged files once "Reading…" has been drawn.
+        if let Some((files, reorder, wait)) = self.to_read.take() {
+            if wait > 0 {
+                self.to_read = Some((files, reorder, wait - 1));
+                ui.ctx().request_repaint();
+            } else {
+                self.receive(frame.gl(), files, reorder);
+                if self.side_by_side
+                    && let Some(c) = &mut self.compare
+                {
+                    c.side_by_side = true;
+                }
+            }
         }
 
         let gl = frame.gl().cloned();
@@ -787,37 +1073,54 @@ impl eframe::App for CadApp {
             self.overlays(ui);
             return;
         }
+        // Narrow or portrait screens (phones): the change list goes under
+        // the drawing and rows wrap.
+        let screen = ui.ctx().content_rect();
+        let narrow = is_narrow(screen.width(), screen.height());
+        if let Some(c) = &mut self.compare {
+            c.narrow = narrow;
+            c.short = is_short(screen.height());
+        }
         egui::Panel::top("toolbar").show(ui, |ui| self.toolbar(ui, gl.as_ref()));
-        let details = self.compare.as_ref().is_none_or(|c| c.details);
+        // Details: the comparison's toggle; always for a single drawing;
+        // nothing to detail when nothing is open.
+        let details = self
+            .compare
+            .as_ref()
+            .map_or(self.doc.is_some(), |c| c.details);
         if let Some(c) = &mut self.compare {
             let mut zoom = None;
-            egui::Panel::top("summary").show(ui, |ui| zoom = c.summary_bar(ui));
-            egui::Panel::right("changes")
-                .resizable(true)
-                .default_size(380.0)
-                .show(ui, |ui| {
-                    if let Some(b) = c.change_list(ui) {
-                        zoom = Some(b);
-                    }
-                });
-            if let Some(b) = zoom {
+            let mut action = crate::compare::Action::default();
+            egui::Panel::top("summary").show(ui, |ui| zoom = c.summary_bar(ui, &mut action));
+            let list = |ui: &mut egui::Ui| c.change_list(ui);
+            let picked = if narrow {
+                egui::Panel::bottom("changes-below")
+                    .resizable(true)
+                    .default_size(screen.height() * 0.35)
+                    .show(ui, list)
+                    .inner
+            } else {
+                egui::Panel::right("changes")
+                    .resizable(true)
+                    .default_size(520.0_f32.min(screen.width() * 0.4))
+                    .show(ui, list)
+                    .inner
+            };
+            if let Some(b) = picked.or(zoom) {
                 self.animate_to(&b, 0.15, now, 0.6);
             }
+            self.act(&action, gl.as_ref());
         }
-        // The status bar is a detail, except to report an export or a
-        // problem.
+        // The status bar is a detail, except to report an export or that a
+        // file is being read.
         if details || self.message.is_some() {
             egui::Panel::bottom("status").show(ui, |ui| {
-                ui.horizontal(|ui| {
+                ui.horizontal_wrapped(|ui| {
                     if let Some(m) = &self.message {
-                        // Exports report where the file went; anything else is a problem.
-                        let ok = m.starts_with("Saved ") || m.starts_with("Downloaded ");
-                        let color = if ok {
-                            Color32::LIGHT_GREEN
-                        } else {
-                            Color32::LIGHT_RED
-                        };
-                        ui.colored_label(color, m);
+                        ui.label(egui::RichText::new(m).color(Color32::WHITE));
+                    }
+                    if !details {
+                        return;
                     }
                     if let Some(c) = &self.compare {
                         ui.label(c.status());
@@ -832,14 +1135,16 @@ impl eframe::App for CadApp {
                             .collect();
                         ui.label(format!("not drawn: {}", skipped.join(", ")));
                     }
-                    if details && let Some(p) = ui.input(|i| i.pointer.hover_pos()) {
+                    if let Some(p) = ui.input(|i| i.pointer.hover_pos())
+                        && (self.doc.is_some() || self.compare.is_some())
+                    {
                         let w = self.view.to_world([f64::from(p.x), f64::from(p.y)]);
                         ui.label(format!("{:.4}, {:.4}", w[0], w[1]));
                     }
                 });
             });
         }
-        if details {
+        if details && (self.doc.is_some() || self.compare.is_some()) && !narrow {
             egui::Panel::left("layers")
                 .resizable(true)
                 .default_size(200.0)
@@ -848,12 +1153,21 @@ impl eframe::App for CadApp {
                     self.layer_panel(ui);
                 });
         }
-        egui::CentralPanel::no_frame().show(ui, |ui| self.canvas(ui));
+        if self.doc.is_none() && self.compare.is_none() {
+            egui::CentralPanel::default().show(ui, |ui| self.welcome(ui, gl.as_ref()));
+        }
+        if self.doc.is_some() || self.compare.is_some() {
+            egui::CentralPanel::no_frame().show(ui, |ui| self.canvas(ui));
+        }
         if let Some(c) = &self.compare
             && self.demo.is_none()
+            && self.problem.is_none()
+            && self.ask_order.is_none()
         {
             c.hints(ui.ctx());
         }
+        self.problem_window(ui, gl.as_ref());
+        self.order_window(ui, gl.as_ref());
         self.overlays(ui);
 
         #[cfg(not(target_arch = "wasm32"))]
@@ -927,15 +1241,11 @@ impl CadApp {
             (a.to_owned(), b.to_owned())
         };
         let Some(demo) = &mut self.demo else { return };
-        let start = *demo.start.get_or_insert(now + 1.0);
-        let t = now - start;
-        if t < 0.0 {
+        let next_at = *demo.next_at.get_or_insert(now + 1.0);
+        if now < next_at || demo.step == DEMO_LAST_STEP {
             return;
         }
-        let step = DEMO_STEPS.iter().rposition(|&s| t >= s).unwrap_or(0);
-        if step == demo.step {
-            return;
-        }
+        let step = demo.step.wrapping_add(1);
         demo.step = step;
         let Some(c) = &mut self.compare else { return };
         let extent = c.bounds();
@@ -952,7 +1262,7 @@ impl CadApp {
                 c.details = false;
                 c.preview_report(false);
                 zoom = extent.map(|e| (e, 0.03));
-                format!("Before and after: {a} on the left, {b} on the right.")
+                format!("Before and after: {a} left, {b} right.")
             }
             1 => match c.cloud_bounds() {
                 Some(cloud) => {
@@ -977,7 +1287,7 @@ impl CadApp {
                 c.details = true;
                 c.reveal_not_compared = true;
                 zoom = extent.map(|e| (e, 0.03));
-                "Details: the technical data, and what was not compared.".to_owned()
+                "Details: exact values, and what is not compared.".to_owned()
             }
             7 => {
                 c.details = false;
@@ -996,6 +1306,10 @@ impl CadApp {
         if let Some((b, margin)) = zoom {
             self.demo_zoom = Some((b, margin));
         }
+        let seconds = caption_seconds(self.caption.as_deref().unwrap_or(""));
+        if let Some(demo) = &mut self.demo {
+            demo.next_at = Some(now + seconds);
+        }
     }
 
     /// Demo captions and the end card, over everything.
@@ -1005,6 +1319,22 @@ impl CadApp {
             egui::Order::Foreground,
             egui::Id::new("demo"),
         ));
+        // Reading files (a big one can take seconds): say so in the middle.
+        if self.to_read.is_some()
+            && let Some(text) = &self.message
+        {
+            let galley = painter.layout(
+                text.clone(),
+                FontId::proportional(18.0),
+                Color32::WHITE,
+                screen.width() * 0.8,
+            );
+            let rect =
+                Rect::from_center_size(screen.center(), galley.size() + egui::vec2(40.0, 28.0));
+            painter.rect_filled(rect, 10.0, Color32::from_rgba_unmultiplied(0, 0, 0, 225));
+            painter.galley(rect.min + egui::vec2(20.0, 14.0), galley, Color32::WHITE);
+        }
+        let m = screen.width().min(screen.height());
         if self.end_card {
             painter.rect_filled(
                 screen,
@@ -1013,37 +1343,51 @@ impl CadApp {
             );
             let c = screen.center();
             let line = |y: f32, text: &str, size: f32, color: Color32| {
-                painter.text(
-                    egui::pos2(c.x, c.y + y),
-                    Align2::CENTER_CENTER,
-                    text,
+                let galley = painter.layout(
+                    text.to_owned(),
                     FontId::proportional(size),
                     color,
+                    screen.width() * 0.9,
                 );
+                let at = egui::pos2(c.x - galley.size().x / 2.0, c.y + y - galley.size().y / 2.0);
+                painter.galley(at, galley, color);
             };
-            line(-70.0, "Free. Open source.", 40.0, Color32::WHITE);
+            line(-m * 0.12, "Free. Open source.", m / 14.0, Color32::WHITE);
             line(
-                -10.0,
+                0.0,
                 "Your files never leave your computer.",
-                30.0,
+                m / 20.0,
                 Color32::from_gray(220),
             );
             line(
-                60.0,
+                m * 0.12,
                 "lightable.dev",
-                34.0,
+                m / 17.0,
                 Color32::from_rgb(0x6f, 0x9b, 0xff),
             );
             return;
         }
         if let Some(text) = self.caption.as_deref().filter(|t| !t.is_empty()) {
-            let galley =
-                painter.layout_no_wrap(text.to_owned(), FontId::proportional(24.0), Color32::WHITE);
-            let size = galley.size() + egui::vec2(36.0, 20.0);
-            let rect =
-                Rect::from_center_size(egui::pos2(screen.center().x, screen.max.y - 60.0), size);
-            painter.rect_filled(rect, 10.0, Color32::from_rgba_unmultiplied(0, 0, 0, 215));
-            painter.galley(rect.min + egui::vec2(18.0, 10.0), galley, Color32::WHITE);
+            let area = self.canvas_rect.unwrap_or(screen);
+            let size = caption_size(screen.width(), screen.height());
+            let pad = egui::vec2(size * 0.75, size * 0.4);
+            let galley = painter.layout(
+                text.to_owned(),
+                FontId::proportional(size),
+                Color32::WHITE,
+                area.width() * 0.9 - 2.0 * pad.x,
+            );
+            let boxed = galley.size() + 2.0 * pad;
+            let rect = Rect::from_center_size(
+                egui::pos2(area.center().x, area.max.y - boxed.y / 2.0 - size),
+                boxed,
+            );
+            painter.rect_filled(
+                rect,
+                size * 0.4,
+                Color32::from_rgba_unmultiplied(0, 0, 0, 215),
+            );
+            painter.galley(rect.min + pad, galley, Color32::WHITE);
         }
     }
 
@@ -1110,6 +1454,51 @@ fn report(bench: &Bench, doc: Option<&Doc>) {
         p95 * 1000.0,
         worst * 1000.0
     );
+}
+
+#[cfg(test)]
+mod demo_tests {
+    /// Captions stay long enough to read at 3 words a second.
+    #[test]
+    fn captions_stay_long_enough_to_read() {
+        let headline =
+            "Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm up";
+        assert_eq!(headline.split_whitespace().count(), 18);
+        assert!(super::caption_seconds(headline) >= 18.0 / 3.0);
+        assert_eq!(super::caption_seconds("Lightable found 10 changes."), 3.0);
+        assert_eq!(super::caption_seconds(""), 3.0);
+    }
+
+    /// Captions are larger in a 1080p video than in a laptop window, and
+    /// the same size in 16:9 and 9:16.
+    #[test]
+    fn caption_size_follows_the_shorter_side() {
+        assert_eq!(
+            super::caption_size(1920.0, 1080.0),
+            super::caption_size(1080.0, 1920.0)
+        );
+        assert!(super::caption_size(1920.0, 1080.0) >= 40.0);
+        assert!((super::caption_size(1400.0, 714.0) - 27.5).abs() < 0.1);
+        assert_eq!(super::caption_size(390.0, 844.0), 20.0);
+    }
+}
+
+#[cfg(test)]
+mod layout_tests {
+    /// Phones in either orientation, and narrow windows, get the stacked
+    /// layout; laptops and tablets in landscape keep the list on the right.
+    #[test]
+    fn narrow_means_portrait_or_a_narrow_window() {
+        assert!(super::is_narrow(390.0, 844.0));
+        assert!(super::is_narrow(1080.0, 1920.0));
+        assert!(super::is_narrow(600.0, 700.0));
+        // A phone held sideways keeps the list beside the drawing.
+        assert!(!super::is_narrow(844.0, 390.0));
+        assert!(!super::is_narrow(640.0, 300.0));
+        assert!(super::is_short(300.0));
+        assert!(!super::is_narrow(1366.0, 768.0));
+        assert!(!super::is_narrow(1024.0, 768.0));
+    }
 }
 
 #[cfg(test)]

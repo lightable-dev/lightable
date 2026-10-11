@@ -20,7 +20,7 @@ cargo run --release -p lightable -- info tests/corpus/ac1015_floor_plan.dxf    #
 
 Viewer: drag (middle or left button) to pan, scroll or pinch to zoom around the cursor, double-click the middle button or press "Zoom extents" to see everything, and tick layers on and off. Drop a DXF file on the window to open it.
 
-Compare two revisions: `cargo run --release -p lightable -- --diff old.dxf new.dxf` (add `--side` for side by side), or drop two files on the window. The overlay shows added entities in green, deleted in red and changed in yellow; "Next change" zooms to each one, and "Export JSON" saves a change report. Without a window: `lightable diff old.dxf new.dxf [--json report.json | --svg overlay.svg]`.
+Compare two revisions: `cargo run --release -p lightable -- --diff old.dxf new.dxf` (add `--side` for side by side), or drop two files on the window (on the web: "Choose files…"). The overlay shows added entities in blue, deleted in red and changed in yellow; "Next change" zooms to each one, and "Export JSON" saves a change report. Without a window: `lightable diff old.dxf new.dxf [--json report.json | --svg overlay.svg]`.
 
 Start it with no file (`cargo run --release -p lightable`) and it opens on an example: two revisions of a steel bracket drawing, with the changes listed in plain words. `--example plan` opens the floor-plan example and `--demo` plays a 30-second walkthrough (on the web: `?example=plan`, `?demo`). "Details" shows exact values, what is not compared yet, and the JSON and PNG exports.
 

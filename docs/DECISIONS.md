@@ -895,6 +895,72 @@ Replaces First-run decisions 2, 4 (the layer rule), 7 and part of 3.
     describes the example file and is never shown for the user's files.
     The PNG report header and the web preview use the same words.
 
+## UX pass
+
+From a usability audit of the live app as five kinds of first-time user
+(issues U1–U20 fixed; D1–D4 deferred: native file dialog, screen readers,
+reading big files off the main thread, keyboard pan and zoom).
+
+1. **Choosing files (web).** "Choose files…" opens the system file dialog
+   through a hidden `<input type="file" multiple>` in the page; the app
+   listens to it from start-up and reads the chosen files in the page
+   (`files::listen`). Phones can now open files. The native app keeps drag
+   and drop and the command line (a dialog would need a new dependency;
+   deferred).
+2. **Which file is before.** For two files that arrive together (chosen or
+   dropped): first the revision markers in the file names ("Rev B",
+   "RevC", "rev-c", "_B", "-C", "r2", "v3", "Rev 10"; letters compared as
+   letters, numbers as numbers), then the files' last-modified dates. If
+   the names and dates disagree, or neither says anything (no markers, or
+   markers of different kinds, and no or equal dates), the user chooses in
+   a window with two buttons ("a.dxf is Before" / "b.dxf is Before"). The
+   command line keeps its order. The summary shows "Before: a.dxf → After:
+   b.dxf" with a Swap button for the user's own files. One file opens on
+   its own; the next single file is compared with it. (Replaces ordering
+   by date, then by name.)
+3. **Files that cannot be used** get a window with a heading, what to do
+   next in plain words, and the reader's own message under "Details",
+   clipped and with control characters removed (`intake.rs`, tested): DWG
+   (save as DXF), PDF, pictures, ZIP-based files, empty files, binary DXF,
+   anything else. A DXF whose last section has no end (cut off while
+   copying) is refused, because comparing it reports false changes; a
+   missing end-of-file marker alone is accepted, as before.
+4. **Comparisons that are probably mistakes** keep their result but add a
+   note: identical file contents ("You chose the same file twice"), and
+   drawings with almost nothing in common (fewer than 1 in 10 entities
+   matched, at least 10 entities).
+5. **Big files** show "Reading name (50 MB)…" for a frame before the work
+   starts; reading still blocks the page (a worker is deferred).
+6. **Layout.** Portrait screens and narrow windows that are not short put
+   the change list under the drawing (35 % of the height); short screens (a
+   phone held sideways) keep it beside the drawing with a compact summary.
+   The toolbar and summary wrap; on phones the toolbar has fixed rows.
+   Headlines wrap. Hints appear only next to something on screen.
+7. **Colours.** Added is blue (#4CB0FF) instead of green, so added and
+   deleted stay apart for colour-blind users (ΔE 95 deuteranopia, 71
+   protanopia, was 11.7 and 45; `tools/palette_check.py`). Replaces the
+   green of SPEC M4b.
+8. **Keyboard.** Focused widgets get a 2-point blue outline; P steps to the
+   previous change as N does to the next, and the list header says so.
+9. **Words.** Colour index numbers are named ("dark grey (8) to magenta
+   (6)", "layer color"); a hatch whose pattern changed says only that in
+   its headline (fill flag, line definitions and other data stay in the
+   details). "What isn't compared?" under the list opens Details at that
+   list. The picker says "Examples" when the user's own files are open.
+10. **Privacy line** next to "Choose files…" (and on the loading page):
+    "Files are read in this browser, never uploaded."
+11. **Start-up failure** says in plain words that WebGL2 is needed and
+    which browsers have it, with the error as a detail.
+12. **Demo timing** follows the captions: each step stays 3 words a second
+    plus a second for the zoom, at least 3 s (about 38 s in all for the
+    bracket). Captions scale with the shorter screen side, wrap, and sit at
+    the bottom of the drawing area. The selection frame is 2–6 points with
+    a dark halo. `?demo&format=landscape` and `?demo&format=vertical` fix
+    the canvas to 16:9 or 9:16 for recording (the layout follows: the
+    vertical frame stacks the list under the drawing). The cloud zoom takes
+    in the revision markup next to the cloud (triangle and letter), so the
+    narrow 9:16 panes show the whole callout.
+
 ## Rules for M5 (decided before M5)
 
 1. **Saving an edited drawing keeps its DXF version and copies every

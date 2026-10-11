@@ -20,18 +20,42 @@ Every number and headline on screen comes from the comparison of the two
 DXF files at the moment the demo runs (`crates/lightable/src/app.rs`,
 `run_demo`). Nothing is typed in by hand except the connecting words.
 
-| Time | On screen | Caption | Where the words come from |
-|---|---|---|---|
-| 0 s | Rev B left, Rev C right, whole sheet | "Before and after: Rev B on the left, Rev C on the right." | Example labels |
-| 3.5 s | Zoom to the revision cloud | "The revision cloud marks 1 change." | Count of design changes whose centre lies inside the added revision cloud (demo narration only; see "Limits") |
-| 7 s | Overlay, whole sheet | "Lightable found 10 changes." | `Diff::design_changes().count()` (revision markup not counted) |
-| 10.5 s | Click on a hole: zoom, highlighted | "Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm up" | Headline of the first changed circle outside the cloud |
-| 13.5 s | Click on a dimension | "Dimension changed from 20 mm to 25 mm" | Headline of the first changed dimension outside the cloud |
-| 16.5 s | Click on the hole callout | "Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU" | Headline of the first changed text outside the cloud |
-| 19.5 s | Details on: exact values, "Not compared yet" | "Details: the technical data, and what was not compared." | The Details layer |
-| 23 s | Report layout | "Download the review report as PNG or JSON." | The PNG report layout (shown, not saved, so no dialog interrupts a recording) |
-| 26.5 s | Overlay | "Lightable shows what changed. Whether it is right is still your call." | Scope statement |
-| 30 s | End card | "Free. Open source. / Your files never leave your computer. / lightable.dev" | |
+Each step stays on screen for its caption's reading time: 3 words a
+second plus one second for the zoom to settle, at least 3 seconds
+(`caption_seconds` in `app.rs`). The demo starts one second after the app
+is ready; with the bracket it runs about 37 seconds, then holds the end
+card.
+
+| Start | Length | On screen | Caption | Where the words come from |
+|---|---|---|---|---|
+| 0 s | 4.0 s | Rev B left, Rev C right, whole sheet | "Before and after: Rev B left, Rev C right." | Example labels |
+| 4.0 s | 3.0 s | Zoom to the revision cloud | "The revision cloud marks 1 change." | Count of design changes whose centre lies inside the added revision cloud (demo narration only; see "Limits") |
+| 7.0 s | 3.0 s | Overlay, whole sheet | "Lightable found 10 changes." | `Diff::design_changes().count()` (revision markup not counted) |
+| 10.0 s | 7.0 s | A hole, zoomed and framed | "Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm up" | Headline of the first changed circle outside the cloud |
+| 17.0 s | 3.7 s | A dimension | "Dimension changed from 20 mm to 25 mm" | Headline of the first changed dimension outside the cloud |
+| 20.7 s | 4.3 s | The hole callout | "Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU" | Headline of the first changed text outside the cloud |
+| 25.0 s | 3.7 s | Details on, list scrolled to "Not compared yet" | "Details: exact values, and what is not compared." | The Details layer |
+| 28.7 s | 3.7 s | Report layout | "Download the review report as PNG or JSON." | The PNG report layout (shown, not saved, so no dialog interrupts a recording) |
+| 32.3 s | 5.0 s | Overlay | "Lightable shows what changed. Whether it is right is still your call." | Scope statement |
+| 37.3 s | holds | End card | "Free. Open source. / Your files never leave your computer. / lightable.dev" | |
+
+The selected change gets a white frame on a dark halo, 2–6 points thick
+depending on the screen, so it shows in a small video. Captions scale with
+the shorter side of the screen (about 41 px in a 1080p frame) and wrap.
+
+## Recording formats
+
+| Format | Address | Record at |
+|---|---|---|
+| 16:9 (LinkedIn, YouTube) | `?demo&format=landscape` | 1920 × 1080 |
+| 9:16 (Shorts, Reels) | `?demo&format=vertical` | 1080 × 1920 |
+
+`format` fixes the drawing canvas to that shape, centred on black, so any
+window size records the right frame; the app lays itself out for it (in
+9:16 the change list goes under the drawing). For a pixel-exact capture,
+use a browser window or device emulation of 960 × 540 (or 540 × 960) CSS
+pixels at a device pixel ratio of 2. Frames can be captured that way with
+`tools/web_browser_test.mjs --viewport 960,540,2 --at …`.
 
 The three clicks are chosen from the real results by `Compare::demo_picks`:
 one change of each kind (circle, dimension, text) that the cloud does not

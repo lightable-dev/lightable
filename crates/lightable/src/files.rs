@@ -98,3 +98,136 @@ mod tests {
         assert_eq!(&p[..8], b"\x89PNG\r\n\x1a\n");
     }
 }
+
+/// A file handed to the app: dropped, chosen in the file dialog or named
+/// on the command line.
+pub struct Arrived {
+    /// Position among the files that came together.
+    pub order: usize,
+    pub name: String,
+    /// The bytes, or why they could not be read.
+    pub bytes: Result<Vec<u8>, String>,
+    /// Last modified, in milliseconds since 1970, when known: the earlier
+    /// file is taken as the earlier revision.
+    pub modified: Option<f64>,
+}
+
+/// Files being read in the background (browsers read files
+/// asynchronously): how many are expected, and those that have arrived.
+#[derive(Default)]
+pub struct Incoming {
+    pub expected: usize,
+    pub files: Vec<Arrived>,
+}
+
+pub type FileSlot = std::sync::Arc<std::sync::Mutex<Incoming>>;
+
+impl Incoming {
+    /// Starts a new batch of `n` files (web: drops and the file dialog).
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+    pub fn expect(&mut self, n: usize) {
+        self.expected = n;
+        self.files.clear();
+    }
+
+    /// The batch, once every file has arrived, in the order given.
+    pub fn take_complete(&mut self) -> Option<Vec<Arrived>> {
+        if self.expected == 0 || self.files.len() < self.expected {
+            return None;
+        }
+        self.expected = 0;
+        let mut files = std::mem::take(&mut self.files);
+        files.sort_by_key(|f| f.order);
+        Some(files)
+    }
+}
+
+/// The page's file input (`#file_input`, which allows several files).
+#[cfg(target_arch = "wasm32")]
+fn file_input() -> Result<web_sys::HtmlInputElement, String> {
+    use eframe::wasm_bindgen::JsCast as _;
+    web_sys::window()
+        .and_then(|w| w.document())
+        .and_then(|d| d.get_element_by_id("file_input"))
+        .ok_or("the page has no file input")?
+        .dyn_into()
+        .map_err(|_| "file_input is not an input".to_owned())
+}
+
+/// Listens to the page's file input once, at start: files chosen in the
+/// file dialog arrive in `slot`. They are read in the page, never
+/// uploaded.
+#[cfg(target_arch = "wasm32")]
+pub fn listen(slot: &FileSlot, ctx: &eframe::egui::Context) -> Result<(), String> {
+    use eframe::wasm_bindgen::{JsCast as _, closure::Closure};
+    let input = file_input()?;
+    let (slot, ctx, target) = (slot.clone(), ctx.clone(), input.clone());
+    let on_change = Closure::<dyn FnMut()>::new(move || {
+        let Some(list) = target.files() else { return };
+        let files: Vec<web_sys::File> = (0..list.length()).filter_map(|i| list.get(i)).collect();
+        // So choosing the same files again is noticed.
+        target.set_value("");
+        if files.is_empty() {
+            return;
+        }
+        if let Ok(mut s) = slot.lock() {
+            s.expect(files.len());
+        }
+        for (order, file) in files.into_iter().enumerate() {
+            let (slot, ctx) = (slot.clone(), ctx.clone());
+            wasm_bindgen_futures::spawn_local(async move {
+                let bytes = wasm_bindgen_futures::JsFuture::from(file.array_buffer())
+                    .await
+                    .map(|buf| js_sys::Uint8Array::new(&buf).to_vec())
+                    .map_err(|e| format!("{e:?}"));
+                if let Ok(mut s) = slot.lock() {
+                    s.files.push(Arrived {
+                        order,
+                        name: file.name(),
+                        bytes,
+                        modified: Some(file.last_modified()),
+                    });
+                }
+                ctx.request_repaint();
+            });
+        }
+    });
+    input.set_onchange(Some(on_change.as_ref().unchecked_ref()));
+    // Installed once for the page's lifetime.
+    on_change.forget();
+    Ok(())
+}
+
+/// Opens the browser's file dialog; the files arrive through [`listen`].
+#[cfg(target_arch = "wasm32")]
+pub fn choose() -> Result<(), String> {
+    file_input()?.click();
+    Ok(())
+}
+
+#[cfg(test)]
+mod incoming_tests {
+    use super::*;
+
+    #[test]
+    fn a_batch_is_complete_when_every_file_arrived_in_any_order() {
+        let mut incoming = Incoming::default();
+        assert!(incoming.take_complete().is_none());
+        incoming.expect(2);
+        let file = |order: usize, name: &str| Arrived {
+            order,
+            name: name.into(),
+            bytes: Ok(Vec::new()),
+            modified: None,
+        };
+        incoming.files.push(file(1, "b.dxf"));
+        assert!(incoming.take_complete().is_none());
+        incoming.files.push(file(0, "a.dxf"));
+        let batch = incoming.take_complete().unwrap();
+        assert_eq!(
+            batch.iter().map(|f| f.name.as_str()).collect::<Vec<_>>(),
+            ["a.dxf", "b.dxf"]
+        );
+        assert!(incoming.take_complete().is_none());
+    }
+}

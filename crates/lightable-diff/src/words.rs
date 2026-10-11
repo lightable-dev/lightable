@@ -388,6 +388,18 @@ pub fn changed(
             phrases.push(from_to(label, va, &vb, units));
         }
     }
+    // A hatch whose pattern changed: the pattern says it; its fill flag,
+    // line definitions and other data follow from it (they stay in the
+    // details).
+    let hatch =
+        matches!(&a.kind, EntityKind::Unknown(u) if u.type_name.eq_ignore_ascii_case("HATCH"));
+    if hatch && phrases.iter().any(|p| p.starts_with("pattern changed")) {
+        phrases.retain(|p| {
+            !["solid fill", "pattern lines", "other hatch data"]
+                .iter()
+                .any(|derived| p.starts_with(derived))
+        });
+    }
     if phrases.is_empty() {
         phrases.push("changed".into());
     }

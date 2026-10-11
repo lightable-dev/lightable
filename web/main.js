@@ -4,8 +4,13 @@ import init from "./lightable.js";
 
 const status = document.getElementById("status");
 
+const params = new URLSearchParams(location.search);
+// Recording frames for the demo: 16:9 or 9:16.
+const format = params.get("format");
+if (format === "landscape" || format === "vertical") document.body.classList.add(`format-${format}`);
+
 // The preview shows the default example; hide it for anything else.
-const example = new URLSearchParams(location.search).get("example");
+const example = params.get("example");
 if (example && example !== "bracket") document.getElementById("preview-row")?.remove();
 
 const mb = (n) => (n / 1e6).toFixed(1);
@@ -42,6 +47,14 @@ init({ module_or_path: fetch(new URL("lightable_bg.wasm", import.meta.url)).then
   () => document.getElementById("loading")?.remove(),
   (e) => {
     document.getElementById("preview-row")?.remove();
-    status.textContent = "Could not start: " + e;
+    const webgl = /webgl/i.test(String(e));
+    status.textContent = webgl
+      ? "Lightable needs WebGL2, which this browser has turned off or does not support. " +
+        "Try a recent Chrome, Firefox, Safari or Edge, or turn on hardware acceleration."
+      : "Lightable could not start in this browser. Reloading the page may help.";
+    const detail = document.createElement("div");
+    detail.className = "detail";
+    detail.textContent = "Details: " + e;
+    status.after(detail);
   },
 );

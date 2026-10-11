@@ -21,7 +21,8 @@ manufacturing engineers who review supplier drawings, and some who do not.
    markup. Do they say 1 because of the cloud, or 10?)
 3. Which change would worry you before sending this to a supplier? (Any
    of the hole size / hole position / dimension changes.)
-4. Where would you click to see one of the changes?
+4. Where would you click to see one of the changes? And to try your own two
+   files?
 5. Do you think your drawing would be uploaded somewhere if you used it?
 
 ## What to ask after the demo
@@ -40,13 +41,15 @@ manufacturing engineers who review supplier drawings, and some who do not.
 - Whether the eye goes to the change list or the drawing first.
 - Whether "10 changes" next to one revision cloud registers as a
   contradiction (the intended point) or as noise.
-- Whether the colours (yellow changed, green added) are read without the
+- Whether the colours (yellow changed, blue added, red deleted) are read without the
   legend.
 - On the slow connection: whether the static preview and list are read as
   the app (and clicked) before the app has loaded. They are not
   interactive until it has.
-- Phone width: the preview stacks above the list; the app itself is not
-  designed for phones.
+- On a phone: whether they find "Choose files…", manage to pick two files
+  from the phone's file app, and can tell which one is "before". The layout
+  stacks the list under the drawing in portrait; it is usable, not designed
+  for phones first.
 
 ## Known limits
 

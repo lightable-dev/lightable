@@ -1,5 +1,16 @@
 # Changelog
 
+## UX pass (unreleased)
+
+- Web: "Choose files…" opens the file dialog (phones can open files now); "Files are read in this browser, never uploaded." beside it.
+- Which file is "before": revision markers in the names (Rev B, RevC, _B, -C, r2, v3), then file dates; when they disagree or say nothing, a two-button choice. "Before: a.dxf → After: b.dxf" with Swap. One file opens on its own and the next is compared with it.
+- Plain-language windows for files that cannot be used (DWG with how to save as DXF, PDF, pictures, ZIP, empty, binary DXF, not a DXF); cut-off DXF files are refused instead of compared; notes for the same file twice and for unrelated drawings; "Reading … (50 MB)…" while a big file is read.
+- Phones and narrow windows: list under the drawing in portrait, beside it in landscape, wrapping toolbar, summary and headlines; hints only where they fit.
+- Added changes are blue (colour-blind safe with red and yellow); bright keyboard focus outline; P for previous change.
+- Plainer headlines: named colours ("dark grey (8) to magenta (6)"), one phrase for a hatch pattern change; "What isn't compared?" under the list; empty state explains what to do.
+- Demo: caption timing at reading speed, scaled captions, thicker selection frame, `?demo&format=landscape|vertical` for 16:9 and 9:16 recordings.
+- A usability audit (walkthroughs as five kinds of first-time user, issues ranked by severity) drove these changes.
+
 ## Demo refinement (unreleased)
 
 - The bracket example is now one engineering change (bolts M12 → M16) with its real consequences: clearance holes Ø13.5 → Ø17.5 (ISO 273) moved 5 mm inward for edge distance (EN 1993-1-8), the hole callout, the bolt note and four dimensions. The revision cloud surrounds only the bolt note. An expected-change inventory, written before comparing, is checked by a test both ways.

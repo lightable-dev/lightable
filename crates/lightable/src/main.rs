@@ -25,6 +25,7 @@ mod examples;
 mod feedback;
 mod files;
 mod gpu;
+mod intake;
 
 /// The product name shown in the app and its reports.
 pub const APP_NAME: &str = "Lightable";

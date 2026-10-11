@@ -78,11 +78,27 @@ fn dir(label: impl Into<Label>, p: Point3) -> (Label, Value) {
     (label.into(), Value::Dir(p3(p)))
 }
 
-fn color_name(c: Color) -> String {
+/// A colour in words: "blue (5)", "layer color", "#ff8000".
+pub(crate) fn color_name(c: Color) -> String {
     match c {
-        Color::ByLayer => "ByLayer".into(),
-        Color::ByBlock => "ByBlock".into(),
-        Color::Index(i) => i.to_string(),
+        Color::ByLayer => "layer color".into(),
+        Color::ByBlock => "block color".into(),
+        // The standard colours by name, with their number.
+        Color::Index(i @ 1..=9) => {
+            let names = [
+                "red",
+                "yellow",
+                "green",
+                "cyan",
+                "blue",
+                "magenta",
+                "white",
+                "dark grey",
+                "light grey",
+            ];
+            format!("{} ({i})", names[usize::from(i) - 1])
+        }
+        Color::Index(i) => format!("color {i}"),
         Color::Rgb(r, g, b) => format!("#{r:02x}{g:02x}{b:02x}"),
     }
 }

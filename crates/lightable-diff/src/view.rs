@@ -1,7 +1,7 @@
 //! Scenes for showing a [`Diff`]: each entity recoloured by what happened
 //! to it. Pure data, so the app only uploads and draws them.
 //!
-//! - [`overlay`]: B on top of A. Added green, deleted red (from A),
+//! - [`overlay`]: B on top of A. Added blue, deleted red (from A),
 //!   changed yellow (B's version, with A's version in dark yellow),
 //!   unchanged grey.
 //! - [`side`]: one drawing on its own, coloured the same way, for the
@@ -16,7 +16,7 @@ use lightable_render::{Bounds, Item, LayerInfo, Rgb, Scene, Shape};
 
 use crate::{ChangeKind, Diff, Place};
 
-pub const ADDED: Rgb = Rgb(0x3c, 0xd0, 0x5a);
+pub const ADDED: Rgb = Rgb(0x4c, 0xb0, 0xff);
 pub const DELETED: Rgb = Rgb(0xf0, 0x48, 0x48);
 pub const CHANGED: Rgb = Rgb(0xf5, 0xd0, 0x2a);
 /// A changed entity as it was.

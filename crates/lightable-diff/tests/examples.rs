@@ -133,12 +133,12 @@ fn headlines_contain_no_coordinates() {
             pairs.push((p.join("a.dxf"), p.join("b.dxf")));
         }
     }
+    // "(100, 50)": a bracketed pair of numbers; "blue (5)" is not one.
     let coordinate = |h: &str| {
-        h.contains('(')
-            && h.chars()
-                .skip_while(|c| *c != '(')
-                .nth(1)
-                .is_some_and(|c| c.is_ascii_digit() || c == '-')
+        h.split('(').skip(1).any(|rest| {
+            let inner = rest.split(')').next().unwrap_or("");
+            inner.contains(',') && inner.split(',').all(|n| n.trim().parse::<f64>().is_ok())
+        })
     };
     for (a, b) in pairs {
         let (a, _) = lightable_dxf::read_file(&a).unwrap();
@@ -224,7 +224,8 @@ fn plan_example_headlines_use_millimetres() {
         "Text changed from BEDROOM to MASTER BEDROOM",
         "Line deleted",
         "In block CHAIR: Polyline added",
-        "Layer FURNITURE: color changed from 8 to 6",
+        "Layer FURNITURE: color changed from dark grey (8) to magenta (6)",
+        "Hatch pattern changed from SOLID to ANSI37",
     ] {
         assert!(all.contains(&want), "missing {want:?} in {all:#?}");
     }

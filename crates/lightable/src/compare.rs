@@ -32,9 +32,23 @@ pub struct Action {
     pub message: Option<String>,
     /// An example chosen in the picker.
     pub example: Option<&'static str>,
+    /// Open the file dialog.
+    pub choose: bool,
+    /// Swap before and after.
+    pub swap: bool,
 }
 
 pub struct Compare {
+    /// The two drawings, kept for swapping them.
+    drawings: (Arc<lightable_dxf::Drawing>, Arc<lightable_dxf::Drawing>),
+    /// Notes on a comparison that is probably not what was meant (the same
+    /// file twice, unrelated drawings).
+    pub notes: Vec<String>,
+    /// Narrow or portrait screen: the list goes under the drawing and rows
+    /// wrap.
+    pub narrow: bool,
+    /// Little height (a phone held sideways): a compact summary.
+    pub short: bool,
     a_name: String,
     b_name: String,
     /// What the summary calls the two drawings ("Rev B", "Rev C").
@@ -159,6 +173,7 @@ impl Compare {
         example: Option<&'static str>,
     ) -> Result<Self, String> {
         let diff = lightable_diff::diff(&a, &b, &lightable_diff::DiffOptions::default());
+        let drawings = (a.clone(), b.clone());
         let (sa, sb) = (lightable_render::build(&a), lightable_render::build(&b));
         let mut extent = sa.bounds(None);
         if let Some(bb) = sb.bounds(None) {
@@ -177,6 +192,10 @@ impl Compare {
             )
         });
         Ok(Self {
+            drawings,
+            notes: Vec::new(),
+            narrow: false,
+            short: false,
             a_name,
             b_name,
             a_label,
@@ -196,6 +215,27 @@ impl Compare {
             used: [false; 3],
             anchors: [None; 3],
         })
+    }
+
+    /// The inputs with before and after exchanged, to compare again.
+    #[allow(clippy::type_complexity)]
+    pub fn swapped(
+        &self,
+    ) -> (
+        (String, Arc<lightable_dxf::Drawing>),
+        (String, Arc<lightable_dxf::Drawing>),
+        Option<(String, String)>,
+    ) {
+        (
+            (self.b_name.clone(), self.drawings.1.clone()),
+            (self.a_name.clone(), self.drawings.0.clone()),
+            Some((self.b_label.clone(), self.a_label.clone())),
+        )
+    }
+
+    /// The comparison's result.
+    pub fn diff(&self) -> &Diff {
+        &self.diff
     }
 
     pub fn destroy(&self, gl: Option<&Arc<glow::Context>>) {
@@ -245,11 +285,30 @@ impl Compare {
         self.diff.changes.get(i).map_or("", |c| c.headline.as_str())
     }
 
-    /// Where the revision cloud is, if the changes include one.
+    /// Where the revision cloud is, if the changes include one, with the
+    /// revision markup right next to it (the revision triangle and its
+    /// letter), so a zoom shows the whole callout.
     pub fn cloud_bounds(&self) -> Option<Bounds> {
-        let c = self.diff.changes.iter().find(|c| c.revision_cloud)?;
+        let cloud = self.diff.changes.iter().find(|c| c.revision_cloud)?;
+        let mut b = cloud.bounds?;
+        let size = b.size();
+        let reach = 0.5 * size[0].max(size[1]);
+        let near = Bounds {
+            min: [b.min[0] - reach, b.min[1] - reach],
+            max: [b.max[0] + reach, b.max[1] + reach],
+        };
+        for c in &self.diff.changes {
+            if let Some(m) = c.bounds.filter(|_| c.markup && !c.revision_cloud) {
+                let centre = [(m.min[0] + m.max[0]) / 2.0, (m.min[1] + m.max[1]) / 2.0];
+                if (near.min[0]..=near.max[0]).contains(&centre[0])
+                    && (near.min[1]..=near.max[1]).contains(&centre[1])
+                {
+                    b.union(&m);
+                }
+            }
+        }
         // The cloud and a little around it.
-        Some(dview::zoom_box(c.bounds?, self.extent, 0.2))
+        Some(dview::zoom_box(b, self.extent, 0.2))
     }
 
     /// The built-in example's note on how it was drawn ("Example: the
@@ -356,80 +415,169 @@ impl Compare {
 
     pub fn toolbar(&mut self, ui: &mut egui::Ui) -> Action {
         let mut action = Action::default();
-        ui.horizontal(|ui| {
-            let current = self
-                .example
-                .map(|id| crate::examples::find(id).title)
-                .unwrap_or("Your drawings");
+        let narrow = self.narrow || self.short;
+        // On phones: files and examples, then the view buttons, then the
+        // privacy line, each on its own row.
+        let files = |ui: &mut egui::Ui, this: &mut Self, action: &mut Action| {
+            if crate::app::CAN_CHOOSE_FILES
+                && ui
+                    .button("Choose files…")
+                    .on_hover_text("Pick the two revisions (DXF) to compare")
+                    .clicked()
+            {
+                action.choose = true;
+            }
+            let current = match (this.example, narrow) {
+                (Some(_), true) => "Examples".to_owned(),
+                (Some(id), false) => format!("Example: {}", crate::examples::find(id).title),
+                (None, _) => "Examples".to_owned(),
+            };
             egui::ComboBox::from_id_salt("example")
-                .selected_text(format!("Example: {current}"))
+                .selected_text(current)
                 .show_ui(ui, |ui| {
                     for e in &crate::examples::EXAMPLES {
-                        if ui.selectable_label(self.example == Some(e.id), e.title).clicked() {
+                        if ui
+                            .selectable_label(this.example == Some(e.id), e.title)
+                            .clicked()
+                        {
                             action.example = Some(e.id);
                         }
                     }
                 })
                 .response
-                .on_hover_text("Built-in examples. Drop two DXF files on the window to compare your own.");
-            ui.separator();
+                .on_hover_text("Built-in examples");
+        };
+        let privacy = |ui: &mut egui::Ui| {
+            if crate::app::CAN_CHOOSE_FILES {
+                ui.label(
+                    egui::RichText::new(crate::app::PRIVACY)
+                        .small()
+                        .color(Color32::from_gray(160)),
+                );
+            }
+        };
+        let view = |ui: &mut egui::Ui, this: &mut Self, action: &mut Action| {
             let side = ui
-                .selectable_label(self.side_by_side, "Side by side")
+                .selectable_label(this.side_by_side, "Side by side")
                 .on_hover_text("Show both drawings next to each other");
             if side.clicked() {
-                self.side_by_side = !self.side_by_side;
-                self.used[1] = true;
+                this.side_by_side = !this.side_by_side;
+                this.used[1] = true;
             }
-            self.anchors[1] = Some(side.rect);
-            let details = ui
-                .selectable_label(self.details, "Details")
-                .on_hover_text("Exact values, uncertain items, what is not compared yet, layers and exports");
+            this.anchors[1] = Some(side.rect);
+            let details = ui.selectable_label(this.details, "Details").on_hover_text(
+                "Exact values, uncertain items, what is not compared yet, layers and exports",
+            );
             if details.clicked() {
-                self.details = !self.details;
-                self.used[2] = true;
+                this.details = !this.details;
+                this.used[2] = true;
             }
-            self.anchors[2] = Some(details.rect);
-            if self.details {
+            this.anchors[2] = Some(details.rect);
+            if this.details {
                 ui.separator();
                 if ui.button("Zoom extents").clicked() {
                     action.fit = true;
                 }
                 if ui.button("Export JSON").clicked() {
-                    action.message = Some(self.export());
+                    action.message = Some(this.export());
                 }
                 if ui
                     .button("Export PNG report")
                     .on_hover_text("The overlay and the change list as one image")
                     .clicked()
                 {
-                    self.start_report();
+                    this.start_report();
                     action.fit = true;
                 }
             }
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("Close").on_hover_text("Close this comparison").clicked() {
-                    action.close = true;
-                }
-                if ui
-                    .button("Feedback")
-                    .on_hover_text("Opens a pre-filled issue on GitHub in your browser; nothing is sent until you submit it there")
-                    .clicked()
-                {
-                    action.message = crate::feedback::open(ui.ctx());
+        };
+        let end = |ui: &mut egui::Ui, action: &mut Action| {
+            if ui
+                .button("Close")
+                .on_hover_text("Close this comparison")
+                .clicked()
+            {
+                action.close = true;
+            }
+            if ui
+                .button("Feedback")
+                .on_hover_text("Opens a pre-filled issue on GitHub in your browser; nothing is sent until you submit it there")
+                .clicked()
+            {
+                action.message = crate::feedback::open(ui.ctx());
+            }
+        };
+        if narrow {
+            ui.horizontal_wrapped(|ui| files(ui, self, &mut action));
+            ui.horizontal_wrapped(|ui| {
+                view(ui, self, &mut action);
+                ui.separator();
+                end(ui, &mut action);
+            });
+            if !self.short {
+                privacy(ui);
+            }
+        } else {
+            ui.horizontal_wrapped(|ui| {
+                files(ui, self, &mut action);
+                privacy(ui);
+                ui.separator();
+                view(ui, self, &mut action);
+                // With the Details buttons there may be no room on the
+                // right: then Close and Feedback follow inline.
+                if self.details {
+                    ui.separator();
+                    end(ui, &mut action);
+                } else {
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        end(ui, &mut action)
+                    });
                 }
             });
-        });
+        }
         action
     }
 
-    /// Layer 1: the summary line and the legend, with previous/next.
-    pub fn summary_bar(&mut self, ui: &mut egui::Ui) -> Option<Bounds> {
+    /// Layer 1: the summary line and the legend, with previous/next; for
+    /// the user's own files, which is before and which after.
+    pub fn summary_bar(&mut self, ui: &mut egui::Ui, action: &mut Action) -> Option<Bounds> {
         let mut zoom = None;
         ui.add_space(6.0);
-        ui.horizontal(|ui| {
+        let has = !self.diff.changes.is_empty();
+        let (next_key, previous_key) = ui.input(|i| {
+            let plain = !i.modifiers.any();
+            (
+                plain && i.key_pressed(egui::Key::N),
+                plain && i.key_pressed(egui::Key::P),
+            )
+        });
+        // Previous then Next on screen; `rtl` adds them in reverse for a
+        // right-to-left layout.
+        let mut step = |ui: &mut egui::Ui, this: &mut Self, rtl: bool| {
+            for forward in if rtl { [true, false] } else { [false, true] } {
+                let (label, tip, key) = if forward {
+                    ("Next ▶", "Zoom to the next change (N)", next_key)
+                } else {
+                    (
+                        "◀ Previous",
+                        "Zoom to the previous change (P)",
+                        previous_key,
+                    )
+                };
+                if ui
+                    .add_enabled(has, egui::Button::new(label))
+                    .on_hover_text(tip)
+                    .clicked()
+                    || (has && key)
+                {
+                    zoom = this.step(forward);
+                }
+            }
+        };
+        ui.horizontal_wrapped(|ui| {
             ui.label(
                 egui::RichText::new(self.summary())
-                    .size(20.0)
+                    .size(if self.short { 16.0 } else { 20.0 })
                     .strong()
                     .color(Color32::WHITE),
             );
@@ -438,30 +586,43 @@ impl Compare {
             }
             ui.add_space(16.0);
             legend(ui);
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                let has = !self.diff.changes.is_empty();
-                if ui
-                    .add_enabled(has, egui::Button::new("Next ▶"))
-                    .on_hover_text("Zoom to the next change (N)")
-                    .clicked()
-                    || (has && ui.input(|i| i.key_pressed(egui::Key::N)))
-                {
-                    zoom = self.step(true);
-                }
-                if ui
-                    .add_enabled(has, egui::Button::new("◀ Previous"))
-                    .clicked()
-                {
-                    zoom = self.step(false);
-                }
-            });
+            if self.narrow || self.short {
+                ui.add_space(8.0);
+                step(ui, self, false);
+            } else {
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    step(ui, self, true);
+                });
+            }
         });
-        if let Some(note) = self.example_note() {
+        if let Some(note) = self.example_note().filter(|_| !self.short) {
             ui.label(
                 egui::RichText::new(note)
                     .italics()
                     .color(Color32::from_gray(185)),
             );
+        }
+        if self.example.is_none() {
+            ui.horizontal_wrapped(|ui| {
+                ui.label(
+                    egui::RichText::new(format!(
+                        "Before: {}  →  After: {}",
+                        short_name(&self.a_name),
+                        short_name(&self.b_name)
+                    ))
+                    .color(Color32::from_gray(200)),
+                );
+                if ui
+                    .button("Swap")
+                    .on_hover_text("Compare the other way round")
+                    .clicked()
+                {
+                    action.swap = true;
+                }
+            });
+        }
+        for note in &self.notes {
+            ui.label(egui::RichText::new(note).color(Color32::from_rgb(0xf5, 0xd0, 0x2a)));
         }
         ui.add_space(6.0);
         zoom
@@ -478,9 +639,27 @@ impl Compare {
         let Some(anchor) = self.anchors[k] else {
             return;
         };
+        // Only next to something that is on screen; on narrow screens only
+        // the list hint (the others would cover the summary line).
+        if !ctx.content_rect().contains_rect(anchor) || (self.narrow && k > 0) {
+            return;
+        }
         // The change-list hint sits to the left of the list; the others
-        // in the toolbar.
-        let (pos, pivot) = if k == 0 {
+        // in the toolbar. On narrow screens: above the list's first row,
+        // under the toolbar button.
+        let (pos, pivot) = if self.narrow {
+            if k == 0 {
+                (
+                    anchor.center_top() - egui::vec2(0.0, 6.0),
+                    Align2::CENTER_BOTTOM,
+                )
+            } else {
+                (
+                    anchor.center_bottom() + egui::vec2(0.0, 6.0),
+                    Align2::CENTER_TOP,
+                )
+            }
+        } else if k == 0 {
             (
                 anchor.left_center() - egui::vec2(10.0, 0.0),
                 Align2::RIGHT_CENTER,
@@ -671,10 +850,20 @@ impl Compare {
         let details = self.details;
         let d = &self.diff;
         ui.add_space(6.0);
-        ui.heading("What changed");
+        ui.horizontal_wrapped(|ui| {
+            ui.heading("What changed");
+            if !d.changes.is_empty() && !self.narrow {
+                ui.label(
+                    egui::RichText::new("click a line to zoom · N / P keys step")
+                        .small()
+                        .color(Color32::from_gray(150)),
+                );
+            }
+        });
         ui.add_space(4.0);
         let mut clicked = None;
         let mut first_row = None;
+        let mut reveal = false;
         egui::ScrollArea::vertical().show(ui, |ui| {
             let markup_start = d.changes.iter().position(|c| c.markup);
             for (i, c) in d.changes.iter().enumerate() {
@@ -692,7 +881,8 @@ impl Compare {
                         let (rect, _) =
                             ui.allocate_exact_size(egui::vec2(10.0, 10.0), egui::Sense::hover());
                         ui.painter().rect_filled(rect, 2.0, kind_color(c));
-                        ui.selectable_label(selected, text)
+                        // Long headlines wrap (narrow screens, report).
+                        ui.add(egui::Button::selectable(selected, text).wrap())
                     })
                     .inner;
                 if first_row.is_none() {
@@ -738,6 +928,16 @@ impl Compare {
             if d.changes.is_empty() {
                 ui.label("The two drawings are the same in everything compared.");
             }
+            if !details && !d.not_compared.is_empty() {
+                ui.add_space(10.0);
+                if ui
+                    .link(egui::RichText::new("What isn't compared?").small())
+                    .on_hover_text("Opens Details at the list of what this comparison skips")
+                    .clicked()
+                {
+                    reveal = true;
+                }
+            }
             if details {
                 let not_shown = d.changes.iter().filter(|c| !c.shown).count();
                 let uncertain = d.changes.iter().filter(|c| !c.certain).count();
@@ -779,6 +979,11 @@ impl Compare {
             }
         });
         self.anchors[0] = first_row;
+        if reveal {
+            self.details = true;
+            self.used[2] = true;
+            self.reveal_not_compared = true;
+        }
         if let Some(i) = clicked {
             zoom = self.select(i);
         }
@@ -844,10 +1049,19 @@ impl Compare {
                     egui::pos2(rect.min.x + p1[0] as f32, rect.min.y + p1[1] as f32),
                 )
                 .expand(6.0);
+                // Thick enough to see in a small video: a white frame on a
+                // dark halo, wider on bigger screens.
+                let width = (rect.height() / 250.0).clamp(2.0, 6.0);
+                painter.rect_stroke(
+                    r.expand(width),
+                    3.0 + width,
+                    Stroke::new(width + 3.0, Color32::from_black_alpha(170)),
+                    StrokeKind::Middle,
+                );
                 painter.rect_stroke(
                     r,
                     3.0,
-                    Stroke::new(1.5, Color32::WHITE),
+                    Stroke::new(width, Color32::WHITE),
                     StrokeKind::Outside,
                 );
             }
@@ -890,6 +1104,33 @@ mod tests {
         assert!(picks[0].starts_with("Circle diameter changed from 13.5 mm to 17.5 mm"));
         assert!(picks[1].starts_with("Dimension changed from"));
         assert_eq!(picks[2], "Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU");
+    }
+
+    /// The cloud zoom takes in the revision triangle beside the cloud (the
+    /// 9:16 demo clipped it).
+    #[test]
+    fn the_cloud_zoom_includes_the_revision_triangle() {
+        let c = example("bracket");
+        let zoom = c.cloud_bounds().unwrap();
+        let triangle = c
+            .diff
+            .changes
+            .iter()
+            .filter(|x| x.markup && x.layer() == "REVISION" && !x.revision_cloud)
+            .filter_map(|x| x.bounds)
+            .collect::<Vec<_>>();
+        assert_eq!(triangle.len(), 2, "triangle and its letter");
+        for t in triangle {
+            assert!(
+                zoom.min[0] <= t.min[0]
+                    && zoom.max[0] >= t.max[0]
+                    && zoom.min[1] <= t.min[1]
+                    && zoom.max[1] >= t.max[1],
+                "{t:?} outside {zoom:?}"
+            );
+        }
+        // The title block is far away and stays out.
+        assert!(zoom.max[0] < 187.0, "{zoom:?}");
     }
 
     #[test]
