@@ -1659,7 +1659,9 @@ mod tests {
         let doc = std::fs::read_to_string(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/demo/voiceover.md"),
         )
-        .unwrap();
+        .unwrap()
+        // Windows checkouts may have CRLF line endings.
+        .replace("\r\n", "\n");
         for f in Feature::ALL {
             if f == Feature::Big {
                 continue;
