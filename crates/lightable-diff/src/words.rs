@@ -239,7 +239,7 @@ fn value_words(v: &Value, units: Option<&str>) -> String {
     }
 }
 
-/// "color changed from 8 to 6"; a position or direction just "changed"
+/// "colour changed from 8 to 6"; a position or direction just "changed"
 /// (its coordinates are in the details).
 fn from_to(label: &str, a: &Value, b: &Value, units: Option<&str>) -> String {
     match (a, b) {
@@ -425,10 +425,32 @@ pub fn changed(
 pub fn added_or_deleted(e: &Entity, added: bool) -> String {
     let what = if is_revision_cloud(e) {
         "Revision cloud".to_owned()
+    } else if let Some(m) = markup_shape(e) {
+        m.to_owned()
     } else {
         subject(e, false)
     };
     format!("{what} {}", if added { "added" } else { "deleted" })
+}
+
+/// Lines and polylines of revision markup in plain words, from their
+/// shape only: "Markup line", "Markup triangle" (a closed polyline of three
+/// straight sides), "Markup outline" (another closed one), "Markup lines"
+/// (an open polyline). Not for design content, nor for revision clouds.
+fn markup_shape(e: &Entity) -> Option<&'static str> {
+    if !is_markup_layer(&e.layer) || is_revision_cloud(e) {
+        return None;
+    }
+    if matches!(e.kind, EntityKind::Line(_)) {
+        return Some("Markup line");
+    }
+    let (v, closed) = vertices(e)?;
+    let straight = v.iter().all(|p| p[2] == 0.0);
+    Some(match (closed, v.len()) {
+        (true, 3) if straight => "Markup triangle",
+        (true, _) => "Markup outline",
+        (false, _) => "Markup lines",
+    })
 }
 
 /// A sentence from a detail: first letter upper case.
@@ -439,9 +461,165 @@ pub fn sentence(s: &str) -> String {
     })
 }
 
+/// The Details view of a change in plain labels: what object it is
+/// ("Object: circle (handle A5), layer HOLES") and its exact values with
+/// arrows and units ("Diameter 13.5 → 17.5 mm; centre moved 5 mm left,
+/// 5 mm up"). A circle whose headline speaks of its diameter is given by
+/// diameter here too. The change's own `details` (and the JSON export)
+/// are unchanged.
+pub fn exact(c: &crate::Change, unit: Option<&str>) -> (String, String) {
+    let noun = match c.entity_type.as_str() {
+        "LWPOLYLINE" | "POLYLINE" => "polyline".to_owned(),
+        "MTEXT" => "text".to_owned(),
+        "INSERT" => "block reference".to_owned(),
+        "LAYER" => "layer".to_owned(),
+        t => t.to_lowercase(),
+    };
+    let mut object = format!("Object: {noun}");
+    if let Some(h) = c.handle() {
+        object.push_str(&format!(" (handle {h})"));
+    }
+    let layer = c.layer();
+    if !layer.is_empty() && c.place != crate::Place::Layers {
+        object.push_str(&format!(", layer {layer}"));
+    }
+    if let crate::Place::Block(b) = &c.place {
+        object.push_str(&format!(", in block {b}"));
+    }
+    let diameter = c.headline.contains("diameter");
+    let with_unit = |v: &str| match unit {
+        Some(u) if v.parse::<f64>().is_ok() => format!("{v} {u}"),
+        _ => v.to_owned(),
+    };
+    // Lengths get the unit; other values (counts, names, colours) do not.
+    let lengths = [
+        "radius",
+        "diameter",
+        "measurement",
+        "length",
+        "width",
+        "height",
+        "thickness",
+        "text height",
+        "elevation",
+        "offset",
+    ];
+    // Values that changed first, then what moved.
+    let (mut values, mut moves) = (Vec::new(), Vec::new());
+    for d in c.details.iter().filter(|d| *d != "not shown") {
+        // "radius changed from 6.75 to 8.75" (and "text changed from "a"
+        // to "b"").
+        if let Some((label, rest)) = d.split_once(" changed from ")
+            && let Some((from, to)) = rest.split_once(" to ")
+        {
+            let (label, from, to) = match (label, from.parse::<f64>(), to.parse::<f64>()) {
+                ("radius", Ok(a), Ok(b)) if diameter => {
+                    ("diameter", fmt_num(2.0 * a), fmt_num(2.0 * b))
+                }
+                _ => (label, from.to_owned(), to.to_owned()),
+            };
+            let to = if lengths.contains(&label) {
+                with_unit(&to)
+            } else {
+                to
+            };
+            values.push(format!("{label} {from} → {to}"));
+            continue;
+        }
+        // "centre moved by (-5, 5)", "moved by (0, 600)".
+        if let Some((what, v)) = d.split_once("moved by ")
+            && let Some(v) = v.strip_prefix('(').and_then(|v| v.strip_suffix(')'))
+        {
+            let parts: Vec<f64> = v.split(", ").filter_map(|x| x.parse().ok()).collect();
+            if parts.len() >= 2 {
+                let mut steps = Vec::new();
+                for (k, (pos, neg)) in [("right", "left"), ("up", "down"), ("up (Z)", "down (Z)")]
+                    .iter()
+                    .enumerate()
+                {
+                    if let Some(&x) = parts.get(k).filter(|x| **x != 0.0) {
+                        steps.push(format!(
+                            "{} {}",
+                            with_unit(&fmt_num(x.abs())),
+                            if x > 0.0 { pos } else { neg }
+                        ));
+                    }
+                }
+                let what = what.trim();
+                let label = if what.is_empty() {
+                    "moved".to_owned()
+                } else {
+                    format!("{what} moved")
+                };
+                moves.push(format!("{} {}", label, steps.join(", ")));
+                continue;
+            }
+        }
+        values.push(d.clone());
+    }
+    values.extend(moves);
+    let values = values.join("; ");
+    let mut chars = values.chars();
+    let values = chars.next().map_or(String::new(), |f| {
+        f.to_uppercase().collect::<String>() + chars.as_str()
+    });
+    (object, values)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn markup_lines_and_polylines_in_plain_words() {
+        use lightable_dxf::{Line, LwPolyline, LwVertex, Point3};
+        let poly = |layer: &str, pts: &[(f64, f64)], closed: bool| {
+            let mut e = Entity::new(EntityKind::LwPolyline(LwPolyline {
+                flags: i16::from(closed),
+                constant_width: None,
+                elevation: 0.0,
+                thickness: 0.0,
+                extrusion: lightable_dxf::Z_AXIS,
+                vertices: pts
+                    .iter()
+                    .map(|&(x, y)| LwVertex {
+                        x,
+                        y,
+                        ..Default::default()
+                    })
+                    .collect(),
+            }));
+            e.layer = layer.into();
+            e
+        };
+        let tri = [(0.0, 0.0), (10.0, 0.0), (5.0, 9.0)];
+        assert_eq!(
+            added_or_deleted(&poly("REVISION", &tri, true), true),
+            "Markup triangle added"
+        );
+        assert_eq!(
+            added_or_deleted(&poly("TITLE", &tri[..2], false), true),
+            "Markup lines added"
+        );
+        let square = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)];
+        assert_eq!(
+            added_or_deleted(&poly("BORDER", &square, true), false),
+            "Markup outline deleted"
+        );
+        let mut line = Entity::new(EntityKind::Line(Line {
+            start: Point3::new(0.0, 0.0, 0.0),
+            end: Point3::new(1.0, 0.0, 0.0),
+            thickness: 0.0,
+            extrusion: lightable_dxf::Z_AXIS,
+        }));
+        line.layer = "TITLE".into();
+        assert_eq!(added_or_deleted(&line, true), "Markup line added");
+        // Design content keeps its CAD name.
+        assert_eq!(
+            added_or_deleted(&poly("OUTLINE", &tri, true), true),
+            "Polyline added"
+        );
+    }
 
     #[test]
     fn displacements_name_their_directions() {
@@ -486,5 +664,49 @@ mod tests {
         assert!(on_segment([5.0, 0.0], [0.0, 0.0], [10.0, 0.0], 1e-9));
         assert!(!on_segment([11.0, 0.0], [0.0, 0.0], [10.0, 0.0], 1e-9));
         assert!(!on_segment([5.0, 1.0], [0.0, 0.0], [10.0, 0.0], 1e-9));
+    }
+
+    #[test]
+    fn exact_details_in_plain_labels_with_units() {
+        let c = crate::Change {
+            kind: crate::ChangeKind::Changed,
+            place: crate::Place::Model,
+            entity_type: "CIRCLE".into(),
+            details: vec![
+                "centre moved by (-5, 5)".into(),
+                "radius changed from 6.75 to 8.75".into(),
+            ],
+            headline: "Circle diameter changed from 13.5 mm to 17.5 mm".into(),
+            geometry: true,
+            shown: true,
+            certain: true,
+            old: Some(crate::EntityRef {
+                handle: Some("A5".into()),
+                index: 0,
+                layer: "HOLES".into(),
+            }),
+            new: None,
+            bounds: None,
+            used_by_old: Vec::new(),
+            used_by_new: Vec::new(),
+            markup: false,
+            revision_cloud: false,
+        };
+        let (object, values) = exact(&c, Some("mm"));
+        assert_eq!(object, "Object: circle (handle A5), layer HOLES");
+        assert_eq!(
+            values,
+            "Diameter 13.5 → 17.5 mm; centre moved 5 mm left, 5 mm up"
+        );
+        let d = crate::Change {
+            entity_type: "DIMENSION".into(),
+            details: vec![
+                "measurement changed from 20 to 25".into(),
+                "text changed from \"A\" to \"B\"".into(),
+            ],
+            ..c
+        };
+        let (_, values) = exact(&d, Some("mm"));
+        assert_eq!(values, "Measurement 20 → 25 mm; text \"A\" → \"B\"");
     }
 }

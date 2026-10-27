@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Only this site's own files: the videos, posters and captions are
+       served from lightable.dev itself. No scripts, no tracking, no cookies.
+       Built into lightable.dev/demo/ only once approved final videos are in
+       web/demo/ (`node tools/demo.mjs approve`). Every number on this page
+       comes from the bracket example's comparison; the test
+       `the_demo_page_matches_the_comparison` checks them. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <title>Lightable demo: what changed between two drawing revisions</title>
+  <meta name="description" content="Compare two revisions of a DXF drawing and see every change in plain words, not just the clouded one. Free, open source, runs in your browser.">
+  <link rel="canonical" href="https://lightable.dev/demo/">
+  <meta property="og:type" content="video.other">
+  <meta property="og:title" content="Lightable: what changed between two drawing revisions">
+  <meta property="og:description" content="The revision cloud marks one change. Lightable finds ten. Free, open source, runs in your browser.">
+  <meta property="og:url" content="https://lightable.dev/demo/">
+  <meta property="og:image" content="https://lightable.dev/demo/unclouded-landscape.jpg">
+  <meta property="og:image:width" content="1920">
+  <meta property="og:image:height" content="1080">
+  <meta property="og:video" content="https://lightable.dev/demo/unclouded-landscape.mp4">
+  <meta property="og:video:type" content="video/mp4">
+  <meta property="og:video:width" content="1920">
+  <meta property="og:video:height" content="1080">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; background: #161616; color: #ddd; font: 17px/1.55 system-ui, -apple-system, sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
+    h1 { font-size: 26px; line-height: 1.25; margin: 8px 0 10px; color: #fff; }
+    h2 { font-size: 22px; line-height: 1.3; margin: 0 0 4px; color: #fff; }
+    h3 { font-size: 18px; margin: 18px 0 4px; color: #eee; }
+    p, li { color: #c8c8c8; }
+    p { margin: 6px 0 10px; }
+    ul { padding-left: 22px; margin: 8px 0; }
+    li { margin: 4px 0; }
+    a { color: #8fc4ff; }
+    code { font: 15px ui-monospace, monospace; color: #e8d68a; }
+    section { padding: 28px 0 8px; border-top: 1px solid #2c2c2c; }
+    .lead { font-size: 19px; color: #ddd; }
+    .summary { color: #aaa; margin-top: 0; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px; }
+    .button { display: inline-block; padding: 13px 20px; border-radius: 8px; font-weight: 600;
+              text-decoration: none; font-size: 17px; }
+    .primary { background: #4cb0ff; color: #0b1a26; }
+    .secondary { border: 2px solid #4cb0ff; color: #8fc4ff; }
+    .button:focus-visible, a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+    /* Videos: as large as the screen allows. Vertical on phones held
+       upright (the full width of the phone), landscape everywhere else. */
+    video { display: block; width: 100%; height: auto; border-radius: 10px; background: #000; margin: 10px 0; }
+    .vertical { display: none; }
+    @media (orientation: portrait) and (max-width: 700px) {
+      .vertical { display: block; }
+      .landscape { display: none; }
+    }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    td, th { border-bottom: 1px solid #2c2c2c; padding: 6px 4px; text-align: left; vertical-align: top; }
+    th { color: #eee; }
+    .small { font-size: 14px; color: #999; }
+    details { margin: 8px 0; }
+    summary { cursor: pointer; color: #eee; font-weight: 600; }
+    .check { border: 1px solid #3a4a5a; background: #1b2128; border-radius: 10px; padding: 4px 16px 8px; margin: 14px 0; }
+    .check h3 { margin-top: 12px; }
+    ol { padding-left: 22px; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>See what changed between two revisions of a drawing.</h1>
+    <p class="lead">Lightable compares two DXF files and lists every change in plain words, not just the one inside the revision cloud.</p>
+    <video class="landscape" controls playsinline muted preload="metadata" poster="unclouded-landscape.jpg" width="1920" height="1080">
+      <source src="unclouded-landscape.mp4" type="video/mp4">
+    </video>
+    <video class="vertical" controls playsinline muted preload="metadata" poster="unclouded-vertical.jpg" width="1080" height="1920">
+      <source src="unclouded-vertical.mp4" type="video/mp4">
+    </video>
+    <div class="buttons">
+      <a class="button primary" href="../">Try the example</a>
+      <a class="button secondary" href="../?own">Compare your own files</a>
+    </div>
+    <p class="small">Free and open source. Your files are read in your browser, never uploaded. <a href="#privacy">Why?</a></p>
+
+    <section id="unclouded">
+      <h2>1. The changes the cloud leaves out</h2>
+      <p class="summary"><strong>Use case:</strong> a gearbox cover, Rev B to Rev C. <strong>Proves:</strong> Lightable finds every change, clouded or not.</p>
+      <ul>
+        <li>One decision, bolts M10 → M12, made 14 changes: 8 holes Ø11 → Ø13.5 mm, the hole callout, 4 hole edges in section A-A (moved 1.25 mm) and the bolt note.</li>
+        <li>The revision cloud marks 1 change; 13 others weren't clouded.</li>
+        <li>Each one is in the list, in plain words, and a tap zooms to it.</li>
+      </ul>
+      <p class="small">The video above.</p>
+    </section>
+
+    <section id="tiny">
+      <h2>2. Tiny changes, exact values</h2>
+      <p class="summary"><strong>Use case:</strong> a precision locating plate. <strong>Proves:</strong> changes too small to see on a print are found and given exactly.</p>
+      <video class="landscape" controls playsinline muted preload="none" poster="tiny-landscape.jpg" width="1920" height="1080">
+        <source src="tiny-landscape.mp4" type="video/mp4">
+      </video>
+      <video class="vertical" controls playsinline muted preload="none" poster="tiny-vertical.jpg" width="1080" height="1920">
+        <source src="tiny-vertical.mp4" type="video/mp4">
+      </video>
+      <ul>
+        <li>3 changes: a dowel hole moved 0.5 mm right, its dimension 80 → 80.5 mm, the position tolerance ±0.1 → ±0.05.</li>
+        <li>Details gives the exact values: "Object: circle (handle …), layer HOLES" and "Moved 0.5 mm right".</li>
+        <li>Old and new texts never print over each other: the old one is struck through beside the new.</li>
+      </ul>
+    </section>
+
+    <section id="resave">
+      <h2>3. Re-export noise ignored</h2>
+      <p class="summary"><strong>Use case:</strong> a drive shaft, Rev D, and Rev E as a simulated re-export: new handles, shuffled order, older DXF version. <strong>Proves:</strong> only real changes are reported.</p>
+      <video class="landscape" controls playsinline muted preload="none" poster="resave-landscape.jpg" width="1920" height="1080">
+        <source src="resave-landscape.mp4" type="video/mp4">
+      </video>
+      <video class="vertical" controls playsinline muted preload="none" poster="resave-vertical.jpg" width="1080" height="1920">
+        <source src="resave-vertical.mp4" type="video/mp4">
+      </video>
+      <ul>
+        <li>Rev E is simulated by the script that makes these examples, not saved by a CAD program: every handle renumbered, its objects in another order, an older DXF version (R2000 instead of R2018) and its outline split into 16 separate lines.</li>
+        <li>Lightable reports 1 change, the surface finish Ra 1.6 → Ra 0.8. The new revision letter and revision-table row are listed separately as revision markup.</li>
+        <li>The 17 objects drawn the same but written differently are listed separately as "redrawn", not as changes.</li>
+      </ul>
+    </section>
+
+    <section id="blocks">
+      <h2>4. Block edits, shown everywhere they appear</h2>
+      <p class="summary"><strong>Use case:</strong> an apartment floor plan with door, window and furniture blocks. <strong>Proves:</strong> a change inside a block is shown at every place it is used.</p>
+      <video class="landscape" controls playsinline muted preload="none" poster="blocks-landscape.jpg" width="1920" height="1080">
+        <source src="blocks-landscape.mp4" type="video/mp4">
+      </video>
+      <video class="vertical" controls playsinline muted preload="none" poster="blocks-vertical.jpg" width="1080" height="1920">
+        <source src="blocks-vertical.mp4" type="video/mp4">
+      </video>
+      <ul>
+        <li>4 changes: the door block redrawn with a thick leaf (2 changes inside the block) and one partition wall moved 300 mm (its 2 lines).</li>
+        <li>The block edit is highlighted at all 7 doors that use it.</li>
+        <li>Side by side shows Rev A and Rev B with one shared zoom.</li>
+      </ul>
+    </section>
+
+    <section id="big">
+      <h2>5. Big drawings, compared in your browser</h2>
+      <p class="summary"><strong>Use case:</strong> a warehouse layout: 23,181 objects in Rev A, 23,182 in Rev B. <strong>Proves:</strong> large drawings are read and compared in your browser, in seconds.</p>
+      <video class="landscape" controls playsinline muted preload="none" poster="big-landscape.jpg" width="1920" height="1080">
+        <source src="big-landscape.mp4" type="video/mp4">
+      </video>
+      <video class="vertical" controls playsinline muted preload="none" poster="big-vertical.jpg" width="1080" height="1920">
+        <source src="big-vertical.mp4" type="video/mp4">
+      </video>
+      <ul>
+        <li>3 changes found among more than 23,000 objects: a location label renamed, a rack bay moved 300 mm, a column added.</li>
+        <li>The time to read and compare both files is measured and shown on screen with the machine it was measured on. In the video: a MacBook Air with a 2-core Intel Core i3, while the video was being recorded.</li>
+        <li>On screen: how many requests the browser logged in its Resource Timing list after the files were opened (fetches, scripts, images and other resources the page loads). In the video: 0.</li>
+        <li>While recording, the recording tool also logged every request the browser made, through the browser's developer tools: none went to another site, and none carried a request body.</li>
+      </ul>
+      <p>To see every request the page makes yourself, follow the steps in <a href="#check">Check it yourself</a>.</p>
+    </section>
+
+    <section id="why-10">
+      <h2>Why 10 changes?</h2>
+      <p>The example that opens with the app, a steel bracket, says "10 changes found between Rev B and Rev C". One engineering decision changed the bracket: the bolts went from M12 to M16 for a higher load. One decision, several changes in the drawing:</p>
+      <ul>
+        <li>The four clearance holes grew from Ø13.5 to Ø17.5 mm (the medium-series clearance for M16).</li>
+        <li>The bigger holes need more edge distance, so each hole moved 5 mm inward. The edge dimensions went from 20 to 25 mm (two dimensions) and the hole pitch from 120 × 60 to 110 × 50 mm (two more).</li>
+        <li>The hole callout changed from "4x Ø13.5 THRU" to "4x Ø17.5 THRU".</li>
+        <li>The bolt note changed from "BOLTS: 4x M12" to "BOLTS: 4x M16".</li>
+      </ul>
+      <p>That is 4 holes, 4 dimensions, the callout and the note: 10 changes. The drafter clouded only the bolt note, so the holes a mating part has to match went unclouded. The revision letter, the revision-table row, the cloud and the triangle are listed separately as revision markup (8 items).</p>
+    </section>
+
+    <section id="works-with">
+      <h2>Works with</h2>
+      <ul>
+        <li><strong>DXF</strong> from R12 to 2018 (<code>AC1009</code> to <code>AC1032</code>), as text (ASCII) DXF, from any CAD program that exports DXF.</li>
+        <li><strong>Units</strong>: changes are given in the drawing's own units (mm, cm, m, in, ft and others, from the file's units setting); a file without units gets plain numbers.</li>
+        <li><strong>File size</strong>: everyday drawings open in a moment. A 50 MB drawing with 275,000 entities took 34 s to open in Chrome and 47 s in Firefox on a two-core laptop.</li>
+        <li><strong>Not yet</strong>: DWG and binary DXF. Save the drawing as (text) DXF in your CAD program; Lightable says so when you drop one.</li>
+      </ul>
+    </section>
+
+    <section id="how">
+      <h2>How it decides what changed</h2>
+      <p>Lightable compares the drawing data, not pictures of it.</p>
+      <ul>
+        <li>Each entity in Rev B is matched with one in Rev C. When the two files share their internal handles (most edits keep them), matching uses the handles first.</li>
+        <li>Otherwise, or for anything left over, it matches by content: identical entities, entities moved by one shared offset, the same geometry with other properties (layer, colour), and finally nearby entities of the same type and layer. A guess between several candidates is marked uncertain.</li>
+        <li>Numbers closer than a millionth of the drawing's size count as equal, so re-saving a file doesn't produce changes. Handles, timestamps, the order of entities and the way numbers are written are never reported.</li>
+        <li>Shapes saved differently but drawing the same lines (a polyline saved as separate lines) are counted as "redrawn", not as changes.</li>
+        <li>What is left over is added or deleted.</li>
+      </ul>
+      <p><strong>Measured:</strong> on 12 test pairs of scripted edits, all 28 expected changes were found, with none missed and none extra. Three pairs of the same drawing (renumbered, saved as another DXF version, re-saved by another program) report no geometry changes.</p>
+      <p><a href="https://github.com/lightable-dev/lightable/tree/main/crates/lightable-diff">The comparison code</a> · <a href="https://github.com/lightable-dev/lightable/tree/main/tests/diff">the test pairs</a></p>
+    </section>
+
+    <section id="privacy">
+      <h2>Privacy</h2>
+      <p><strong>Your files are read in your browser, never uploaded.</strong> Why that is true:</p>
+      <ul>
+        <li><strong>There is no server to receive them.</strong> lightable.dev is a static site on GitHub Pages: it only serves the app's own files and has no program that accepts uploads. The code that reads and compares your drawings runs in your browser.</li>
+        <li><strong>The security policy blocks sending data elsewhere.</strong> The page's Content-Security-Policy lets it connect only to lightable.dev itself (<code>connect-src 'self'</code>) and allows no form submissions (<code>form-action 'none'</code>), so the browser refuses requests to any other site.</li>
+        <li><strong>The code is open source:</strong> <a href="https://github.com/lightable-dev/lightable">github.com/lightable-dev/lightable</a>. No tracking, no analytics, no cookies.</li>
+      </ul>
+      <div class="check" id="check">
+        <h3>Check it yourself</h3>
+        <ol>
+          <li>Open <a href="../?own">Lightable</a>. Then open the developer tools before you choose any files (the Network tab only lists requests made while it is open):
+            <ul>
+              <li><strong>Chrome:</strong> the ⋮ menu › More Tools › Developer Tools (or F12; Cmd+Option+I on a Mac). Choose the <strong>Network</strong> tab.</li>
+              <li><strong>Firefox:</strong> the ☰ menu › More Tools › Web Developer Tools (or F12; Cmd+Option+I on a Mac). Choose the <strong>Network</strong> tab.</li>
+              <li><strong>Safari:</strong> first choose Safari › Settings › Advanced and turn on <strong>Show features for web developers</strong>. Then choose Develop › Show Web Inspector, and the <strong>Network</strong> tab.</li>
+            </ul>
+          </li>
+          <li>Clear the list with the Network tab's <strong>Clear</strong> button (in Safari: <strong>Clear Network Items</strong>).</li>
+          <li>Drop or choose two DXF files and wait for the list of changes.</li>
+          <li>Look at the Network tab: no new request appears while the files are read and compared. An upload would show here as a request carrying your file.</li>
+        </ol>
+        <p class="small">Checked in Chrome 155, Firefox 158 and Safari 18.6 on a Mac. The counter in the big-drawing video counts the browser's Resource Timing entries only; the Network tab shows every request, so it is the stronger check.</p>
+      </div>
+    </section>
+
+    <section id="limits">
+      <h2>Honest limits</h2>
+      <p>Not compared yet (each comparison lists these too, under "What isn't compared?"):</p>
+      <ul>
+        <li>text styles</li>
+        <li>dimension styles</li>
+        <li>linetype definitions; the linetype names entities use are compared</li>
+        <li>other tables (APPID, UCS, VIEW, VPORT)</li>
+        <li>drawing settings other than units ($INSUNITS) and linetype scale ($LTSCALE)</li>
+        <li>objects (layouts and page setups, dictionaries, groups, ...)</li>
+        <li>anonymous blocks (dimension pictures, ...); the dimensions themselves are compared</li>
+      </ul>
+      <p>Lightable does not say whether a change is right, whether a drawing is ready to build from, or whether a revision cloud covers every change. It reports what differs in the data; you judge what it means.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Questions</h2>
+      <details>
+        <summary>Is it free?</summary>
+        <p>Yes. Lightable is open source under the MIT or Apache 2.0 licence.</p>
+      </details>
+      <details>
+        <summary>Do I need to install anything?</summary>
+        <p>No. It runs in the browser on computers and phones. A desktop app can be built from the source code.</p>
+      </details>
+      <details>
+        <summary>Are my drawings uploaded?</summary>
+        <p>No. Your files are read in your browser, never uploaded. See <a href="#privacy">Privacy</a> for why, and how to check.</p>
+      </details>
+      <details>
+        <summary>Which CAD programs does it work with?</summary>
+        <p>Any program that can save a DXF file (R12 to 2018). For a DWG file, save it as DXF first.</p>
+      </details>
+      <details>
+        <summary>Can it tell me whether a change is correct?</summary>
+        <p>No. It lists what changed, exactly; whether that is what was intended is your call.</p>
+      </details>
+      <p><a class="button secondary" href="https://github.com/lightable-dev/lightable/issues/new">Send feedback</a></p>
+      <p class="small">Feedback opens a GitHub issue; nothing is sent until you submit it there.</p>
+    </section>
+
+    <div class="buttons">
+      <a class="button primary" href="../">Try the example</a>
+      <a class="button secondary" href="../?own">Compare your own files</a>
+    </div>
+  </main>
+</body>
+</html>

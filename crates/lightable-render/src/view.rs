@@ -80,6 +80,18 @@ impl View {
         };
     }
 
+    /// Shows all of `bounds` in the screen above a band of `bottom` pixels
+    /// (where a caption is drawn), with a margin (fraction of that area).
+    pub fn fit_above(&mut self, bounds: &Bounds, margin: f64, bottom: f64) {
+        let full = self.size;
+        let bottom = bottom.clamp(0.0, full[1] * 0.6);
+        self.size = [full[0], full[1] - bottom];
+        self.fit(bounds, margin);
+        self.size = full;
+        // The fitted area's centre is `bottom / 2` above the screen's.
+        self.center[1] -= bottom / 2.0 / self.scale;
+    }
+
     /// The world box currently on screen.
     pub fn world_bounds(&self) -> Bounds {
         let a = self.to_world([0.0, self.size[1]]);
@@ -91,6 +103,21 @@ impl View {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn fit_above_keeps_the_box_clear_of_the_bottom_band() {
+        let mut v = View::new([400.0, 300.0]);
+        let b = Bounds {
+            min: [0.0, 0.0],
+            max: [100.0, 100.0],
+        };
+        v.fit_above(&b, 0.0, 100.0);
+        let low = v.to_screen([50.0, 0.0]);
+        let high = v.to_screen([50.0, 100.0]);
+        assert!((low[1] - 200.0).abs() < 1e-9, "{low:?}");
+        assert!(high[1].abs() < 1e-9, "{high:?}");
+        assert_eq!(v.size, [400.0, 300.0]);
+    }
 
     fn close(a: P2, b: P2) -> bool {
         (a[0] - b[0]).abs() < 1e-9 * (1.0 + a[0].abs())

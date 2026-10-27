@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-31.848 -216.448 335.296 222.896" width="800" height="532">
-<rect x="-31.848" y="-216.448" width="335.296" height="222.896" fill="#212121"/>
-<g transform="scale(1 -1)" fill="none" stroke-width="0.2235" stroke-linecap="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.94 -215.94 308.88 221.88" width="800" height="575">
+<rect x="-5.94" y="-215.94" width="308.88" height="221.88" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.2059" stroke-linecap="round">
 <g data-layer="BORDER">
 <path d="M0 0L297 0L297 210L0 210Z" stroke="#808080"/>
 </g>
@@ -47,9 +47,9 @@
 <text transform="translate(105 67) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">160</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="25" cy="66" r="0.3353" fill="#ffffff"/>
-<circle cx="25" cy="80" r="0.3353" fill="#ffffff"/>
-<circle cx="185" cy="80" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="66" r="0.3089" fill="#ffffff"/>
+<circle cx="25" cy="80" r="0.3089" fill="#ffffff"/>
+<circle cx="185" cy="80" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M23 80L9 80" stroke="#00ff00"/>
@@ -60,9 +60,9 @@
 <text transform="translate(10 130) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">100</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="11" cy="80" r="0.3353" fill="#ffffff"/>
-<circle cx="25" cy="80" r="0.3353" fill="#ffffff"/>
-<circle cx="25" cy="180" r="0.3353" fill="#ffffff"/>
+<circle cx="11" cy="80" r="0.3089" fill="#ffffff"/>
+<circle cx="25" cy="80" r="0.3089" fill="#ffffff"/>
+<circle cx="25" cy="180" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M25 182L25 194" stroke="#00ff00"/>
@@ -73,9 +73,9 @@
 <text transform="translate(37.5 193) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">25</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="25" cy="192" r="0.3353" fill="#ffffff"/>
-<circle cx="25" cy="180" r="0.3353" fill="#ffffff"/>
-<circle cx="50" cy="155" r="0.3353" fill="#ffffff"/>
+<circle cx="25" cy="192" r="0.3089" fill="#ffffff"/>
+<circle cx="25" cy="180" r="0.3089" fill="#ffffff"/>
+<circle cx="50" cy="155" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M50 157L50 194" stroke="#00ff00"/>
@@ -86,9 +86,9 @@
 <text transform="translate(105 193) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">110</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="50" cy="192" r="0.3353" fill="#ffffff"/>
-<circle cx="50" cy="155" r="0.3353" fill="#ffffff"/>
-<circle cx="160" cy="155" r="0.3353" fill="#ffffff"/>
+<circle cx="50" cy="192" r="0.3089" fill="#ffffff"/>
+<circle cx="50" cy="155" r="0.3089" fill="#ffffff"/>
+<circle cx="160" cy="155" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M187 180L199 180" stroke="#00ff00"/>
@@ -99,9 +99,9 @@
 <text transform="translate(201.5 167.5) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">25</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="197" cy="180" r="0.3353" fill="#ffffff"/>
-<circle cx="185" cy="180" r="0.3353" fill="#ffffff"/>
-<circle cx="160" cy="155" r="0.3353" fill="#ffffff"/>
+<circle cx="197" cy="180" r="0.3089" fill="#ffffff"/>
+<circle cx="185" cy="180" r="0.3089" fill="#ffffff"/>
+<circle cx="160" cy="155" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M162 155L199 155" stroke="#00ff00"/>
@@ -112,9 +112,9 @@
 <text transform="translate(201.5 130) rotate(90) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#00ff00" stroke="none">50</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="197" cy="155" r="0.3353" fill="#ffffff"/>
-<circle cx="160" cy="155" r="0.3353" fill="#ffffff"/>
-<circle cx="160" cy="105" r="0.3353" fill="#ffffff"/>
+<circle cx="197" cy="155" r="0.3089" fill="#ffffff"/>
+<circle cx="160" cy="155" r="0.3089" fill="#ffffff"/>
+<circle cx="160" cy="105" r="0.3089" fill="#ffffff"/>
 </g>
 <g data-layer="TITLE">
 <path d="M187 59L187 66L292 66L292 59" stroke="#808080"/>

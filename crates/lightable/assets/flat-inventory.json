@@ -1,0 +1,41 @@
+{
+ "about": "Flat 3.02 floor plan, Rev A -> Rev B: the door block DOOR-800 is redrawn with a 40 mm thick leaf (one edit to the block definition, shown by all 7 doors), and the partition between the two bedrooms moves 300 mm to the right (its two wall lines).",
+ "design": [
+  {
+   "id": "E1",
+   "type": "LINE",
+   "words": [
+    "In block DOOR-800",
+    "deleted"
+   ]
+  },
+  {
+   "id": "E2",
+   "type": "LWPOLYLINE",
+   "words": [
+    "In block DOOR-800",
+    "added"
+   ]
+  },
+  {
+   "id": "E3",
+   "type": "LINE",
+   "layer": "WALLS",
+   "words": [
+    "moved 300 mm right"
+   ]
+  },
+  {
+   "id": "E4",
+   "type": "LINE",
+   "layer": "WALLS",
+   "words": [
+    "moved 300 mm right"
+   ]
+  }
+ ],
+ "markup": [],
+ "notes": [
+  "the door block is shown by 7 references (INSERT); each shows the edit"
+ ]
+}

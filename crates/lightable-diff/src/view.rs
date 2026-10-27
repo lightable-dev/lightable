@@ -12,7 +12,7 @@
 
 use std::collections::HashMap;
 
-use lightable_render::{Bounds, Item, LayerInfo, Rgb, Scene, Shape};
+use lightable_render::{Bounds, HAlign, Item, LayerInfo, Rgb, Scene, Shape, VAlign};
 
 use crate::{ChangeKind, Diff, Place};
 
@@ -190,6 +190,24 @@ pub fn overlay(a: &Scene, b: &Scene, diff: &Diff) -> Scene {
     }
     let dash_base = out.dashes.len() as u32;
     out.dashes.extend(a.dashes.iter().cloned());
+    // B's changed texts: where A's old text would be drawn over one of
+    // them ("20" under "25" reads as "225"), the old text goes aside, to a
+    // place clear of every text of B and of the other old texts moved.
+    let new_texts: Vec<(Bounds, &str)> = b
+        .items
+        .iter()
+        .filter(|i| colors_b.get(&(i.entity as usize)) == Some(&CHANGED))
+        .filter_map(|i| match &i.shape {
+            Shape::Text(t) => Some((i.shape.bounds()?, t.text.as_str())),
+            _ => None,
+        })
+        .collect();
+    let mut taken: Vec<Bounds> = b
+        .items
+        .iter()
+        .filter(|i| matches!(i.shape, Shape::Text(_)))
+        .filter_map(|i| i.shape.bounds())
+        .collect();
     // A first, so B's versions are drawn on top.
     for item in &a.items {
         if let Some(&color) = colors_a.get(&(item.entity as usize)) {
@@ -197,6 +215,20 @@ pub fn overlay(a: &Scene, b: &Scene, diff: &Diff) -> Scene {
             paint(&mut item, color);
             item.layer = layer_map.get(item.layer as usize).copied().unwrap_or(0);
             item.dash = item.dash.map(|d| d + dash_base);
+            let covered = match (&item.shape, item.shape.bounds()) {
+                (Shape::Text(t), Some(at)) => new_texts
+                    .iter()
+                    .any(|(nb, s)| *s != t.text && nb.intersects(&at)),
+                _ => false,
+            };
+            if covered && let Some(strike) = old_text_aside(&mut item, &taken) {
+                if let Some(b) = item.shape.bounds() {
+                    taken.push(b);
+                }
+                out.items.push(item);
+                out.items.push(strike);
+                continue;
+            }
             out.items.push(item);
         }
     }
@@ -220,6 +252,64 @@ pub fn overlay(a: &Scene, b: &Scene, diff: &Diff) -> Scene {
         dash,
     ));
     out
+}
+
+/// Moves an old text two lines below (or above, or further) where
+/// it was, in its own direction, to the first place clear of `taken`, and
+/// returns a line striking it through: "25" in place, "20" struck through
+/// beside it, both readable.
+fn old_text_aside(item: &mut Item, taken: &[Bounds]) -> Option<Item> {
+    let Shape::Text(t) = &item.shape else {
+        return None;
+    };
+    let h = t.height;
+    let (s, c) = t.rotation.sin_cos();
+    let start = t.at;
+    let place = |k: f64| {
+        let mut shape = item.shape.clone();
+        if let Shape::Text(t) = &mut shape {
+            // k lines "down" in the text's frame (negative: up).
+            t.at = [start[0] + s * k * h, start[1] - c * k * h];
+        }
+        shape
+    };
+    let shape = [2.0, -2.0, 3.2, -3.2, 4.4, -4.4]
+        .into_iter()
+        .map(place)
+        .find(|shape| {
+            shape
+                .bounds()
+                .is_some_and(|b| !taken.iter().any(|x| x.intersects(&b)))
+        })
+        .unwrap_or_else(|| place(2.0));
+    item.shape = shape;
+    let Shape::Text(t) = &item.shape else {
+        return None;
+    };
+    let width = h * 0.85 * t.width_factor * t.text.chars().count() as f64;
+    let x0 = match t.halign {
+        HAlign::Left => 0.0,
+        HAlign::Center => -width / 2.0,
+        HAlign::Right => -width,
+    };
+    // Through the middle of the capitals.
+    let y = match t.valign {
+        VAlign::Baseline | VAlign::Bottom => 0.45 * h,
+        VAlign::Middle => 0.0,
+        VAlign::Top => -0.55 * h,
+    };
+    let point = |x: f64| [t.at[0] + x * c - y * s, t.at[1] + x * s + y * c];
+    Some(Item {
+        layer: item.layer,
+        color: item.color,
+        dash: None,
+        shape: Shape::Path {
+            points: vec![point(x0), point(x0 + width)],
+            bulges: Vec::new(),
+            closed: false,
+        },
+        entity: item.entity,
+    })
 }
 
 /// A box worth zooming to for `bounds`: at least `min_fraction` of the
@@ -294,6 +384,39 @@ mod tests {
                 .items
                 .iter()
                 .any(|i| i.color == DELETED)
+        );
+    }
+
+    /// An old text under a new one ("20" under "25") is moved aside and
+    /// struck through, so no frame shows "225".
+    #[test]
+    fn old_text_is_not_drawn_over_new_text() {
+        // Two revisions of one TEXT (same handle), "20" then "25".
+        let text = |value: &str| {
+            let dxf = format!(
+                "0\nSECTION\n2\nENTITIES\n0\nTEXT\n5\nA1\n8\n0\n10\n10\n20\n10\n30\n0\n40\n2.5\n1\n{value}\n0\nENDSEC\n0\nEOF\n"
+            );
+            lightable_dxf::read_bytes(dxf.as_bytes()).unwrap().0
+        };
+        let (a, b) = (text("20"), text("25"));
+        let d = crate::diff(&a, &b, &DiffOptions::default());
+        let (sa, sb) = (lightable_render::build(&a), lightable_render::build(&b));
+        let o = overlay(&sa, &sb, &d);
+        let texts: Vec<(Bounds, &str)> = o
+            .items
+            .iter()
+            .filter_map(|i| match &i.shape {
+                Shape::Text(t) => Some((i.shape.bounds().unwrap(), t.text.as_str())),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(texts.len(), 2);
+        assert!(!texts[0].0.intersects(&texts[1].0), "{texts:?}");
+        // The old one struck through.
+        assert!(
+            o.items
+                .iter()
+                .any(|i| i.color == CHANGED_BEFORE && matches!(i.shape, Shape::Path { .. }))
         );
     }
 

@@ -145,7 +145,7 @@ def text_and_layers(doc, e):
     return [
         {"kind": "changed", "type": "TEXT", "handle": h(e["label"]), "details": ['text changed from "LIVING" to "LOUNGE"']},
         {"kind": "changed", "type": "LINE", "handle": h(e["wall1"]), "details": ["layer changed from WALLS to OTHER"]},
-        {"kind": "changed", "type": "CIRCLE", "handle": h(e["column"]), "details": ["color changed"]},
+        {"kind": "changed", "type": "CIRCLE", "handle": h(e["column"]), "details": ["colour changed"]},
         {"kind": "changed", "type": "MTEXT", "handle": h(e["note"]), "details": ["text changed"]},
         {"kind": "changed", "type": "INSERT", "handle": h(e["bolt"]), "details": ['attribute TAG changed from "B1" to "B2"']},
     ]

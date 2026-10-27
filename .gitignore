@@ -14,3 +14,6 @@ __pycache__/
 # Change reports exported next to drawings
 *.changes.json
 *.changes.png
+
+# Demo stills, videos, caches and the private review page (tools/demo.mjs, lightable demo-cues)
+/out/

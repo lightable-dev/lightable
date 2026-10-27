@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.4 -305.4 436.8 313.8" width="800" height="575">
+<rect x="-8.4" y="-305.4" width="436.8" height="313.8" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.2912" stroke-linecap="round">
+<g data-layer="BORDER">
+<path d="M0 0L420 0L420 297L0 297Z" stroke="#808080"/>
+</g>
+<g data-layer="TITLE">
+<path d="M290 5L415 5L415 45L290 45Z" stroke="#808080"/>
+<path d="M290 15L415 15" stroke="#808080"/>
+<path d="M290 25L415 25" stroke="#808080"/>
+<path d="M290 35L415 35" stroke="#808080"/>
+<path d="M385 5L385 15" stroke="#808080"/>
+<text transform="translate(293 38.5) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">DRIVE SHAFT</text>
+<text transform="translate(293 19) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">DRAWING No. LT-0020    SCALE AS SHOWN    mm</text>
+<text transform="translate(293 9) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">LIGHTABLE EXAMPLE</text>
+<text transform="translate(389 8.5) rotate(0) scale(1 -1) skewX(0)" font-size="3.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">REV E</text>
+<path d="M290 45L415 45L415 59L290 59Z" stroke="#808080"/>
+<path d="M290 52L415 52" stroke="#808080"/>
+<path d="M300 45L300 59" stroke="#808080"/>
+<text transform="translate(292 54.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">REV</text>
+<text transform="translate(303 54.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">DESCRIPTION</text>
+<text transform="translate(293 47.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">D</text>
+<text transform="translate(303 47.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">FIRST ISSUE</text>
+</g>
+<g data-layer="OUTLINE">
+<path d="M110 164L146 164" stroke="#ffffff"/>
+</g>
+<g data-layer="CENTER">
+<path d="M32 160L268 160" stroke="#ff00ff"/>
+</g>
+<g data-layer="NOTES">
+<text transform="translate(20 31) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">KEYWAY 8 P9 x 36 (DIN 6885)</text>
+<text transform="translate(20 24) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">SURFACE FINISH Ra 0.8</text>
+</g>
+<g data-layer="OUTLINE">
+<path d="M350 160A20 20 0 0 1 310 160A20 20 0 0 1 350 160" stroke="#ffffff"/>
+</g>
+<g data-layer="CENTER">
+<path d="M305 160L355 160" stroke="#ff00ff"/>
+</g>
+<g data-layer="NOTES">
+<text transform="translate(150 31) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">MATERIAL: C45E +QT</text>
+<text transform="translate(20 38) rotate(0) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">CHAMFERS 1x45°</text>
+</g>
+<g data-layer="OUTLINE">
+<path d="M110 164A4 4 0 0 1 106 160A4 4 0 0 1 110 156" stroke="#ffffff"/>
+<path d="M326 180L326 175.5L334 175.5L334 180" stroke="#ffffff"/>
+</g>
+<g data-layer="HIDDEN">
+<path d="M345 160A15 15 0 0 1 315 160A15 15 0 0 1 345 160" stroke="#0000ff"/>
+</g>
+<g data-layer="OUTLINE">
+<path d="M80 140L80 180" stroke="#ffffff"/>
+<path d="M200 140L200 180" stroke="#ffffff"/>
+<path d="M40 146L41 145" stroke="#ffffff"/>
+<path d="M41 145L80 145" stroke="#ffffff"/>
+<path d="M80 145L80 140" stroke="#ffffff"/>
+<path d="M80 140L200 140" stroke="#ffffff"/>
+<path d="M200 140L200 145" stroke="#ffffff"/>
+<path d="M200 145L259 145" stroke="#ffffff"/>
+<path d="M259 145L260 146" stroke="#ffffff"/>
+<path d="M260 146L260 174" stroke="#ffffff"/>
+<path d="M260 174L259 175" stroke="#ffffff"/>
+<path d="M259 175L200 175" stroke="#ffffff"/>
+<path d="M200 175L200 180" stroke="#ffffff"/>
+<path d="M200 180L80 180" stroke="#ffffff"/>
+<path d="M80 180L80 175" stroke="#ffffff"/>
+<path d="M80 175L41 175" stroke="#ffffff"/>
+<path d="M41 175L40 174" stroke="#ffffff"/>
+<path d="M40 174L40 146" stroke="#ffffff"/>
+</g>
+<g data-layer="NOTES">
+<text transform="translate(150 24) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">GENERAL TOLERANCES ISO 2768-m</text>
+</g>
+<g data-layer="OUTLINE">
+<path d="M146 156A4 4 0 0 1 150 160A4 4 0 0 1 146 164" stroke="#ffffff"/>
+<path d="M110 156L146 156" stroke="#ffffff"/>
+</g>
+<g data-layer="CENTER">
+<path d="M330 135L330 185" stroke="#ff00ff"/>
+</g>
+<g data-layer="TITLE">
+<path d="M290 59L290 66L415 66L415 59" stroke="#808080"/>
+<path d="M300 59L300 66" stroke="#808080"/>
+<text transform="translate(293 61.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">E</text>
+<text transform="translate(303 61.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#808080" stroke="none">SURFACE FINISH Ra 0.8</text>
+</g>
+</g>
+</svg>

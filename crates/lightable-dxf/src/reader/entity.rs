@@ -147,7 +147,7 @@ fn radius(f: &Fields<'_, '_, '_>) -> Result<f64, String> {
 fn circle<'r, 'a>(rest: &Rest<'r, 'a>, extra: &mut Extra<'r, 'a>) -> Result<EntityKind, String> {
     let f = Fields::new(rest, &[10, 20, 30, 40, 39, 210, 220, 230]);
     let circle = Circle {
-        center: f.point(10, "center")?,
+        center: f.point(10, "centre")?,
         radius: radius(&f)?,
         thickness: f.float_or(39, 0.0)?,
         extrusion: f.extrusion()?,
@@ -159,7 +159,7 @@ fn circle<'r, 'a>(rest: &Rest<'r, 'a>, extra: &mut Extra<'r, 'a>) -> Result<Enti
 fn arc<'r, 'a>(rest: &Rest<'r, 'a>, extra: &mut Extra<'r, 'a>) -> Result<EntityKind, String> {
     let f = Fields::new(rest, &[10, 20, 30, 40, 50, 51, 39, 210, 220, 230]);
     let arc = Arc {
-        center: f.point(10, "center")?,
+        center: f.point(10, "centre")?,
         radius: radius(&f)?,
         start_angle: f.require(50, "start angle")?,
         end_angle: f.require(51, "end angle")?,
@@ -245,7 +245,7 @@ fn ellipse<'r, 'a>(rest: &Rest<'r, 'a>, extra: &mut Extra<'r, 'a>) -> Result<Ent
         return Err(format!("axis ratio {ratio} is not positive"));
     }
     let ellipse = Ellipse {
-        center: f.point(10, "center")?,
+        center: f.point(10, "centre")?,
         major_axis: f.point(11, "major axis")?,
         ratio,
         start_param: f.float_or(41, 0.0)?,

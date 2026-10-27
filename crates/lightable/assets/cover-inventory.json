@@ -1,0 +1,152 @@
+{
+ "about": "Gearbox cover LT-0210, Rev B -> Rev C. ECN-031: bolts M10 -> M12 for a higher clamp load. Consequences: clearance holes Ø11 -> Ø13.5 (ISO 273 medium series), the hole callout, and the hole edges where section A-A cuts two of the holes. The drafter clouds only the bolt note.",
+ "design": [
+  {
+   "id": "E1",
+   "type": "TEXT",
+   "layer": "NOTES",
+   "clouded": true,
+   "words": [
+    "Text changed from BOLTS: 8x M10x30 ISO 4762 - 8.8 to BOLTS: 8x M12x30 ISO 4762 - 8.8"
+   ]
+  },
+  {
+   "id": "E2",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E3",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E4",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E5",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E6",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E7",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E8",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E9",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "diameter changed from 11 mm to 13.5 mm"
+   ]
+  },
+  {
+   "id": "E10",
+   "type": "TEXT",
+   "layer": "NOTES",
+   "words": [
+    "Text changed from 8x Ø11 THRU, EQ. SP. ON PCD 200 to 8x Ø13.5 THRU, EQ. SP. ON PCD 200"
+   ]
+  },
+  {
+   "id": "E11",
+   "type": "LINE",
+   "layer": "SECTION",
+   "words": [
+    "moved 1.25 mm up"
+   ]
+  },
+  {
+   "id": "E12",
+   "type": "LINE",
+   "layer": "SECTION",
+   "words": [
+    "moved 1.25 mm down"
+   ]
+  },
+  {
+   "id": "E13",
+   "type": "LINE",
+   "layer": "SECTION",
+   "words": [
+    "moved 1.25 mm up"
+   ]
+  },
+  {
+   "id": "E14",
+   "type": "LINE",
+   "layer": "SECTION",
+   "words": [
+    "moved 1.25 mm down"
+   ]
+  }
+ ],
+ "markup": [
+  {
+   "id": "M1",
+   "type": "TEXT",
+   "layer": "TITLE",
+   "words": [
+    "Text changed from REV B to REV C"
+   ]
+  },
+  {
+   "id": "M2",
+   "layer": "TITLE",
+   "words": [
+    "added"
+   ],
+   "note": "revision-table row C"
+  },
+  {
+   "id": "M3",
+   "type": "LWPOLYLINE",
+   "layer": "REVISION",
+   "words": [
+    "Revision cloud added"
+   ]
+  },
+  {
+   "id": "M4",
+   "layer": "REVISION",
+   "words": [
+    "added"
+   ],
+   "note": "revision triangle and its letter"
+  }
+ ]
+}

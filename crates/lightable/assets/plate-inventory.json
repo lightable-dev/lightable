@@ -1,0 +1,47 @@
+{
+ "about": "Locating plate LT-0115, Rev B -> Rev C: the second dowel hole moves 0.5 mm in X to suit the mating part, its position dimension follows (80 -> 80.5), and the hole-position tolerance tightens from ±0.1 to ±0.05. Nothing is clouded.",
+ "design": [
+  {
+   "id": "E1",
+   "type": "CIRCLE",
+   "layer": "HOLES",
+   "words": [
+    "moved 0.5 mm right"
+   ]
+  },
+  {
+   "id": "E2",
+   "type": "DIMENSION",
+   "layer": "DIMS",
+   "words": [
+    "Dimension changed from 80 mm to 80.5 mm"
+   ]
+  },
+  {
+   "id": "E3",
+   "type": "TEXT",
+   "layer": "NOTES",
+   "words": [
+    "Text changed from HOLE POSITIONS ±0.1 to HOLE POSITIONS ±0.05"
+   ]
+  }
+ ],
+ "markup": [
+  {
+   "id": "M1",
+   "type": "TEXT",
+   "layer": "TITLE",
+   "words": [
+    "Text changed from REV B to REV C"
+   ]
+  },
+  {
+   "id": "M2",
+   "layer": "TITLE",
+   "words": [
+    "added"
+   ],
+   "note": "revision-table row C"
+  }
+ ]
+}

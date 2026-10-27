@@ -54,7 +54,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def end_headers(self):
-        self.send_header("Cache-Control", "no-store")
+        # Nothing is cached, except the app's WebAssembly for a minute, so a
+        # browser opening several pages (tools/demo.mjs) compiles it once.
+        wasm = self.path.split("?")[0].endswith(".wasm")
+        self.send_header("Cache-Control", "max-age=60" if wasm else "no-store")
         super().end_headers()
 
     def do_POST(self):  # nothing should ever POST; log and refuse

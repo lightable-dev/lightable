@@ -232,7 +232,11 @@ impl GpuScene {
                     }
                     // Arcs small on screen: the coarse version looks the same.
                     let coarse = c.coarse_lines.is_some()
-                        && c.max_radius * view.scale < lightable_render::tess::COARSE_BELOW_PX;
+                        && lightable_render::tess::use_coarse(
+                            c.max_radius,
+                            view.scale,
+                            f64::from(pixels_per_point),
+                        );
                     let lines = if coarse { &c.coarse_lines } else { &c.lines };
                     let batches = if fills {
                         vec![(&c.triangles, glow::TRIANGLES)]

@@ -1,0 +1,51 @@
+<!doctype html>
+<!-- The brand stage (docs/brand/README.md): the real app in a browser-window
+     mockup on the brand background, with the motion graphics drawn around
+     it. tools/demo.mjs loads it with ?format=landscape|vertical&app=QUERY
+     and sets every frame itself (__stage.camera, __stage.paint): nothing
+     here runs on the wall clock, so each frame is the same every time. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lightable stage</title>
+  <link rel="stylesheet" href="stage.css">
+</head>
+<body>
+  <div id="frame">
+    <div id="bg"><div id="glow"></div><div id="grid"></div></div>
+    <div id="camera">
+      <div id="window">
+        <div id="titlebar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <div id="address"><span class="lock"></span>lightable.dev</div>
+          <div id="chips"><span>1 Drop</span><span>2 Result</span><span>3 Proof</span></div>
+        </div>
+        <!-- The spotlight dims the app around what the step is about; the
+             window's title bar and the captions stay as they are. -->
+        <div id="appwrap"><iframe id="app" title="Lightable"></iframe><div id="spot"></div></div>
+      </div>
+    </div>
+    <div id="footer"><img src="../../docs/brand/lockup.svg" alt=""></div>
+    <div id="overlay">
+      <div id="landing"></div>
+      <div id="cards"></div>
+      <div id="ripples"></div>
+      <div id="pointer"></div>
+      <div id="caption"><span id="caption-text"></span></div>
+    </div>
+    <div id="sting">
+      <div id="sting-mark">
+        <div class="sheet a"></div><div class="sheet b"></div><div class="sheet lit"></div>
+      </div>
+      <img id="sting-word" src="../../docs/brand/wordmark.svg" alt="">
+    </div>
+    <div id="endcard">
+      <img id="end-lockup" src="../../docs/brand/lockup.svg" alt="">
+      <p id="end-1"></p>
+      <p id="end-2"></p>
+      <p id="end-3"></p>
+    </div>
+  </div>
+  <script src="stage.js"></script>
+</body>
+</html>

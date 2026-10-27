@@ -18,9 +18,14 @@ pub struct Example {
     /// A line on how the example was drawn, shown under the summary. It
     /// describes our example file, not something the comparison found.
     pub note: Option<&'static str>,
+    /// The revision cloud was drawn around one change on purpose and the
+    /// other changes left unclouded, so the demo may say "the other N
+    /// weren't clouded". A fact about how the example was made; Lightable
+    /// never judges what a cloud is meant to cover.
+    pub cloud_by_design: bool,
 }
 
-pub static EXAMPLES: [Example; 2] = [
+pub static EXAMPLES: [Example; 6] = [
     Example {
         id: "bracket",
         title: "Steel bracket, Rev B to Rev C",
@@ -31,6 +36,7 @@ pub static EXAMPLES: [Example; 2] = [
         a: include_bytes!("../assets/bracket-rev-b.dxf"),
         b: include_bytes!("../assets/bracket-rev-c.dxf"),
         note: Some("Example: the drafter clouded only the bolt note."),
+        cloud_by_design: true,
     },
     Example {
         id: "plan",
@@ -42,6 +48,59 @@ pub static EXAMPLES: [Example; 2] = [
         a: include_bytes!("../assets/plan-rev-a.dxf"),
         b: include_bytes!("../assets/plan-rev-b.dxf"),
         note: None,
+        cloud_by_design: false,
+    },
+    // The demo page's use cases (tools/gen_usecases.py; each with an
+    // expected-change inventory next to it).
+    Example {
+        id: "cover",
+        title: "Gearbox cover, Rev B to Rev C",
+        a_label: "Rev B",
+        b_label: "Rev C",
+        a_name: "cover-rev-b.dxf",
+        b_name: "cover-rev-c.dxf",
+        a: include_bytes!("../assets/cover-rev-b.dxf"),
+        b: include_bytes!("../assets/cover-rev-c.dxf"),
+        note: Some("Example: the drafter clouded only the bolt note."),
+        cloud_by_design: true,
+    },
+    Example {
+        id: "plate",
+        title: "Locating plate, Rev B to Rev C",
+        a_label: "Rev B",
+        b_label: "Rev C",
+        a_name: "plate-rev-b.dxf",
+        b_name: "plate-rev-c.dxf",
+        a: include_bytes!("../assets/plate-rev-b.dxf"),
+        b: include_bytes!("../assets/plate-rev-c.dxf"),
+        note: None,
+        cloud_by_design: false,
+    },
+    Example {
+        id: "shaft",
+        title: "Drive shaft, Rev D to Rev E (simulated re-export)",
+        a_label: "Rev D",
+        b_label: "Rev E",
+        a_name: "shaft-rev-d.dxf",
+        b_name: "shaft-rev-e.dxf",
+        a: include_bytes!("../assets/shaft-rev-d.dxf"),
+        b: include_bytes!("../assets/shaft-rev-e.dxf"),
+        note: Some(
+            "Example: simulated re-export: new handles, shuffled order, older DXF version; one real change.",
+        ),
+        cloud_by_design: false,
+    },
+    Example {
+        id: "flat",
+        title: "Apartment plan with blocks, Rev A to Rev B",
+        a_label: "Rev A",
+        b_label: "Rev B",
+        a_name: "flat-rev-a.dxf",
+        b_name: "flat-rev-b.dxf",
+        a: include_bytes!("../assets/flat-rev-a.dxf"),
+        b: include_bytes!("../assets/flat-rev-b.dxf"),
+        note: None,
+        cloud_by_design: false,
     },
 ];
 

@@ -1,0 +1,33 @@
+{
+ "about": "Distribution centre layout, Rev A -> Rev B (23182 objects in Rev B): one location label renamed, one bay frame moved 300 mm, one column added.",
+ "design": [
+  {
+   "id": "E1",
+   "type": "TEXT",
+   "layer": "LABELS",
+   "words": [
+    "Text changed from R1-065 to QC-01"
+   ]
+  },
+  {
+   "id": "E2",
+   "type": "LWPOLYLINE",
+   "layer": "RACKS",
+   "words": [
+    "moved 300 mm right"
+   ]
+  },
+  {
+   "id": "E3",
+   "type": "CIRCLE",
+   "layer": "COLUMNS",
+   "words": [
+    "added"
+   ]
+  }
+ ],
+ "markup": [],
+ "notes": [
+  "23182 objects in Rev B (model space entities); the files are written by crates/lightable/src/depot.rs (deterministic) and not committed"
+ ]
+}

@@ -49,6 +49,19 @@ pub struct Compare {
     pub narrow: bool,
     /// Little height (a phone held sideways): a compact summary.
     pub short: bool,
+    /// The change list and the summary are shown (the demo hides them
+    /// in some steps).
+    pub show_list: bool,
+    /// Show only this many changes, then "… and N more" (the demo's
+    /// "found" step).
+    pub list_limit: Option<usize>,
+    /// With `list_limit`: whether "… and N more" was fully on screen in the
+    /// last frame (the recorder's checks).
+    pub list_tail_visible: Option<bool>,
+    pub show_summary: bool,
+    /// Recording a video: only the view toggle in the toolbar, no legend
+    /// or Previous/Next.
+    pub record: bool,
     a_name: String,
     b_name: String,
     /// What the summary calls the two drawings ("Rev B", "Rev C").
@@ -76,6 +89,44 @@ pub struct Compare {
     used: [bool; 3],
     /// Where the controls the hints point at were drawn last frame.
     anchors: [Option<Rect>; 3],
+    /// The built-in example these files are (its files were dropped or
+    /// chosen): its note is shown as for the example itself.
+    pub files_of: Option<&'static str>,
+    /// Where things were drawn last frame, for the demo's gestures: the
+    /// colour legend, "Export PNG report", and each change row fully in
+    /// view.
+    pub legend_rect: Option<Rect>,
+    pub export_rect: Option<Rect>,
+    pub json_rect: Option<Rect>,
+    pub summary_rect: Option<Rect>,
+    pub swap_rect: Option<Rect>,
+    pub not_compared_rect: Option<Rect>,
+    /// The "objects redrawn the same" line in Details (the demo highlights
+    /// it), and whether to scroll it into view this frame.
+    pub redrawn_rect: Option<Rect>,
+    pub reveal_redrawn: bool,
+    /// On the brand stage: seconds since the comparison appeared; the rows
+    /// of the change list fade in one after another (all of them real).
+    pub reveal_age: Option<f64>,
+    pub privacy_rect: Option<Rect>,
+    /// How long reading and comparing the user's files took, and (the
+    /// large layout's video) the network requests since; shown under the
+    /// summary.
+    pub timing_line: Option<String>,
+    pub network_line: Option<String>,
+    pub timing_rect: Option<Rect>,
+    pub network_rect: Option<Rect>,
+    /// Recording: the privacy line in the toolbar, and the file names with
+    /// Swap even in 9:16 (the feature videos that show them).
+    pub show_privacy: bool,
+    pub show_files: bool,
+    pub row_rects: Vec<(usize, Rect)>,
+    /// The part of the change list in view (rows outside it scroll in).
+    pub list_rect: Option<Rect>,
+    /// Frames left to bring the selected row into view.
+    reveal_selected: u8,
+    /// Change rows in view whose headline was cut off ("…") last frame.
+    pub cut_rows: usize,
 }
 
 /// The PNG report: shown for a few frames, then captured (or, in the demo,
@@ -111,21 +162,6 @@ fn block_refs(c: &Change) -> Option<String> {
     })
 }
 
-/// A change's one-line title.
-fn title(c: &Change) -> String {
-    let mut t = format!("{} {}", c.kind.as_str(), c.entity_type);
-    if let Some(h) = c.handle() {
-        t.push_str(&format!(" {h}"));
-    }
-    if !c.layer().is_empty() && c.place != Place::Layers {
-        t.push_str(&format!(" · {}", c.layer()));
-    }
-    if c.place != Place::Model {
-        t.push_str(&format!(" · {}", c.place));
-    }
-    t
-}
-
 fn rgb(c: lightable_render::Rgb) -> Color32 {
     Color32::from_rgb(c.0, c.1, c.2)
 }
@@ -148,7 +184,9 @@ fn short_name(path: &str) -> &str {
     path.rsplit(['/', '\\']).next().unwrap_or(path)
 }
 
-fn legend(ui: &mut egui::Ui) {
+/// The colour legend; returns where it was drawn.
+fn legend(ui: &mut egui::Ui) -> Rect {
+    let mut area = Rect::NOTHING;
     for (color, label) in [
         (dview::ADDED, "added"),
         (dview::DELETED, "deleted"),
@@ -157,9 +195,11 @@ fn legend(ui: &mut egui::Ui) {
     ] {
         let (rect, _) = ui.allocate_exact_size(egui::vec2(11.0, 11.0), egui::Sense::hover());
         ui.painter().rect_filled(rect, 2.0, rgb(color));
-        ui.label(egui::RichText::new(label).color(Color32::from_gray(200)));
+        let text = ui.label(egui::RichText::new(label).color(Color32::from_gray(200)));
+        area = area.union(rect).union(text.rect);
         ui.add_space(6.0);
     }
+    area
 }
 
 impl Compare {
@@ -196,6 +236,11 @@ impl Compare {
             notes: Vec::new(),
             narrow: false,
             short: false,
+            show_list: true,
+            list_limit: None,
+            list_tail_visible: None,
+            show_summary: true,
+            record: false,
             a_name,
             b_name,
             a_label,
@@ -214,6 +259,27 @@ impl Compare {
             reveal_not_compared: false,
             used: [false; 3],
             anchors: [None; 3],
+            files_of: None,
+            legend_rect: None,
+            export_rect: None,
+            json_rect: None,
+            summary_rect: None,
+            swap_rect: None,
+            not_compared_rect: None,
+            redrawn_rect: None,
+            reveal_redrawn: false,
+            reveal_age: None,
+            privacy_rect: None,
+            timing_line: None,
+            network_line: None,
+            timing_rect: None,
+            network_rect: None,
+            show_privacy: false,
+            show_files: false,
+            row_rects: Vec::new(),
+            list_rect: None,
+            reveal_selected: 0,
+            cut_rows: 0,
         })
     }
 
@@ -253,6 +319,16 @@ impl Compare {
         if !self.side_by_side || self.reporting() {
             return vec![rect];
         }
+        // Portrait (a phone, a 9:16 frame): one above the other.
+        if rect.height() > rect.width() * 1.2 {
+            let half = (rect.height() - self.gap) / 2.0;
+            let top = Rect::from_min_size(rect.min, egui::vec2(rect.width(), half));
+            let bottom = Rect::from_min_size(
+                egui::pos2(rect.min.x, rect.min.y + half + self.gap),
+                egui::vec2(rect.width(), half),
+            );
+            return vec![top, bottom];
+        }
         let half = (rect.width() - self.gap) / 2.0;
         let left = Rect::from_min_size(rect.min, egui::vec2(half, rect.height()));
         let right = Rect::from_min_size(
@@ -269,18 +345,38 @@ impl Compare {
             return None;
         }
         // At least a quarter of the drawing, so the change is seen in its
-        // surroundings.
-        Some(dview::zoom_box(c.bounds?, self.extent, 0.25))
+        // surroundings; a tenth for text, so the words can be read.
+        let text = matches!(c.entity_type.as_str(), "TEXT" | "MTEXT" | "ATTRIB");
+        let fraction = if text { 0.1 } else { 0.25 };
+        Some(dview::zoom_box(c.bounds?, self.extent, fraction))
     }
 
     /// Selects change `i`; returns where to zoom.
     pub fn select(&mut self, i: usize) -> Option<Bounds> {
         self.current = Some(i);
+        self.reveal_selected = 2;
         self.used[0] = true;
         self.zoom_for(i)
     }
 
+    /// The later drawing's objects (model space entities).
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    pub fn object_count(&self) -> usize {
+        self.drawings.1.entities.len()
+    }
+
+    /// The change selected in the list.
+    pub fn selected(&self) -> Option<usize> {
+        self.current
+    }
+
+    /// The two files' names, earlier first.
+    pub fn file_names(&self) -> (&str, &str) {
+        (&self.a_name, &self.b_name)
+    }
+
     /// The headline of change `i`.
+    #[cfg(test)]
     pub fn headline(&self, i: usize) -> &str {
         self.diff.changes.get(i).map_or("", |c| c.headline.as_str())
     }
@@ -289,32 +385,18 @@ impl Compare {
     /// revision markup right next to it (the revision triangle and its
     /// letter), so a zoom shows the whole callout.
     pub fn cloud_bounds(&self) -> Option<Bounds> {
-        let cloud = self.diff.changes.iter().find(|c| c.revision_cloud)?;
-        let mut b = cloud.bounds?;
-        let size = b.size();
-        let reach = 0.5 * size[0].max(size[1]);
-        let near = Bounds {
-            min: [b.min[0] - reach, b.min[1] - reach],
-            max: [b.max[0] + reach, b.max[1] + reach],
-        };
-        for c in &self.diff.changes {
-            if let Some(m) = c.bounds.filter(|_| c.markup && !c.revision_cloud) {
-                let centre = [(m.min[0] + m.max[0]) / 2.0, (m.min[1] + m.max[1]) / 2.0];
-                if (near.min[0]..=near.max[0]).contains(&centre[0])
-                    && (near.min[1]..=near.max[1]).contains(&centre[1])
-                {
-                    b.union(&m);
-                }
-            }
-        }
         // The cloud and a little around it.
-        Some(dview::zoom_box(b, self.extent, 0.2))
+        Some(dview::zoom_box(
+            self.cloud_bounds_tight()?,
+            self.extent,
+            0.2,
+        ))
     }
 
     /// The built-in example's note on how it was drawn ("Example: the
     /// drafter clouded only the bolt note."); never for the user's files.
     pub fn example_note(&self) -> Option<&'static str> {
-        let id = self.example?;
+        let id = self.example.or(self.files_of)?;
         crate::examples::EXAMPLES.iter().find(|e| e.id == id)?.note
     }
 
@@ -346,6 +428,58 @@ impl Compare {
                 !c.markup && c.bounds.as_ref().is_some_and(inside)
             })
             .collect()
+    }
+
+    /// The headlines of the design changes inside a revision cloud (demo
+    /// and voice-over checks only).
+    #[cfg(test)]
+    pub fn clouded_headlines(&self) -> Vec<&str> {
+        self.clouded()
+            .into_iter()
+            .map(|i| self.diff.changes[i].headline.as_str())
+            .collect()
+    }
+
+    /// The revision cloud and the markup next to it, without the usual
+    /// minimum zoom box: close enough to read the clouded text (demo).
+    pub fn cloud_bounds_tight(&self) -> Option<Bounds> {
+        let cloud = self.diff.changes.iter().find(|c| c.revision_cloud)?;
+        let mut b = cloud.bounds?;
+        let size = b.size();
+        let reach = 0.5 * size[0].max(size[1]);
+        for c in &self.diff.changes {
+            if let Some(m) = c.bounds.filter(|_| c.markup && !c.revision_cloud) {
+                let centre = [(m.min[0] + m.max[0]) / 2.0, (m.min[1] + m.max[1]) / 2.0];
+                if centre[0] >= b.min[0] - reach
+                    && centre[0] <= b.max[0] + reach
+                    && centre[1] >= b.min[1] - reach
+                    && centre[1] <= b.max[1] + reach
+                {
+                    b.union(&m);
+                }
+            }
+        }
+        Some(b)
+    }
+
+    /// The box around change `i` (model space), if it has one.
+    pub fn change_bounds(&self, i: usize) -> Option<Bounds> {
+        self.diff
+            .changes
+            .get(i)
+            .filter(|c| zoomable(c))
+            .and_then(|c| c.bounds)
+    }
+
+    /// Where the change list's first row, "Side by side" and "Details"
+    /// were drawn last frame.
+    pub fn anchors(&self) -> [Option<Rect>; 3] {
+        self.anchors
+    }
+
+    /// No change selected.
+    pub fn clear_selection(&mut self) {
+        self.current = None;
     }
 
     /// How many design changes the revision cloud surrounds (demo only).
@@ -478,14 +612,16 @@ impl Compare {
                 if ui.button("Zoom extents").clicked() {
                     action.fit = true;
                 }
-                if ui.button("Export JSON").clicked() {
+                let json = ui.button("Export JSON");
+                this.json_rect = Some(json.rect);
+                if json.clicked() {
                     action.message = Some(this.export());
                 }
-                if ui
+                let export = ui
                     .button("Export PNG report")
-                    .on_hover_text("The overlay and the change list as one image")
-                    .clicked()
-                {
+                    .on_hover_text("The overlay and the change list as one image");
+                this.export_rect = Some(export.rect);
+                if export.clicked() {
                     this.start_report();
                     action.fit = true;
                 }
@@ -507,6 +643,21 @@ impl Compare {
                 action.message = crate::feedback::open(ui.ctx());
             }
         };
+        self.export_rect = None;
+        // Recording a video: only the view buttons (they work as usual),
+        // and the privacy line where a video is about it.
+        if self.record {
+            ui.horizontal_wrapped(|ui| view(ui, self, &mut action));
+            if self.show_privacy && crate::app::CAN_CHOOSE_FILES {
+                let line = ui.label(
+                    egui::RichText::new(crate::app::PRIVACY)
+                        .small()
+                        .color(Color32::from_gray(200)),
+                );
+                self.privacy_rect = Some(line.rect);
+            }
+            return action;
+        }
         if narrow {
             ui.horizontal_wrapped(|ui| files(ui, self, &mut action));
             ui.horizontal_wrapped(|ui| {
@@ -575,17 +726,36 @@ impl Compare {
             }
         };
         ui.horizontal_wrapped(|ui| {
-            ui.label(
-                egui::RichText::new(self.summary())
-                    .size(if self.short { 16.0 } else { 20.0 })
-                    .strong()
-                    .color(Color32::WHITE),
+            self.summary_rect = Some(
+                ui.label(
+                    egui::RichText::new(self.summary())
+                        .size(if self.short || (self.record && self.narrow) {
+                            16.0
+                        } else {
+                            20.0
+                        })
+                        .strong()
+                        .color(Color32::WHITE),
+                )
+                .rect,
             );
-            if let Some(markup) = self.diff.markup_summary() {
+            if let Some(markup) = self.diff.markup_summary().filter(|_| !self.record) {
                 ui.label(egui::RichText::new(markup).color(Color32::from_gray(150)));
             }
-            ui.add_space(16.0);
-            legend(ui);
+            if self.record {
+                // On its own row, so it reads (and is highlighted) as one.
+                ui.end_row();
+            } else {
+                ui.add_space(16.0);
+            }
+            // A 9:16 video about the file names leaves the legend out.
+            if !(self.record && self.narrow && self.show_files) {
+                self.legend_rect = Some(legend(ui));
+            }
+            // Recording: no Previous / Next.
+            if self.record {
+                return;
+            }
             if self.narrow || self.short {
                 ui.add_space(8.0);
                 step(ui, self, false);
@@ -595,14 +765,18 @@ impl Compare {
                 });
             }
         });
-        if let Some(note) = self.example_note().filter(|_| !self.short) {
+        if let Some(note) = self
+            .example_note()
+            .filter(|_| !self.short && !(self.record && self.narrow))
+        {
             ui.label(
                 egui::RichText::new(note)
                     .italics()
                     .color(Color32::from_gray(185)),
             );
         }
-        if self.example.is_none() {
+        // In a 9:16 recording the summary line names the files already.
+        if self.example.is_none() && !(self.record && self.narrow && !self.show_files) {
             ui.horizontal_wrapped(|ui| {
                 ui.label(
                     egui::RichText::new(format!(
@@ -612,14 +786,28 @@ impl Compare {
                     ))
                     .color(Color32::from_gray(200)),
                 );
-                if ui
+                let swap = ui
                     .button("Swap")
-                    .on_hover_text("Compare the other way round")
-                    .clicked()
-                {
+                    .on_hover_text("Compare the other way round");
+                self.swap_rect = Some(swap.rect);
+                if swap.clicked() {
                     action.swap = true;
                 }
             });
+        }
+        self.timing_rect = None;
+        self.network_rect = None;
+        if let Some(t) = &self.timing_line {
+            self.timing_rect = Some(
+                ui.label(egui::RichText::new(t).color(Color32::from_gray(185)))
+                    .rect,
+            );
+        }
+        if let Some(n) = &self.network_line {
+            self.network_rect = Some(
+                ui.label(egui::RichText::new(n).color(Color32::from_gray(185)))
+                    .rect,
+            );
         }
         for note in &self.notes {
             ui.label(egui::RichText::new(note).color(Color32::from_rgb(0xf5, 0xd0, 0x2a)));
@@ -711,13 +899,15 @@ impl Compare {
     }
 
     /// Called once per report frame; true when it is time to capture.
-    pub fn report_frame(&mut self) -> bool {
+    /// `new_frame`: false when the same frame is drawn again (a recording
+    /// draws some frames more than once), which does not count.
+    pub fn report_frame(&mut self, new_frame: bool) -> bool {
         match self.report {
             Report::Preparing(n) if n >= 3 => {
                 self.report = Report::Capturing;
                 true
             }
-            Report::Preparing(n) => {
+            Report::Preparing(n) if new_frame => {
                 self.report = Report::Preparing(n + 1);
                 false
             }
@@ -729,9 +919,17 @@ impl Compare {
         self.report == Report::Capturing
     }
 
-    /// Saves the captured report and leaves the report layout.
-    pub fn finish_report(&mut self, image: &egui::ColorImage) -> String {
+    /// Saves the captured report and leaves the report layout. `save`
+    /// false (the live demo): made, but not downloaded onto a viewer's
+    /// computer.
+    pub fn finish_report(&mut self, image: &egui::ColorImage, save: bool) -> String {
         self.report = Report::Off;
+        if !save {
+            return format!(
+                "Report made ({} × {}); the demo does not save it.",
+                image.size[0], image.size[1]
+            );
+        }
         let rgba: Vec<u8> = image.pixels.iter().flat_map(|p| p.to_array()).collect();
         match crate::files::png(image.size[0], image.size[1], &rgba) {
             Ok(png) => {
@@ -745,7 +943,8 @@ impl Compare {
     /// The report's title bar.
     pub fn report_header(&self, ui: &mut egui::Ui) {
         ui.add_space(4.0);
-        ui.horizontal(|ui| {
+        // Wrapped, so a narrow (9:16) report keeps every word.
+        ui.horizontal_wrapped(|ui| {
             ui.heading(self.summary());
             if let Some(markup) = self.diff.markup_summary() {
                 ui.label(egui::RichText::new(markup).color(Color32::from_gray(150)));
@@ -754,8 +953,8 @@ impl Compare {
         if let Some(note) = self.example_note() {
             ui.label(egui::RichText::new(note).italics());
         }
-        ui.horizontal(|ui| {
-            legend(ui);
+        ui.horizontal_wrapped(|ui| {
+            let _ = legend(ui);
             ui.separator();
             ui.label(format!(
                 "{} to {}",
@@ -852,7 +1051,7 @@ impl Compare {
         ui.add_space(6.0);
         ui.horizontal_wrapped(|ui| {
             ui.heading("What changed");
-            if !d.changes.is_empty() && !self.narrow {
+            if !d.changes.is_empty() && !self.narrow && !self.record {
                 ui.label(
                     egui::RichText::new("click a line to zoom · N / P keys step")
                         .small()
@@ -864,9 +1063,38 @@ impl Compare {
         let mut clicked = None;
         let mut first_row = None;
         let mut reveal = false;
-        egui::ScrollArea::vertical().show(ui, |ui| {
+        let mut tail_visible = None;
+        let mut rows = Vec::new();
+        let mut cut_rows = 0;
+        let mut view = None;
+        let mut not_compared = None;
+        let mut redrawn = None;
+        let bring = self.reveal_selected > 0;
+        self.reveal_selected = self.reveal_selected.saturating_sub(1);
+        // A short list (a 9:16 recording) scrolls within its panel instead
+        // of running past the bottom (egui's default minimum is 64 points).
+        egui::ScrollArea::vertical()
+            .min_scrolled_height(24.0)
+            .show(ui, |ui| {
+            view = Some(ui.clip_rect());
             let markup_start = d.changes.iter().position(|c| c.markup);
+            let design = d.design_changes().count();
             for (i, c) in d.changes.iter().enumerate() {
+                if let Some(limit) = self.list_limit
+                    && i >= limit
+                {
+                    // The rest as a real count: design changes not listed.
+                    let rest = design.saturating_sub(limit);
+                    if rest > 0 {
+                        let tail = ui.label(
+                            egui::RichText::new(format!("… and {rest} more"))
+                                .size(15.0)
+                                .color(Color32::from_gray(200)),
+                        );
+                        tail_visible = Some(ui.clip_rect().contains_rect(tail.rect));
+                    }
+                    break;
+                }
                 if Some(i) == markup_start {
                     ui.add_space(8.0);
                     ui.label(egui::RichText::new("Revision markup").color(Color32::from_gray(150)));
@@ -876,18 +1104,38 @@ impl Compare {
                 if c.markup {
                     text = text.color(Color32::from_gray(170));
                 }
+                // Row by row on the stage: 0.15 s apart, each over 0.3 s.
+                let alpha = self.reveal_age.map_or(1.0, |age| {
+                    ((age - 0.15 * i as f64) / 0.3).clamp(0.0, 1.0) as f32
+                });
                 let response = ui
                     .horizontal(|ui| {
+                        ui.multiply_opacity(alpha);
                         let (rect, _) =
                             ui.allocate_exact_size(egui::vec2(10.0, 10.0), egui::Sense::hover());
                         ui.painter().rect_filled(rect, 2.0, kind_color(c));
-                        // Long headlines wrap (narrow screens, report).
-                        ui.add(egui::Button::selectable(selected, text).wrap())
+                        // Long headlines wrap, never cut off: laid out here
+                        // so a cut-off row would be known (the recorder's
+                        // check).
+                        let width = ui.available_width() - 2.0 * ui.spacing().button_padding.x;
+                        let galley = egui::WidgetText::from(text).into_galley(
+                            ui,
+                            Some(egui::TextWrapMode::Wrap),
+                            width,
+                            egui::TextStyle::Button,
+                        );
+                        let cut = galley.elided;
+                        (ui.add(egui::Button::selectable(selected, galley)), cut)
                     })
                     .inner;
+                let (response, cut) = response;
+                if cut && ui.clip_rect().intersects(response.rect) {
+                    cut_rows += 1;
+                }
                 if first_row.is_none() {
                     first_row = Some(response.rect);
                 }
+                rows.push((i, response.rect));
                 if response.clicked() {
                     clicked = Some(i);
                 }
@@ -902,16 +1150,14 @@ impl Compare {
                     if !c.geometry && c.kind == ChangeKind::Changed {
                         notes.push("properties only");
                     }
-                    let exact: Vec<&str> = c
-                        .details
-                        .iter()
-                        .map(String::as_str)
-                        .filter(|d| *d != "not shown")
-                        .collect();
+                    // Plain labels, arrows and units (the JSON keeps the
+                    // raw details).
+                    let (object, exact) =
+                        lightable_diff::words::exact(c, d.units.as_deref());
                     ui.indent(i, |ui| {
-                        ui.small(egui::RichText::new(title(c)).color(Color32::from_gray(140)));
+                        ui.small(egui::RichText::new(object).color(Color32::from_gray(150)));
                         if !exact.is_empty() {
-                            ui.small(exact.join("; "));
+                            ui.small(exact);
                         }
                         if !notes.is_empty() {
                             ui.small(egui::RichText::new(notes.join(", ")).italics().color(Color32::GRAY));
@@ -921,7 +1167,9 @@ impl Compare {
                         }
                     });
                 }
-                if selected && response.clicked() {
+                // A newly selected row comes fully into view (for two
+                // frames: in a recording it grows to its full headline).
+                if selected && (response.clicked() || bring) {
                     response.scroll_to_me(None);
                 }
             }
@@ -930,11 +1178,11 @@ impl Compare {
             }
             if !details && !d.not_compared.is_empty() {
                 ui.add_space(10.0);
-                if ui
+                let link = ui
                     .link(egui::RichText::new("What isn't compared?").small())
-                    .on_hover_text("Opens Details at the list of what this comparison skips")
-                    .clicked()
-                {
+                    .on_hover_text("Opens Details at the list of what this comparison skips");
+                not_compared = Some(link.rect);
+                if link.clicked() {
                     reveal = true;
                 }
             }
@@ -963,9 +1211,21 @@ impl Compare {
                     }
                 }
                 if !d.redrawn.is_empty() {
-                    egui::CollapsingHeader::new(format!("Same drawing, other entities ({})", d.redrawn.len()))
+                    // A wrapping line (a collapsing header's title cannot
+                    // wrap and would widen the panel), then the list.
+                    ui.add_space(6.0);
+                    let line = ui.label(format!(
+                        "{} objects redrawn the same: not changes",
+                        d.redrawn.len()
+                    ));
+                    redrawn = Some(line.rect);
+                    if self.reveal_redrawn {
+                        line.scroll_to_me(Some(egui::Align::Center));
+                    }
+                    egui::CollapsingHeader::new("Which objects")
+                        .id_salt("redrawn")
                         .show(ui, |ui| {
-                            ui.small("Drawn identically by other entities in the other file (for example a polyline saved as separate lines). Not counted as changes.");
+                            ui.small("Drawn identically by other objects in the other file (for example a polyline saved as separate lines). Not counted as changes.");
                             for c in &d.redrawn {
                                 ui.small(format!(
                                     "{} {}{}",
@@ -979,6 +1239,12 @@ impl Compare {
             }
         });
         self.anchors[0] = first_row;
+        self.list_tail_visible = tail_visible;
+        self.row_rects = rows;
+        self.cut_rows = cut_rows;
+        self.list_rect = view;
+        self.not_compared_rect = not_compared;
+        self.redrawn_rect = redrawn;
         if reveal {
             self.details = true;
             self.used[2] = true;
@@ -1067,10 +1333,18 @@ impl Compare {
             }
         }
         if panes.len() == 2 {
-            let gap = Rect::from_min_max(
-                egui::pos2(panes[0].max.x, panes[0].min.y),
-                egui::pos2(panes[1].min.x, panes[1].max.y),
-            );
+            // Between the panes: a column, or a row when stacked.
+            let gap = if panes[1].min.y >= panes[0].max.y {
+                Rect::from_min_max(
+                    egui::pos2(panes[0].min.x, panes[0].max.y),
+                    egui::pos2(panes[1].max.x, panes[1].min.y),
+                )
+            } else {
+                Rect::from_min_max(
+                    egui::pos2(panes[0].max.x, panes[0].min.y),
+                    egui::pos2(panes[1].min.x, panes[1].max.y),
+                )
+            };
             ui.painter().rect_filled(gap, 0.0, Color32::from_gray(60));
         }
     }

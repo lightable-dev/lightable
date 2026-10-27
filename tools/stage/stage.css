@@ -1,0 +1,150 @@
+/* The brand stage. Colours and type: docs/brand/README.md. Sizes are set
+   per format by stage.js (CSS variables), in CSS pixels of the frame. */
+@font-face {
+  font-family: "Lato";
+  src: url("../../docs/brand/fonts/Lato-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Lato";
+  src: url("../../docs/brand/fonts/Lato-Light.ttf") format("truetype");
+  font-weight: 300;
+}
+:root {
+  --ink: #0b0f14;
+  --night: #101924;
+  --deep: #143049;
+  --paper: #eef2f6;
+  --mist: #9aa7b4;
+  --blue: #4cb0ff;
+  --yellow: #f5d02a;
+  --panel: #1b1b1b;
+}
+html, body { margin: 0; padding: 0; background: var(--ink); overflow: hidden; }
+#frame {
+  position: relative; width: var(--w); height: var(--h); overflow: hidden;
+  font-family: "Lato", sans-serif; color: var(--paper);
+}
+/* A light table at night: a soft glow from below the window, a faint grid. */
+#bg { position: absolute; inset: 0; background: linear-gradient(180deg, var(--night), var(--ink)); }
+#glow {
+  position: absolute; left: -20%; right: -20%; top: 10%; bottom: -30%;
+  background: radial-gradient(ellipse at 50% 45%, rgba(76, 176, 255, 0.22), rgba(20, 48, 73, 0.15) 40%, transparent 70%);
+}
+#grid {
+  position: absolute; inset: 0; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(76, 176, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76, 176, 255, 0.07) 1px, transparent 1px);
+  background-size: var(--grid) var(--grid);
+  background-position: center center;
+}
+#camera { position: absolute; inset: 0; transform-origin: var(--cx) var(--cy); }
+#window {
+  position: absolute; left: var(--wx); top: var(--wy); width: var(--ww);
+  border-radius: 10px; overflow: hidden; background: var(--panel);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+#titlebar {
+  height: var(--tb); display: flex; align-items: center; gap: 6px; padding: 0 10px;
+  background: #23272d; border-bottom: 1px solid #111;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #3b4048; }
+#address {
+  margin: 0 0 0 var(--addr-gap); font-size: 11px; color: var(--mist);
+  background: #171a1f; border-radius: 6px; padding: 3px 14px; letter-spacing: 0.02em;
+}
+.lock {
+  display: inline-block; width: 7px; height: 6px; margin-right: 6px; border-radius: 1.5px;
+  background: var(--mist); position: relative; top: 0;
+}
+#app { display: block; width: var(--ww); height: var(--ih); border: 0; background: var(--panel); }
+#appwrap { position: relative; overflow: hidden; }
+/* Everything but the subject softly dimmed. */
+#spot {
+  position: absolute; display: none; border-radius: 10px; pointer-events: none;
+  box-shadow: 0 0 18px 10px rgba(6, 9, 13, 0.32), 0 0 0 3000px rgba(6, 9, 13, 0.55);
+}
+/* Where the viewer is: 1 Drop · 2 Result · 3 Proof. */
+#chips { display: flex; gap: 6px; margin-left: auto; }
+#chips span {
+  font-size: var(--chip); line-height: 1; padding: 3px 8px; border-radius: 10px;
+  color: var(--mist); background: #1a1e24; border: 1px solid #30363e;
+}
+#chips span.on { color: var(--ink); background: var(--blue); border-color: var(--blue); }
+#chips span.done { color: #cfd8e1; }
+#footer {
+  position: absolute; left: 0; right: 0; top: var(--fy); bottom: 0;
+  display: flex; align-items: center; justify-content: center; opacity: 0.85;
+}
+#footer img { height: var(--lockup); }
+#overlay { position: absolute; inset: 0; pointer-events: none; }
+
+/* Highlights: a gentle double pulse around the change just tapped. */
+#landing {
+  position: absolute; display: none; border-radius: 50%; border: 3px solid var(--blue);
+  box-shadow: 0 0 24px rgba(76, 176, 255, 0.6);
+}
+.card {
+  position: absolute; width: var(--card-w); height: var(--card-h); box-sizing: border-box;
+  display: flex; align-items: center; gap: 8px; padding: 0 10px;
+  background: var(--paper); color: var(--ink); border-radius: 8px;
+  font-size: var(--card-font); white-space: nowrap; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.card .doc {
+  flex: none; width: 18px; height: 22px; border-radius: 2px; background: var(--blue);
+  color: var(--ink); font-size: 6.5px; font-weight: 400; display: flex; align-items: flex-end;
+  justify-content: center; padding-bottom: 2px; box-sizing: border-box;
+}
+.ripple {
+  position: absolute; border-radius: 50%; border: 2.5px solid var(--blue);
+}
+#pointer { position: absolute; display: none; transform-origin: 0 0; }
+#pointer svg { display: block; overflow: visible; }
+#pointer.finger { transform-origin: 50% 50%; }
+
+/* Kinetic captions: short lines that fade and slide in; numbers in yellow. */
+#caption {
+  position: absolute; display: none; transform-origin: 50% 100%;
+  text-align: center;
+}
+#caption-text {
+  display: inline-block; box-sizing: border-box; background: rgba(11, 15, 20, 0.95);
+  text-wrap: balance;
+  border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 0.32em;
+  padding: 0.22em 0.55em 0.28em; line-height: 1.22; color: var(--paper);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+#caption-text .n { color: var(--yellow); }
+.arrow { display: inline-block; width: 0.95em; height: 0.6em; margin: 0 0.12em; vertical-align: 0.08em; }
+
+/* The intro sting: two sheets meet on the light table, the light shines
+   through where they overlap, the name appears. */
+#sting {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sting-gap); background:
+    radial-gradient(ellipse at 50% 55%, rgba(76, 176, 255, 0.25), transparent 60%),
+    linear-gradient(180deg, var(--night), var(--ink));
+}
+#sting-mark { position: relative; width: var(--mark); height: var(--mark); }
+.sheet { position: absolute; border-radius: 9.4%; }
+.sheet.a { left: 9.4%; top: 12.5%; width: 56.3%; height: 65.6%; background: var(--blue); }
+.sheet.b { left: 34.4%; top: 25%; width: 56.3%; height: 65.6%; background: var(--yellow); }
+.sheet.lit {
+  left: 34.4%; top: 25%; width: 31.3%; height: 53.1%; background: #fff;
+  border-radius: 9.4% 0 0 9.4%; box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+}
+#sting-word { height: var(--word); }
+
+#endcard {
+  position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; background:
+    radial-gradient(ellipse at 50% 50%, rgba(76, 176, 255, 0.2), transparent 62%),
+    linear-gradient(180deg, var(--night), var(--ink));
+}
+#end-lockup { height: var(--end-lockup); margin-bottom: var(--end-gap); }
+#endcard p { margin: 0.18em 0; max-width: 88%; }
+#end-1 { font-size: var(--end-1); color: var(--paper); }
+#end-2 { font-size: var(--end-2); color: #cfd8e1; font-weight: 300; }
+#end-3 { font-size: var(--end-3); color: var(--blue); margin-top: 0.5em !important; }

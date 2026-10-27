@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1231.4 -9361.4 13592.8 11212.8" width="800" height="660">
+<rect x="-1231.4" y="-9361.4" width="13592.8" height="11212.8" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="9.0619" stroke-linecap="round">
+<g data-layer="WALLS">
+<path d="M0 -100L12000 -100" stroke="#ffffff"/>
+<path d="M0 100L12000 100" stroke="#ffffff"/>
+<path d="M0 8900L12000 8900" stroke="#ffffff"/>
+<path d="M0 9100L12000 9100" stroke="#ffffff"/>
+<path d="M-100 0L-100 9000" stroke="#ffffff"/>
+<path d="M100 0L100 9000" stroke="#ffffff"/>
+<path d="M11900 0L11900 9000" stroke="#ffffff"/>
+<path d="M12100 0L12100 9000" stroke="#ffffff"/>
+<path d="M4750 0L4750 5000" stroke="#ffffff"/>
+<path d="M4850 0L4850 5000" stroke="#ffffff"/>
+<path d="M0 4950L12000 4950" stroke="#ffffff"/>
+<path d="M0 5050L12000 5050" stroke="#ffffff"/>
+<path d="M7950 0L7950 5000" stroke="#ffffff"/>
+<path d="M8050 0L8050 5000" stroke="#ffffff"/>
+<path d="M8000 2450L12000 2450" stroke="#ffffff"/>
+<path d="M8000 2550L12000 2550" stroke="#ffffff"/>
+</g>
+<g data-layer="DOORS">
+<path d="M1500 4250A800 800 0 0 1 2065.6854 4484.3146A800 800 0 0 1 2300 5050" stroke="#00ff00"/>
+<path d="M1500 5050L1500 5010L2300 5010L2300 5050Z" stroke="#00ff00"/>
+<path d="M6000 4250A800 800 0 0 1 6565.6854 4484.3146A800 800 0 0 1 6800 5050" stroke="#00ff00"/>
+<path d="M6000 5050L6000 5010L6800 5010L6800 5050Z" stroke="#00ff00"/>
+<path d="M9000 4250A800 800 0 0 1 9565.6854 4484.3146A800 800 0 0 1 9800 5050" stroke="#00ff00"/>
+<path d="M9000 5050L9000 5010L9800 5010L9800 5050Z" stroke="#00ff00"/>
+<path d="M10300 2550A800 800 0 0 1 10065.6854 3115.6854A800 800 0 0 1 9500 3350" stroke="#00ff00"/>
+<path d="M9500 2550L9540 2550L9540 3350L9500 3350Z" stroke="#00ff00"/>
+<path d="M9700 2450A800 800 0 0 1 9934.3146 1884.3146A800 800 0 0 1 10500 1650" stroke="#00ff00"/>
+<path d="M10500 2450L10460 2450L10460 1650L10500 1650Z" stroke="#00ff00"/>
+<path d="M1000 7000A800 800 0 0 1 765.6854 7565.6854A800 800 0 0 1 200 7800" stroke="#00ff00"/>
+<path d="M200 7000L240 7000L240 7800L200 7800Z" stroke="#00ff00"/>
+<path d="M11000 7500A800 800 0 0 1 11234.3146 6934.3146A800 800 0 0 1 11800 6700" stroke="#00ff00"/>
+<path d="M11800 7500L11760 7500L11760 6700L11800 6700Z" stroke="#00ff00"/>
+</g>
+<g data-layer="WINDOWS">
+<path d="M1500 -100L2700 -100" stroke="#00ffff"/>
+<path d="M1500 -20L2700 -20" stroke="#00ffff"/>
+<path d="M1500 60L2700 60" stroke="#00ffff"/>
+<path d="M1500 -100L1500 60" stroke="#00ffff"/>
+<path d="M2700 -100L2700 60" stroke="#00ffff"/>
+<path d="M5500 -100L6700 -100" stroke="#00ffff"/>
+<path d="M5500 -20L6700 -20" stroke="#00ffff"/>
+<path d="M5500 60L6700 60" stroke="#00ffff"/>
+<path d="M5500 -100L5500 60" stroke="#00ffff"/>
+<path d="M6700 -100L6700 60" stroke="#00ffff"/>
+<path d="M9200 -100L10400 -100" stroke="#00ffff"/>
+<path d="M9200 -20L10400 -20" stroke="#00ffff"/>
+<path d="M9200 60L10400 60" stroke="#00ffff"/>
+<path d="M9200 -100L9200 60" stroke="#00ffff"/>
+<path d="M10400 -100L10400 60" stroke="#00ffff"/>
+<path d="M2000 8900L3200 8900" stroke="#00ffff"/>
+<path d="M2000 8980L3200 8980" stroke="#00ffff"/>
+<path d="M2000 9060L3200 9060" stroke="#00ffff"/>
+<path d="M2000 8900L2000 9060" stroke="#00ffff"/>
+<path d="M3200 8900L3200 9060" stroke="#00ffff"/>
+<path d="M7000 8900L8200 8900" stroke="#00ffff"/>
+<path d="M7000 8980L8200 8980" stroke="#00ffff"/>
+<path d="M7000 9060L8200 9060" stroke="#00ffff"/>
+<path d="M7000 8900L7000 9060" stroke="#00ffff"/>
+<path d="M8200 8900L8200 9060" stroke="#00ffff"/>
+<path d="M12100 3500L12100 4700" stroke="#00ffff"/>
+<path d="M12020 3500L12020 4700" stroke="#00ffff"/>
+<path d="M11940 3500L11940 4700" stroke="#00ffff"/>
+<path d="M12100 3500L11940 3500" stroke="#00ffff"/>
+<path d="M12100 4700L11940 4700" stroke="#00ffff"/>
+</g>
+<g data-layer="FURNITURE">
+<path d="M1400 1200L3000 1200L3000 3200L1400 3200Z" stroke="#808080"/>
+<path d="M1500 2850L2150 2850L2150 3150L1500 3150Z" stroke="#808080"/>
+<path d="M2250 2850L2900 2850L2900 3150L2250 3150Z" stroke="#808080"/>
+<path d="M5400 1200L7000 1200L7000 3200L5400 3200Z" stroke="#808080"/>
+<path d="M5500 2850L6150 2850L6150 3150L5500 3150Z" stroke="#808080"/>
+<path d="M6250 2850L6900 2850L6900 3150L6250 3150Z" stroke="#808080"/>
+<path d="M1000 7600L3200 7600L3200 8500L1000 8500Z" stroke="#808080"/>
+<path d="M1150 7600L3050 7600L3050 8300L1150 8300Z" stroke="#808080"/>
+<path d="M7000 6800L8400 6800L8400 7600L7000 7600Z" stroke="#808080"/>
+<path d="M7250 6350L7650 6350L7650 6750L7250 6750Z" stroke="#808080"/>
+<path d="M7750 6350L8150 6350L8150 6750L7750 6750Z" stroke="#808080"/>
+<path d="M7250 7650L7650 7650L7650 8050L7250 8050Z" stroke="#808080"/>
+<path d="M7750 7650L8150 7650L8150 8050L7750 8050Z" stroke="#808080"/>
+<path d="M9500 8900L11900 8900L11900 8300L9500 8300Z" stroke="#808080"/>
+</g>
+<g data-layer="TEXT">
+<text transform="translate(2200 4200) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BEDROOM 1</text>
+<text transform="translate(6200 4200) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BEDROOM 2</text>
+<text transform="translate(9800 4000) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">BATH</text>
+<text transform="translate(9800 1200) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">STORAGE</text>
+<text transform="translate(5600 7400) rotate(0) scale(1 -1) skewX(0)" font-size="250" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ffff00" stroke="none">LIVING / KITCHEN</text>
+<text transform="translate(0 -1500) rotate(0) scale(1 -1) skewX(0)" font-size="300" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffff00" stroke="none">FLAT 3.02 - LIGHTABLE EXAMPLE</text>
+</g>
+<g data-layer="DIMS">
+<path d="M0 -200L0 -800" stroke="#ff0000"/>
+<path d="M12000 -200L12000 -800" stroke="#ff0000"/>
+<path d="M75 -625L-75 -775" stroke="#ff0000"/>
+<path d="M11925 -775L12075 -625" stroke="#ff0000"/>
+<path d="M0 -700L12000 -700" stroke="#ff0000"/>
+<text transform="translate(6000 -650) rotate(0) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ff0000" stroke="none">12000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="0" cy="-700" r="13.5928" fill="#ffffff"/>
+<circle cx="0" cy="-100" r="13.5928" fill="#ffffff"/>
+<circle cx="12000" cy="-100" r="13.5928" fill="#ffffff"/>
+</g>
+<g data-layer="DIMS">
+<path d="M-200 0L-800 0" stroke="#ff0000"/>
+<path d="M-200 9000L-800 9000" stroke="#ff0000"/>
+<path d="M-775 75L-625 -75" stroke="#ff0000"/>
+<path d="M-625 8925L-775 9075" stroke="#ff0000"/>
+<path d="M-700 0L-700 9000" stroke="#ff0000"/>
+<text transform="translate(-750 4500) rotate(90) scale(1 -1) skewX(0)" font-size="200" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ff0000" stroke="none">9000</text>
+</g>
+<g data-layer="Defpoints">
+<circle cx="-700" cy="0" r="13.5928" fill="#ffffff"/>
+<circle cx="-100" cy="0" r="13.5928" fill="#ffffff"/>
+<circle cx="-100" cy="9000" r="13.5928" fill="#ffffff"/>
+</g>
+</g>
+</svg>

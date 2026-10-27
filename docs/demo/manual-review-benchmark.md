@@ -55,15 +55,15 @@ visible) do not show.
 | Item | Lightable's result |
 |---|---|
 | E1 | "Text changed from BOLTS: 4x M12 ISO 4017 - 8.8 to BOLTS: 4x M16 ISO 4017 - 8.8" |
-| E2–E5 | "Circle diameter changed from 13.5 mm to 17.5 mm; center moved 5 mm right and 5 mm up" (and left/down variants), one per hole |
+| E2–E5 | "Circle diameter changed from 13.5 mm to 17.5 mm; centre moved 5 mm right and 5 mm up" (and left/down variants), one per hole |
 | E6 | "Text changed from 4x Ø13.5 THRU to 4x Ø17.5 THRU" |
 | E7, E9 | "Dimension changed from 20 mm to 25 mm" |
 | E8 | "Dimension changed from 120 mm to 110 mm" |
 | E10 | "Dimension changed from 60 mm to 50 mm" |
 | M1 | "Text changed from REV B to REV C" (revision markup) |
-| M2 | "Polyline added", "Line added", "Text “C” added", "Text “BOLTS M12 TO M16 (ECN-017)” added" (revision markup) |
+| M2 | "Markup lines added", "Markup line added", "Text “C” added", "Text “BOLTS M12 TO M16 (ECN-017)” added" (revision markup) |
 | M3 | "Revision cloud added" (revision markup) |
-| M4 | "Polyline added", "Text “C” added" (revision markup) |
+| M4 | "Markup triangle added", "Text “C” added" (revision markup) |
 
 Summary line: "10 changes found between Rev B and Rev C", beside it "plus revision
 markup (8 items, including 1 revision cloud)"; the markup is listed separately. Every expected item is found, nothing
@@ -88,4 +88,4 @@ dimension pictures in anonymous blocks).
 | "Details: the technical data, and what was not compared." | The Details toggle shows exact values, entity type, handle, layer, and "Not compared yet". | Yes |
 | "Download the review report as PNG or JSON." | Both exports exist under Details; the demo shows the PNG layout without saving. | Yes |
 | "Lightable shows what changed. Whether it is right is still your call." | No design, safety or manufacturing checks exist. | Yes |
-| "Your files never leave your computer." | The web page has no upload path; its Content-Security-Policy allows requests only to its own origin, and the browser tests record no request carrying file data. | Yes |
+| "Your files are read in your browser, never uploaded." | The web page has no upload path; its Content-Security-Policy allows requests only to its own origin, and the browser tests record no request carrying file data. | Yes |

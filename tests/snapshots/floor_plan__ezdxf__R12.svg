@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-858.4845 -9858.0095 13416.494 11116.019" width="800" height="663">
-<rect x="-858.4845" y="-9858.0095" width="13416.494" height="11116.019" fill="#212121"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-858.408 -9858.008 13416.416 11116.016" width="800" height="663">
+<rect x="-858.408" y="-9858.008" width="13416.416" height="11116.016" fill="#212121"/>
 <g transform="scale(1 -1)" fill="none" stroke-width="8.9443" stroke-linecap="round">
 <g data-layer="WALLS">
 <path d="M0 0L12000 0" stroke="#ffffff"/>
@@ -55,9 +55,9 @@
 <text transform="translate(6000 -599.775) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ff0000" stroke="none">1200000</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="0" cy="-600" r="13.4165" fill="#ffffff"/>
-<circle cx="0" cy="0" r="13.4165" fill="#ffffff"/>
-<circle cx="12000" cy="0" r="13.4165" fill="#ffffff"/>
+<circle cx="0" cy="-600" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="12000" cy="0" r="13.4164" fill="#ffffff"/>
 </g>
 <g data-layer="DIMS">
 <path d="M-0.125 0L-600.375 0" stroke="#ff0000"/>
@@ -68,9 +68,9 @@
 <text transform="translate(-600.225 4000) rotate(90) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="central" fill="#ff0000" stroke="none">800000</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="-600" cy="0" r="13.4165" fill="#ffffff"/>
-<circle cx="0" cy="0" r="13.4165" fill="#ffffff"/>
-<circle cx="0" cy="8000" r="13.4165" fill="#ffffff"/>
+<circle cx="-600" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="0" r="13.4164" fill="#ffffff"/>
+<circle cx="0" cy="8000" r="13.4164" fill="#ffffff"/>
 </g>
 </g>
 </svg>

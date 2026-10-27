@@ -78,11 +78,11 @@ fn dir(label: impl Into<Label>, p: Point3) -> (Label, Value) {
     (label.into(), Value::Dir(p3(p)))
 }
 
-/// A colour in words: "blue (5)", "layer color", "#ff8000".
+/// A colour in words: "blue (5)", "layer colour", "#ff8000".
 pub(crate) fn color_name(c: Color) -> String {
     match c {
-        Color::ByLayer => "layer color".into(),
-        Color::ByBlock => "block color".into(),
+        Color::ByLayer => "layer colour".into(),
+        Color::ByBlock => "block colour".into(),
         // The standard colours by name, with their number.
         Color::Index(i @ 1..=9) => {
             let names = [
@@ -98,7 +98,7 @@ pub(crate) fn color_name(c: Color) -> String {
             ];
             format!("{} ({i})", names[usize::from(i) - 1])
         }
-        Color::Index(i) => format!("color {i}"),
+        Color::Index(i) => format!("colour {i}"),
         Color::Rgb(r, g, b) => format!("#{r:02x}{g:02x}{b:02x}"),
     }
 }
@@ -276,7 +276,7 @@ fn measured(d: &lightable_dxf::Dimension) -> Option<f64> {
 pub fn features(e: &Entity) -> Features {
     let mut common = vec![
         name("layer", e.layer.clone()),
-        name("color", color_name(e.color)),
+        name("colour", color_name(e.color)),
         name("linetype", e.linetype.to_uppercase()),
         name("lineweight", lineweight_name(e.lineweight)),
         name(
@@ -307,13 +307,13 @@ pub fn features(e: &Entity) -> Features {
             extrusion(&mut s, l.extrusion);
         }
         EntityKind::Circle(c) => {
-            s.push(pos("center", c.center));
+            s.push(pos("centre", c.center));
             s.push(len("radius", c.radius));
             s.push(len("thickness", c.thickness));
             extrusion(&mut s, c.extrusion);
         }
         EntityKind::Arc(a) => {
-            s.push(pos("center", a.center));
+            s.push(pos("centre", a.center));
             s.push(len("radius", a.radius));
             s.push(angle("start angle", a.start_angle));
             s.push(angle("end angle", a.end_angle));
@@ -356,7 +356,7 @@ pub fn features(e: &Entity) -> Features {
             extrusion(&mut s, p.extrusion);
         }
         EntityKind::Ellipse(el) => {
-            s.push(pos("center", el.center));
+            s.push(pos("centre", el.center));
             s.push(dir("major axis", el.major_axis));
             s.push(plain("axis ratio", el.ratio));
             s.push(plain("start parameter", el.start_param));

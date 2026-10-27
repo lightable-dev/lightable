@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!-- The private review page for demo stills and videos (tools/demo.mjs
+     publishes into out/review/, tools/review_server.py serves it on the
+     home network). Never published. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'">
+  <link rel="icon" href="data:,">
+  <title>Lightable demo review</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 12px; background: #161616; color: #ddd; font: 15px/1.45 system-ui, -apple-system, sans-serif; }
+    h1 { font-size: 18px; margin: 4px 0 12px; }
+    .run { border-top: 1px solid #333; padding: 12px 0; }
+    .run.old { opacity: 0.85; }
+    .head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+    .kind { font-weight: 600; text-transform: uppercase; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #2d4f7a; }
+    .kind.storyboard { background: #4a2a6b; } .kind.draft { background: #6b5a1a; } .kind.final { background: #1f6b3a; } .kind.cut { background: #6b2a5a; } .kind.page { background: #2a6b6b; }
+    .page-link { display: inline-block; margin: 6px 0 10px; padding: 10px 16px; border-radius: 8px; background: #4cb0ff; color: #0b1a26; font-weight: 600; text-decoration: none; }
+    .time { color: #999; font-size: 13px; }
+    .note { margin: 4px 0 8px; }
+    .item { margin: 10px 0 16px; }
+    .item h3 { font-size: 14px; margin: 0 0 6px; color: #bbb; }
+    img, video { display: block; max-width: 100%; height: auto; border-radius: 6px; background: #000; }
+    video.vertical { max-height: 85vh; }
+    .checks { margin: 6px 0; font-size: 13px; }
+    .pass { color: #7fd17f; } .fail { color: #ff8080; font-weight: 600; } .na { color: #888; }
+    details summary { cursor: pointer; color: #9bbcff; margin: 4px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+    .grid figure { margin: 0; } .grid figcaption { font-size: 11px; color: #aaa; }
+    #updated { position: fixed; bottom: 8px; right: 8px; background: #2d4f7a; padding: 6px 10px; border-radius: 6px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Lightable demo review</h1>
+  <div id="runs">Loading…</div>
+  <div id="updated">New output: reloading…</div>
+  <script>
+    "use strict";
+    let seen = null;
+    const el = (tag, attrs = {}, ...kids) => {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) if (v != null) e.setAttribute(k, v);
+      for (const k of kids) e.append(k);
+      return e;
+    };
+    const mark = (c) => c.pass === true ? el("span", { class: "pass" }, "✓ ") : c.pass === false ? el("span", { class: "fail" }, "✗ ") : el("span", { class: "na" }, "– ");
+    function checks(stills) {
+      const box = el("div", { class: "checks" });
+      const failed = stills.flatMap((s) => Object.entries(s.checks).filter(([, c]) => c.pass === false).map(([k, c]) => `${s.file.split("/").pop()}: ${k} (${c.detail})`));
+      const passed = stills.reduce((n, s) => n + Object.values(s.checks).filter((c) => c.pass === true).length, 0);
+      box.append(failed.length ? el("div", { class: "fail" }, `${failed.length} check(s) failed`) : el("div", { class: "pass" }, `All checks passed (${passed})`));
+      for (const f of failed) box.append(el("div", { class: "fail" }, f));
+      const table = el("details", {}, el("summary", {}, "Checks per still"));
+      for (const s of stills) {
+        const line = el("div", {}, `${s.time.toFixed(1)} s ${s.act} (${s.sample}): `);
+        for (const [k, c] of Object.entries(s.checks)) line.append(mark(c), `${k} – ${c.detail}; `);
+        table.append(line);
+      }
+      box.append(table);
+      return box;
+    }
+    function render(manifest) {
+      const root = document.getElementById("runs");
+      root.textContent = "";
+      if (!manifest.length) root.textContent = "Nothing yet.";
+      manifest.forEach((run, k) => {
+        const box = el("section", { class: "run" + (k ? " old" : "") });
+        box.append(el("div", { class: "head" }, el("span", { class: `kind ${run.kind}` }, run.kind),
+          el("span", { class: "time" }, new Date(run.time).toLocaleString())));
+        if (run.note) box.append(el("div", { class: "note" }, run.note));
+        const items = el("div");
+        for (const it of run.items) {
+          const item = el("div", { class: "item" }, el("h3", {}, it.label));
+          if (it.page) item.append(el("a", { class: "page-link", href: it.page }, "Open the page preview"));
+          if (it.phone) item.append(el("a", { href: it.contact }, el("img", { src: it.phone, alt: `${it.label} contact sheet`, loading: k ? "lazy" : null })));
+          if (it.stills) {
+            item.append(checks(it.stills));
+            const all = el("details", {}, el("summary", {}, "All stills"));
+            const grid = el("div", { class: "grid" });
+            for (const s of it.stills) grid.append(el("figure", {}, el("a", { href: s.file }, el("img", { src: s.file, loading: "lazy", alt: s.act })), el("figcaption", {}, `${s.time.toFixed(1)} s ${s.act} ${s.sample}`)));
+            all.append(grid);
+            item.append(all);
+          }
+          if (it.video) {
+            const v = el("video", { src: it.video, controls: "", playsinline: "", muted: "", preload: "metadata", class: it.format });
+            v.muted = true;
+            if (it.vtt) v.append(el("track", { kind: "subtitles", src: it.vtt, srclang: "en", label: "English" }));
+            item.append(v, el("a", { href: it.video }, "Download"));
+          }
+          items.append(item);
+        }
+        // Older runs folded, the newest open.
+        if (k) {
+          const d = el("details", {}, el("summary", {}, "Show"));
+          d.append(items);
+          box.append(d);
+        } else box.append(items);
+        root.append(box);
+      });
+    }
+    async function poll() {
+      try {
+        const r = await fetch("manifest.json", { cache: "no-store" });
+        const text = r.ok ? await r.text() : "[]";
+        if (seen === null) { seen = text; render(JSON.parse(text)); }
+        else if (text !== seen) {
+          // New output: reload, unless a video is playing.
+          if ([...document.querySelectorAll("video")].some((v) => !v.paused)) {
+            document.getElementById("updated").style.display = "block";
+            document.getElementById("updated").textContent = "New output available (reload when done)";
+          } else location.reload();
+        }
+      } catch {}
+      setTimeout(poll, 5000);
+    }
+    poll();
+  </script>
+</body>
+</html>

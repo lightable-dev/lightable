@@ -180,18 +180,28 @@ impl Shape {
                 Some(b)
             }
             Shape::Text(t) => {
-                let width = t.height * 0.6 * t.width_factor * t.text.chars().count() as f64;
+                // The text's height is its cap height (about 0.7 of the
+                // font size); a character is about 0.85 of it wide.
+                let width = t.height * 0.85 * t.width_factor * t.text.chars().count() as f64;
+                let (x0, x1) = match t.halign {
+                    HAlign::Left => (0.0, width),
+                    HAlign::Center => (-width / 2.0, width / 2.0),
+                    HAlign::Right => (-width, 0.0),
+                };
+                // Descenders below the baseline, a little room above caps.
+                let h = t.height;
+                let (y0, y1) = match t.valign {
+                    VAlign::Baseline => (-0.3 * h, 1.1 * h),
+                    VAlign::Bottom => (0.0, 1.4 * h),
+                    VAlign::Middle => (-0.7 * h, 0.7 * h),
+                    VAlign::Top => (-1.4 * h, 0.0),
+                };
                 let (s, c) = t.rotation.sin_cos();
-                let mut b = Bounds::point(t.at);
-                // Symmetric around the anchor: alignment can put the text on
-                // any side of it.
-                for (dx, dy) in [
-                    (width, t.height),
-                    (width, -t.height),
-                    (-width, t.height),
-                    (-width, -t.height),
-                ] {
-                    b.add([t.at[0] + dx * c - dy * s, t.at[1] + dx * s + dy * c]);
+                let corner =
+                    |dx: f64, dy: f64| [t.at[0] + dx * c - dy * s, t.at[1] + dx * s + dy * c];
+                let mut b = Bounds::point(corner(x0, y0));
+                for (dx, dy) in [(x1, y0), (x0, y1), (x1, y1)] {
+                    b.add(corner(dx, dy));
                 }
                 Some(b)
             }

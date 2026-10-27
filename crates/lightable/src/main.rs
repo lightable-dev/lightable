@@ -11,7 +11,9 @@
 //!                                                (--svg: the overlay as SVG)
 //!     lightable --diff A.dxf B.dxf [--side]      compare A and B in the viewer
 //!     lightable --example [bracket|plan] [--side]  compare a built-in example
-//!     lightable --demo                          play the 30-second demo
+//!     lightable --demo [--narration] [--feature ID]  play the demo (voice-over timing, a feature video)
+//!     lightable demo-cues OUT_DIR               subtitles (SRT, WebVTT), voice-over cue sheet,
+//!                                                and the large layout (OUT_DIR/usecases)
 //!     lightable --diff A B --report              save the PNG change report and quit
 //!     lightable --diff A.dxf B.dxf --shot OUT.ppm   ... save a screenshot and quit
 //!
@@ -21,6 +23,9 @@
 
 mod app;
 mod compare;
+mod demo;
+#[cfg(not(target_arch = "wasm32"))]
+mod depot;
 mod examples;
 mod feedback;
 mod files;
@@ -117,6 +122,101 @@ mod cli {
                 }
             })(
             ),
+            [cmd, out] if cmd == "demo-cues" => (|| {
+                // Subtitles and the voice-over cue sheet for the bracket demo,
+                // from the same plan the app plays.
+                let e = crate::examples::find("bracket");
+                let read = |b: &[u8]| {
+                    lightable_dxf::read_bytes(b)
+                        .map(|(d, _)| std::sync::Arc::new(d))
+                        .map_err(|e| e.to_string())
+                };
+                let c = crate::compare::Compare::new(
+                    None,
+                    (e.a_name.into(), read(e.a)?),
+                    (e.b_name.into(), read(e.b)?),
+                    Some((e.a_label.into(), e.b_label.into())),
+                    Some(e.id),
+                )?;
+                let dir = std::path::Path::new(out);
+                std::fs::create_dir_all(dir).map_err(|e| format!("{out}: {e}"))?;
+                let write = |name: &str, text: String| {
+                    std::fs::write(dir.join(name), text).map_err(|e| format!("{name}: {e}"))
+                };
+                for (narration, stem) in [(false, "demo"), (true, "demo-narration")] {
+                    let plan = crate::demo::plan(&c, narration);
+                    write(&format!("{stem}.srt"), crate::demo::srt(&plan.cues))?;
+                    write(&format!("{stem}.vtt"), crate::demo::vtt(&plan.cues))?;
+                    println!("{stem}: {:.2} s, {} cues", plan.length, plan.cues.len());
+                    if narration {
+                        write("cue-sheet.md", crate::demo::cue_sheet(&plan))?;
+                    }
+                }
+                // The use-case videos' captions, each from its example (the
+                // large layout's come from the recording: its numbers are
+                // measured as it plays).
+                for f in crate::demo::Feature::ALL {
+                    let c = if f == crate::demo::Feature::Big {
+                        // The large layout, made here as for the recorder.
+                        crate::compare::Compare::new(
+                            None,
+                            (
+                                "depot-rev-a.dxf".into(),
+                                read(crate::depot::depot(false).as_bytes())?,
+                            ),
+                            (
+                                "depot-rev-b.dxf".into(),
+                                read(crate::depot::depot(true).as_bytes())?,
+                            ),
+                            None,
+                            None,
+                        )?
+                    } else {
+                        let e = crate::examples::find(f.example());
+                        crate::compare::Compare::new(
+                            None,
+                            (e.a_name.into(), read(e.a)?),
+                            (e.b_name.into(), read(e.b)?),
+                            Some((e.a_label.into(), e.b_label.into())),
+                            Some(e.id),
+                        )?
+                    };
+                    let plan = crate::demo::feature_plan(Some(&c), f);
+                    let stem = format!("feature-{}", f.id());
+                    // (The large layout's captions come from the recording:
+                    // its numbers are measured as it plays.)
+                    if f != crate::demo::Feature::Big {
+                        write(&format!("{stem}.srt"), crate::demo::srt(&plan.cues))?;
+                        write(&format!("{stem}.vtt"), crate::demo::vtt(&plan.cues))?;
+                    }
+                    // The voice-over: cue sheet and a guide to record to.
+                    // The large layout's counts are known here; its request
+                    // count only as it plays.
+                    let n = c.design_count();
+                    let sheet = crate::demo::voice_sheet(&plan)
+                        .replace(
+                            "{changes}",
+                            &if n == 1 {
+                                "1 change".into()
+                            } else {
+                                format!("{n} changes")
+                            },
+                        )
+                        .replace("{objects}", &crate::demo::count(c.object_count()))
+                        .replace("{requests}", "[as shown on screen]");
+                    write(&format!("{stem}-voice.md"), sheet)?;
+                    write(&format!("{stem}-voice.srt"), crate::demo::srt(&plan.voice))?;
+                    println!("{stem}: {:.2} s, {} cues", plan.length, plan.cues.len());
+                }
+                // The large layout the recorder drops (not committed).
+                let big = dir.join("usecases");
+                std::fs::create_dir_all(&big).map_err(|e| format!("{}: {e}", big.display()))?;
+                for (rev_b, name) in [(false, "depot-rev-a.dxf"), (true, "depot-rev-b.dxf")] {
+                    std::fs::write(big.join(name), crate::depot::depot(rev_b))
+                        .map_err(|e| format!("{name}: {e}"))?;
+                }
+                Ok(())
+            })(),
             [cmd, path] if cmd == "info" => (|| {
                 let drawing = load(path)?;
                 println!(
@@ -147,6 +247,8 @@ fn main() -> std::process::ExitCode {
     let mut side_by_side = false;
     let mut report_and_quit = false;
     let mut demo = false;
+    let mut narration = false;
+    let mut feature = None;
     let mut example = None;
     let (bench, paths) = match args.as_slice() {
         [flag, path, rest @ ..] if flag == "--bench" => {
@@ -181,14 +283,18 @@ fn main() -> std::process::ExitCode {
             while let Some(opt) = rest.next() {
                 match (
                     opt.as_str(),
-                    (opt == "--shot").then(|| rest.next()).flatten(),
+                    (opt == "--shot" || opt == "--feature")
+                        .then(|| rest.next())
+                        .flatten(),
                 ) {
+                    ("--feature", Some(id)) => feature = Some(id.clone()),
                     ("--side", _) => side_by_side = true,
+                    ("--narration", _) => narration = true,
                     ("--report", _) => report_and_quit = true,
                     ("--shot", Some(out)) => bench = Some(app::Bench::screenshot(out.clone())),
                     _ => {
                         eprintln!(
-                            "usage: lightable --diff A.dxf B.dxf | --example [bracket|plan] | --demo  [--side] [--report] [--shot OUT.ppm]"
+                            "usage: lightable --diff A.dxf B.dxf | --example [bracket|plan] | --demo [--narration] [--feature find|explain|compare|report|private]  [--side] [--report] [--shot OUT.ppm]"
                         );
                         return std::process::ExitCode::FAILURE;
                     }
@@ -239,6 +345,13 @@ fn main() -> std::process::ExitCode {
                     side_by_side,
                     report_and_quit,
                     demo,
+                    narration,
+                    record: false,
+                    cut: false,
+                    feature,
+                    own: false,
+                    machine: None,
+                    stage: None,
                 },
             )))
         }),
@@ -276,9 +389,39 @@ fn main() {
         let demo = params
             .iter()
             .any(|p| *p == "demo" || p.starts_with("demo="));
+        let flag = |name: &str| params.contains(&name);
         let start = app::Start {
             example,
             demo,
+            narration: flag("narration"),
+            record: flag("record"),
+            cut: flag("cut"),
+            feature: params
+                .iter()
+                .find_map(|p| p.strip_prefix("feature="))
+                .map(str::to_owned),
+            own: flag("own"),
+            machine: params
+                .iter()
+                .find_map(|p| p.strip_prefix("machine="))
+                .and_then(|m| js_sys::decode_uri_component(&m.replace('+', " ")).ok())
+                .map(String::from),
+            // The brand stage (tools/stage/): `stage&zoom=..&frameh=..&inset=..`.
+            stage: flag("stage").then(|| {
+                let num = |name: &str, fallback: f32| {
+                    params
+                        .iter()
+                        .find_map(|p| p.strip_prefix(name)?.strip_prefix('='))
+                        .and_then(|v| v.parse::<f32>().ok())
+                        .filter(|v| v.is_finite() && *v > 0.0)
+                        .unwrap_or(fallback)
+                };
+                app::Stage {
+                    zoom: num("zoom", 1.75),
+                    frame_height: num("frameh", 540.0),
+                    inset: num("inset", 0.0),
+                }
+            }),
             ..Default::default()
         };
         let _ = eframe::WebRunner::new()

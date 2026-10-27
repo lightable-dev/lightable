@@ -10,7 +10,7 @@ Build Lightable, a free, open-source 2D CAD app in Rust that works as a companio
 
 - DXF read/write (R12 and AC1015/2000 through AC1032/2018 ASCII)
 - 2D entities: lines, polylines, circles, arcs, text, dimensions, blocks
-- Layers, colors, linetypes, units
+- Layers, colours, linetypes, units
 - 20 core drafting commands with a command line, snapping and undo
 - Export to PDF and SVG
 - Visual diff between two drawings (M4b)
@@ -130,8 +130,8 @@ The app should feel familiar within five minutes to anyone who has used existing
 | --- | --- | --- |
 | LINE | L | Chained segments; Undo and Close options |
 | PLINE | PL | Lightweight polyline; Arc and Line modes, width |
-| CIRCLE | C | Center-radius, center-diameter, 2P, 3P |
-| ARC | A | 3-point, start-center-end |
+| CIRCLE | C | Centre-radius, centre-diameter, 2P, 3P |
+| ARC | A | 3-point, start-centre-end |
 | RECTANG | REC | Two corners; result is a closed polyline |
 | TEXT | T | Single-line text: insertion point, height, rotation |
 | MOVE | M | Base point to second point, live preview |
@@ -153,7 +153,7 @@ UNDO (U) and REDO run outside this list: every command is one undo step, includi
 
 ### Precision aids
 
-- Object snap (F3): endpoint, midpoint, center, intersection, perpendicular, tangent, nearest; snap marker shapes shown at the cursor.
+- Object snap (F3): endpoint, midpoint, centre, intersection, perpendicular, tangent, nearest; snap marker shapes shown at the cursor.
 - Ortho (F8): lock to 0/90°. Polar tracking (F10) at 15° increments.
 - Grid display (F7) and grid snap (F9).
 

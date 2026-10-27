@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-49.4009 -48.2015 322.449 197.7358" width="800" height="491">
-<rect x="-49.4009" y="-48.2015" width="322.449" height="197.7358" fill="#212121"/>
-<g transform="scale(1 -1)" fill="none" stroke-width="0.215" stroke-linecap="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.5594 -61.8727 289.0872 209.0154" width="800" height="578">
+<rect x="-5.5594" y="-61.8727" width="289.0872" height="209.0154" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.1927" stroke-linecap="round">
 <g data-layer="0">
 <text transform="translate(0 0) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">Standard LEFT</text>
 <text transform="translate(60 0) rotate(15) scale(1 -1) skewX(0)" font-size="3" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">Standard CENTER</text>

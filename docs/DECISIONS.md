@@ -943,7 +943,7 @@ reading big files off the main thread, keyboard pan and zoom).
 8. **Keyboard.** Focused widgets get a 2-point blue outline; P steps to the
    previous change as N does to the next, and the list header says so.
 9. **Words.** Colour index numbers are named ("dark grey (8) to magenta
-   (6)", "layer color"); a hatch whose pattern changed says only that in
+   (6)", "layer colour"); a hatch whose pattern changed says only that in
    its headline (fill flag, line definitions and other data stay in the
    details). "What isn't compared?" under the list opens Details at that
    list. The picker says "Examples" when the user's own files are open.
@@ -960,6 +960,364 @@ reading big files off the main thread, keyboard pan and zoom).
     vertical frame stacks the list under the drawing). The cloud zoom takes
     in the revision markup next to the cloud (triangle and letter), so the
     narrow 9:16 panes show the whole callout.
+
+## Voice-over and recorded demo videos
+
+1. **One plan for the demo** (`demo.rs`): the app plays it and
+   `lightable demo-cues` writes the subtitles (SRT, WebVTT) and the
+   voice-over cue sheet from it, so their times are the demo's times. The
+   normal demo's steps and timing are as before (tested).
+2. **Narration mode** (`?demo&narration`, `--demo --narration`): the
+   voice-over lines are constants (`demo::VOICEOVER`) written for the
+   bracket example; each step lasts 0.5 s + words ÷ 2.5 + 0.7 s; moves
+   within a line happen as its words come (the dimension at "The edge…",
+   the whole view at "None of them…", the report at "and export…"). No
+   on-screen captions: the voice and the subtitle files carry the words.
+   Other drawings fall back to the normal demo. A test checks every fact in
+   the lines against the comparison; three facts in the first draft did not
+   match and were corrected in the script ("mounting bracket", "5
+   millimetres in from both edges", no "one click" for the export).
+3. **Recording** (`?demo&record`, web only): demo time = frame ÷ 30, the
+   frame set by the recorder in `window.__lightableFrame`; the app reports
+   each drawn frame in `window.__lightableRendered` and the demo length in
+   `window.__lightableDemoLength`. The recorder (now `tools/demo.mjs`) screenshots each
+   frame (lossless) and encodes H.264 30 fps with ffmpeg afterwards (CRF
+   16, `-tune animation`, yuv420p, no audio). Videos go to the git-ignored
+   `out/demo/`.
+   While recording, the app draws only when asked (the recorder taps
+   Shift after setting the frame): drawing continuously made each
+   screenshot about ten times slower.
+4. **Arc detail follows pixels, not points:** the coarse arcs (30°) are
+   used while a chunk's largest radius is under 30 *pixels*
+   (`tess::use_coarse`, with the pixel ratio); comparing points made circles
+   visibly polygonal on 2× screens and in the 1080p videos.
+5. **The report layout on narrow screens** puts the change list under the
+   drawing (45 % of the height) and wraps its header; the demo's report
+   step zooms to the whole sheet.
+
+## Demo for phones in social feeds
+
+1. **The short demo** (`?demo`): opening on Rev C alone in its own colours
+   ("Rev C just came in. What changed?", 3 s), side by side fitted tightly,
+   close on the cloud (the clouded text readable), "found N" with the list,
+   two changes the cloud does not mark, the report, a scope line, a 3 s
+   end card: 34.3 s for the bracket. The Details step left the short demo
+   (kept for a longer explainer). Narration keeps its seven lines and
+   timing, with the same new views.
+2. **Captions** start at 4.5 % of the screen height and shrink only to fit
+   two lines (not below 3.2 %); long headlines are split at "; " into
+   clauses, words unchanged. The demo's zooms fit the change above a band
+   of 3.3 caption heights at the bottom (`View::fit_above`), where the
+   caption sits, so it never covers the change.
+3. **Recording** (`&record`) scales the interface (1.75× in 16:9, 2× in
+   9:16; the report layout at 1×, as exported) and leaves only the Side by
+   side toggle: no legend, Previous/Next, status bar or other buttons.
+4. **Portrait layouts:** side by side is stacked (Rev B above Rev C) when
+   the drawing area is portrait, in the app as well as the demo. In the
+   demo the change list has fixed shares (36 % of the width, 45 % of the
+   height when stacked); in 9:16 it shows only at "found N" and the
+   current change is a caption instead (also in narration). The report
+   layout puts its list under the drawing on narrow screens.
+5. **Markup in plain words** (layers 1–3): lines and polylines on markup
+   layers are named from their shape only: "Markup line", "Markup triangle"
+   (closed, three straight sides), "Markup outline" (other closed),
+   "Markup lines" (open polyline); revision clouds stay "Revision cloud".
+   Design content keeps its CAD names. Details still show the entity type.
+
+## Demo pipeline, review page, public demo page
+
+1. **British spelling** in everything users read: headlines ("centre
+   moved", "colour changed from layer colour to blue (5)"), captions,
+   reports, docs and the DXF reader's messages. Code identifiers, CSS and
+   file formats keep their spelling.
+2. **The "found" step** lists four changes and "… and N more" (N = design
+   changes not listed); in recordings one line each, the list half the
+   width in 16:9 and a third of the height in 9:16. The summary line is
+   shown from that step on (it would give the count away earlier) and not
+   in 9:16 recordings, where the caption carries it.
+3. **Frames reproducible however they are reached:** in a recording every
+   demo zoom starts at its step's scheduled time and egui's own animations
+   are off; the app publishes the steps and, per frame, where the caption,
+   the drawing and the change in focus are (`window.__lightableFrameInfo`).
+   `tools/demo.mjs` uses this to jump straight to the frames it needs
+   (stills), to check them, to repeat a frame while nothing moves, and to
+   reuse cached video segments after probing three of their frames.
+   Replaces `tools/record_demo.mjs`.
+4. **Automatic still checks:** caption ≥ 4 % of the frame height, ≤ 2
+   lines; the change in focus fully inside the drawing and clear of the
+   caption; "… and N more" fully visible; 9:16 drawing ≥ 60 % of the frame.
+   Mid-zoom stills only get the caption check.
+5. **Text boxes follow alignment:** a text's box spans from its insertion
+   point according to its alignment (not symmetrically around it), with a
+   character about 0.85 of the text height wide. Highlight frames and
+   zooms now fit the text; snapshot frames changed accordingly.
+6. **Drafts** are 960 × 540 / 540 × 960 at 15 fps with VideoToolbox when
+   present; finals 1920 × 1080 / 1080 × 1920 at 30 fps with x264.
+7. **Private review page** (`tools/review_server.py`, `out/review/`): bound
+   to the Mac's home-network address (not all interfaces), private-network
+   clients only, hidden files refused, byte ranges for iPhone video. Never
+   published.
+8. **Public demo page** (`web/demo/index.html`): no scripts, CSP limited to
+   the site's own images, media and inline styles; vertical video on phones
+   held upright, landscape otherwise; poster, captions track, "Try it
+   yourself". Built only when approved videos are in `web/demo/`
+   (`tools/demo.mjs approve`, finals only); then listed in `sitemap.xml`.
+   `robots.txt` and `sitemap.xml` are new.
+
+## Faster demo rendering
+
+1. **Output unchanged:** finals are identical to those made before this
+   change (worst difference 0 in every frame); drafts are identical to what
+   the previous tool makes from the same build.
+2. **Workers:** one Chrome per run, one window per video; segments and
+   videos shared out over `--workers` (default 2 for stills and cut drafts,
+   otherwise half the physical cores, 1–4). On 2 cores more workers made
+   finals slower (579 s against 470 s), so they default to one.
+3. **No frame sharing between normal and narration timing:** x264's
+   lookahead turns sub-tolerance input differences into visible ones (up to
+   38 levels), so the output would change.
+4. **Capture stays a CDP screenshot of the windowed page:** `beginFrame` is
+   unavailable on macOS; canvas readback and headless were slower and not
+   pixel-identical.
+5. **Cut drafts** (`?demo&record&cut`, `tools/demo.mjs cut`): demo zooms
+   take no time; for checking content, never published.
+6. **CI workflow** for finals: `workflow_dispatch` only, read-only token,
+   artifacts kept 14 days, never deployed; software-rendered frames, so
+   review only.
+
+## The demo shows a person using Lightable
+
+1. **Timeline (40 s):** Rev C alone; the two example files dropped in; the
+   overlay with the legend highlighted; a pinch onto the cloud; two taps in
+   the change list; Side by side; Details and Export PNG report (the
+   report stays on screen); the comparison in a phone outline; end card.
+   Replaces the 34 s automatic sequence (decision "The short demo").
+2. **Real input only:** every action is a browser input event from
+   `tools/demo.mjs` (drag and drop with the example's files, mouse moves,
+   clicks, ctrl + wheel, wheel) or, live, the same events fed to egui by the
+   app (`raw_input_hook`). The demo itself only sets captions, the pointer
+   drawing, the legend highlight, the phone outline and the end card.
+3. **The pointer** is drawn by the app at egui's pointer position (an arrow
+   in 16:9, a fingertip circle with a tap ripple in 9:16); during a file
+   drag, where browsers send no pointer moves, at the drag position the page
+   reports. Mouse events drive both formats (a fingertip-style pointer, not
+   touch events: touch has no position between taps).
+4. **"The other N weren't clouded"** only for a built-in example drawn that
+   way (`Example::cloud_by_design`); otherwise "The revision cloud, up
+   close." Lightable does not check clouds.
+5. **Caption wording:** "10 changes. Blue added, red deleted, yellow
+   changed." uses the legend's own word "deleted" and leaves out "found"
+   (in the summary line above; the longer caption needed three lines in
+   9:16).
+6. **Real export:** the recording saves the PNG (into the recorder's
+   folder; the check confirms it); nothing is drawn over the report while
+   it is captured. Live (`?demo`, `--demo`) the report is made but not
+   downloaded onto a viewer's computer.
+7. **Product changes made for this, kept for everyone:** a drop highlight
+   while files are dragged over the page ("Drop two DXF files to compare
+   them"); a newly selected change row is scrolled fully into view; the
+   built-in example's files, when dropped or chosen, are recognised and show
+   the example's note.
+8. **Recording layout:** 1.75× in both formats (9:16 was 2×); the colour
+   legend on its own row; list rows one line each except the selected one;
+   the revision-markup line left out of the summary; in 9:16 the list takes
+   18 % of the height and scrolls.
+9. **Drafts at 2×**, captured at half size (see the pipeline notes in
+   `docs/demo/demo-script.md`).
+
+## The demo page for engineers (lightable.dev/demo)
+
+1. **Five feature videos** (20–30 s, 16:9 and 9:16, same recorder and
+   rules as the main demo: real input, visible pointer, numbers from the
+   comparison): find (`?demo&feature=find`), explain, compare, report,
+   private. Plans in `demo::feature_plan`; `lightable --demo --feature ID`
+   plays one live.
+2. **Starting points:** find and compare start on Rev C alone and drop
+   files; explain, report and private start on the example's comparison,
+   as the app opens.
+3. **Compare drops "bracket.dxf" and "bracket from supplier.dxf"** (the
+   example's files, the same date on disk): no revision mark and no date
+   difference, so the app asks which is earlier (tested). The private video
+   drops a file with a DWG header only (written by the recorder, never
+   committed), which the app recognises.
+4. **Captions at most 55 characters** (two lines in 9:16, tested).
+5. **Recording shows what a video is about:** the privacy line in the
+   toolbar (private), the file names with Swap in 9:16 (compare), "What
+   isn't compared?" in the list (always; it is real UI).
+6. **The page** has no scripts, the same security policy, no tracking;
+   videos are muted, inline, with controls, posters and captions (off by
+   default: the captions are in the picture); vertical on phones held
+   upright, landscape elsewhere; only the first video preloads metadata.
+   `?own` opens the app on its start screen ("Compare your own files").
+7. **Facts on the page are tested** (`the_demo_page_matches_the_comparison`):
+   the summary, the counts, the headlines, the not-compared list, the DXF
+   versions. Matching and test results come from decisions above (28 of 28
+   on 12 pairs); browser times from the 2026-10-10 browser test.
+8. **Publishing:** `tools/build_web.sh` builds /demo/ only when all ten
+   approved final videos, posters and captions are in `web/demo/`
+   (`node tools/demo.mjs approve --mode features`). `node tools/demo.mjs
+   page` previews the page with draft videos on the private review page
+   and checks it at 390 px (video size, files, text size, no sideways
+   scrolling, no requests to other sites) and at 1280 px.
+
+## Use-case videos: one capability each, proved on its own drawing
+
+1. **Five use cases replace the five feature tours**, each on a new,
+   generated, licence-clean drawing with an expected-change inventory
+   written from the edits before anything is compared
+   (`tools/gen_usecases.py`, `crates/lightable/src/depot.rs`; checked by
+   `crates/lightable-diff/tests/examples.rs`): unclouded changes (gearbox
+   cover, 14 changes, 1 clouded), tiny changes (locating plate, 0.5 mm and
+   ±0.1 → ±0.05), re-export noise (drive shaft Rev D, and Rev E as a
+   simulated re-export: 1 design change, 17 redrawn), blocks (flat, door block
+   shown at 7 doors, one wall 300 mm), a big drawing (23,181 / 23,182
+   objects, 3 changes).
+2. **Files are named as people name them** ("shaft-rev-d.dxf",
+   "shaft-rev-e.dxf"), so the normal revision-order rule decides; the
+   recorder never special-cases a video.
+3. **The large layout is generated in Rust**, deterministically (no
+   randomness), so its test always runs, in CI too; `lightable demo-cues`
+   writes the copies the recorder drops. The files are not committed.
+4. **Old text never overlaps new text**: a changed "before" text that
+   would sit on a changed "after" text is drawn struck through, moved
+   aside to the first free spot (2, 3.2 or 4.4 text heights above or
+   below). The recorder checks every frame for overlapping changed text.
+5. **Details use plain labels and units**: "Object: circle (handle A5),
+   layer HOLES", "Diameter 13.5 → 17.5 mm; centre moved 5 mm left, 5 mm
+   up" (diameter when the headline says diameter).
+6. **Framing**: captions end above the bottom 15 % of the frame; the
+   top-left 10 % holds no control the video uses; headlines wrap, never
+   end in "…". The recorder checks all three and that each settled frame
+   shows the step's view (overlay, side by side, details, report).
+7. **Pointer**: clicks get at least 0.45 s of eased movement and a 0.3 s
+   pause, even when that makes a click late after the list had to scroll;
+   the pointer follows a row that is still settling; scrolling is faster
+   when the row is far.
+8. **The no-upload claim is only what is measured.** On screen: "Requests
+   the browser logged since the files were opened: N (Resource Timing)".
+   The page names what that counts, reports the recorder's own DevTools
+   log (no request to another site, none with a body), and has a "Check
+   it yourself" box with the Network-tab steps. The heading no longer says
+   "nothing uploaded".
+9. **Every time names its machine.** The on-screen timing line ends "on
+   this device", or in recordings on the recording machine (`?machine=`,
+   from `sysctl`: "a MacBook Air (2-core Intel i3), while
+   recording"). Captions say "in seconds", without a number.
+10. **One privacy wording everywhere:** "Your files are read in your
+    browser, never uploaded." (the app's line, the end card, the narration,
+    both pages). The demo page says why it is true: lightable.dev is a
+    static site on GitHub Pages with no program to receive uploads; the
+    security policy allows connections only to the site itself
+    (`connect-src 'self'`) and no form submissions; the code is open
+    source; and "Check it yourself" gives the Network-tab steps.
+11. **The re-export is labelled simulated.** Two real re-saves of Rev E
+    were tried. FreeCAD 1.1 (headless import and DXF export) put entities
+    on layers named after its objects ("Shape008"), dropped the notes and
+    the dimension-arrow blocks: dozens of differences, not usable. ezdxf
+    1.4.3's R12 export (`ezdxf.addons.r12export`) gave the finish change
+    plus two genuine settings differences the export introduces (units
+    $INSUNITS 4 -> not set, as R12 has no units; layer Defpoints "plot"
+    no -> yes): 3 changes, not exactly 1. So Rev E stays generated by
+    `tools/gen_usecases.py` and every caption and page line calls it a
+    simulated re-export (new handles, shuffled order, older DXF version).
+12. **"Check it yourself" steps are checked against the browsers' own
+    words:** Chrome 155 (⋮ › More Tools › Developer Tools; Network;
+    Clear), Firefox 158 (☰ › More Tools › Web Developer Tools; Network;
+    Clear), Safari 18.6 (Settings › Advanced › "Show features for web
+    developers"; Develop › Show Web Inspector; Network; Clear Network
+    Items), read from the installed apps' interface strings and the
+    vendors' documentation, without changing any browser setting.
+
+## Brand-ambassador videos: a presentation layer around the real app
+
+1. **The app's output stays real; the brand is a stage around it.**
+   `tools/stage/` shows the real app (the web build, in an iframe) inside a
+   browser-window mockup on the brand background and draws the motion
+   graphics in HTML/CSS around it. The app runs `?stage`: it lays itself
+   out for the window (zoom, the top-left inset), keeps the caption's place
+   clear but lets the stage set the words, and leaves the pointer and the
+   end card to the stage. Nothing the app shows is redrawn.
+2. **Deterministic frames.** Every stage animation is a pure function of
+   the recorder's frame (Web Animations with `currentTime` set per frame,
+   and plain maths for the pointer, cards and pulses); nothing runs on the
+   wall clock. Input reaches the app through the stage page (Chrome routes
+   mouse and drag events into the frame); keys (the recorder's nudge) are
+   dispatched inside the frame.
+3. **Brand kit** (`docs/brand/`, made by `tools/gen_brand.py`): an original
+   mark (two sheets on a light table, the overlap lit), the wordmark in
+   Lato outlined, the app's own colours, caption, motion, sting and
+   end-card rules. **Lato is under the SIL Open Font Licence 1.1**, which
+   is not in this project's licence list: it is used only in the videos
+   and the brand files, never bundled in the app (the app keeps Ubuntu and
+   Hack). Copied unmodified from RDoc's darkfish template (version 1.105)
+   with its licence text.
+4. **Story:** each use-case video is hook (the problem in one line, after a
+   1.2 s sting), action (the real files, a real drop), reveal, proof, payoff
+   (a one-line claim), end card; 29–35 s. The plan tags each step with its
+   scene (`demo::Scene`); Tiny and Blocks now drop their files too.
+5. **Honesty is checked, not promised.** Decorations show only actions
+   that happen: the file cards carry the real file names and are carried
+   only while the real drag is under way; the landing pulse is at the real
+   drop; ripples are where the recorder really pressed; the highlight pulse
+   is only around the change the app has selected; the hover lift only on
+   the control the pointer is over; the caption is the app's own text. The
+   recorder checks every drawn frame and that every press and the drop were
+   answered by the app (the change selected, the view changed, those files
+   compared). The progressive list reveal is done by the app itself (stage
+   mode), rows real.
+6. **Sound:** our own (`tools/gen_sound.py`), mixed with ffmpeg at the
+   events that really happened (presses, pickup, drop) and the plan's
+   sting, reveal and end card. Each video: music + UI sounds, UI sounds
+   only, and stems for a voice-over recorded later. Voice-over lines per
+   step (`Step::says`), at most 2.8 words a second, in
+   `docs/demo/voiceover.md` (a test keeps them equal to the plans).
+7. **Storyboards** are the stills: the sting and each step's settled frame,
+   labelled with its scene and caption, published as their own review run.
+
+## Review server that follows the network
+
+1. The review server still listens only on this Mac's home-network
+   address (not all interfaces) and answers only private addresses, but
+   now follows that address when it changes (checked every 5 s): a new
+   network or DHCP lease no longer leaves it listening on a dead address.
+2. `review_server.py install` adds a per-user LaunchAgent (KeepAlive) so
+   it runs whenever the user is logged in and the Mac is awake;
+   `uninstall` removes it. No system setting is changed.
+3. `tools/demo.mjs` holds a `caffeinate -i -s` assertion for its own
+   lifetime and prints the checked review URL when it exits.
+
+## Calmer captions, clearer scenes (brand videos, second pass)
+
+1. **One set of captions.** The use-case videos carry their captions in
+   the picture; their players (demo page, review page) get no subtitle
+   track. Only the narration version (no captions in its picture) offers
+   one. No `.vtt` files ship with the demo page any more.
+2. **Captions as said, from the data.** Each caption is a sentence a person
+   would say ("This hole grew from 11 mm to 13.5 mm."), built from the
+   comparison's own values (grew or shrank by the numbers, "hole" only for
+   a circle on a hole layer, "tightened" only for a ± value that got
+   smaller). Each step names its one key number (`Step::key`, in the
+   caption, filled in as measured for the large layout); only that is in
+   the highlight colour.
+3. **Timing.** A caption comes in as its step's action starts (the hook's
+   after the sting) and stays at least its words at three a second, 2 s at
+   least. Key moments hold still after their action for the caption at a
+   speaking pace (2.7 words a second), at least 3 s; the result at least 5 s
+   in all. Tested on every plan. The use-case videos are now 29–40 s
+   (longer than the 35 s first set, for the holds).
+4. **Line breaks.** Two lines at most, balanced (`text-wrap: balance`);
+   a number stays with its unit or noun, "Rev B" and short phrases stay
+   together. A plain 0.3 s fade, no slide; always in the place the app
+   keeps clear.
+5. **Scenes.** One idea each; while its point is shown nothing moves (the
+   camera pushes in 2 % only as the result comes and eases back as the
+   payoff starts). A spotlight dims the app around the step's subject once
+   its action is done (`Shot::spot`: the selected change, the zoom's
+   subject, the highlighted line, the details, the drawing); the app draws
+   no highlight box on the stage. The recorder checks each spotlight
+   against what the app reports for that subject, mapped independently.
+6. **Larger window** (912 × 506 of 960 × 540; 524 × 924 of 540 × 960) and
+   step chips in its title bar: 1 Drop · 2 Result · 3 Proof.
 
 ## Rules for M5 (decided before M5)
 

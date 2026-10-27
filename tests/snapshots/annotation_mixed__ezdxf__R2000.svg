@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-32.32 -62.32 120.64 73.015" width="800" height="484">
-<rect x="-32.32" y="-62.32" width="120.64" height="73.015" fill="#212121"/>
-<g transform="scale(1 -1)" fill="none" stroke-width="0.0804" stroke-linecap="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.9343 -62.0968 96.031 72.3185" width="800" height="602">
+<rect x="-1.9343" y="-62.0968" width="96.031" height="72.3185" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.064" stroke-linecap="round">
 <g data-layer="0">
 <path d="M0 0L50 0" stroke="#ffffff"/>
 <path d="M35 20A10 10 0 0 1 15 20A10 10 0 0 1 35 20" stroke="#ffffff"/>
@@ -14,9 +14,9 @@
 <text transform="translate(25 -7.9) rotate(0) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">5000</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="0" cy="-8" r="0.1206" fill="#ffffff"/>
-<circle cx="0" cy="0" r="0.1206" fill="#ffffff"/>
-<circle cx="50" cy="0" r="0.1206" fill="#ffffff"/>
+<circle cx="0" cy="-8" r="0.096" fill="#ffffff"/>
+<circle cx="0" cy="0" r="0.096" fill="#ffffff"/>
+<circle cx="50" cy="0" r="0.096" fill="#ffffff"/>
 </g>
 <g data-layer="0">
 <path d="M32.2769 27.2188L32.0711 27.0711L32.2188 27.2769Z" stroke="#ffffff"/>
@@ -24,8 +24,8 @@
 <text transform="translate(32.6898 27.8312) rotate(45) scale(1 -1) skewX(0)" font-size="0.25" font-family="sans-serif" text-anchor="middle" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">R1000</text>
 </g>
 <g data-layer="Defpoints">
-<circle cx="25" cy="20" r="0.1206" fill="#ffffff"/>
-<circle cx="32.0711" cy="27.0711" r="0.1206" fill="#ffffff"/>
+<circle cx="25" cy="20" r="0.096" fill="#ffffff"/>
+<circle cx="32.0711" cy="27.0711" r="0.096" fill="#ffffff"/>
 </g>
 <g data-layer="0">
 <text transform="translate(0 57.5) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">NOTES:</text>

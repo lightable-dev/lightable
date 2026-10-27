@@ -21,6 +21,14 @@ const COARSE_ARC_STEP: f64 = std::f64::consts::PI / 6.0;
 /// Use the coarse detail while the chunk's largest arc radius is under
 /// this many pixels.
 pub const COARSE_BELOW_PX: f64 = 30.0;
+
+/// Whether a chunk's arcs can be drawn coarse: its largest radius
+/// (`max_radius`, world units) is under [`COARSE_BELOW_PX`] screen pixels
+/// at `scale` points per unit and `pixels_per_point` (2 on a high-density
+/// screen, where a radius of 26 points is 52 pixels and needs fine arcs).
+pub fn use_coarse(max_radius: f64, scale: f64, pixels_per_point: f64) -> bool {
+    max_radius * scale * pixels_per_point < COARSE_BELOW_PX
+}
 /// Patterns finer than this many repeats per path are drawn solid.
 const MAX_DASHES: f64 = 20_000.0;
 
@@ -267,6 +275,14 @@ mod tests {
             shape,
             entity: 0,
         }
+    }
+
+    #[test]
+    fn coarse_arcs_only_when_small_in_pixels() {
+        // 26 points: coarse on a standard screen, fine on a 2x one.
+        assert!(use_coarse(6.75, 26.0 / 6.75, 1.0));
+        assert!(!use_coarse(6.75, 26.0 / 6.75, 2.0));
+        assert!(!use_coarse(10.0, 4.0, 1.0));
     }
 
     #[test]

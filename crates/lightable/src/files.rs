@@ -122,6 +122,10 @@ pub struct Incoming {
 
 pub type FileSlot = std::sync::Arc<std::sync::Mutex<Incoming>>;
 
+/// Where files are being dragged over the page, in CSS pixels (web: the
+/// browser sends no pointer moves during a drag). Kept after the drop.
+pub type DragPos = std::sync::Arc<std::sync::Mutex<Option<(f32, f32)>>>;
+
 impl Incoming {
     /// Starts a new batch of `n` files (web: drops and the file dialog).
     #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
@@ -158,8 +162,25 @@ fn file_input() -> Result<web_sys::HtmlInputElement, String> {
 /// file dialog arrive in `slot`. They are read in the page, never
 /// uploaded.
 #[cfg(target_arch = "wasm32")]
-pub fn listen(slot: &FileSlot, ctx: &eframe::egui::Context) -> Result<(), String> {
+pub fn listen(slot: &FileSlot, drag: &DragPos, ctx: &eframe::egui::Context) -> Result<(), String> {
     use eframe::wasm_bindgen::{JsCast as _, closure::Closure};
+    // Where a drag is (dragover and drop), for the drop highlight and the
+    // demo's pointer.
+    let window = web_sys::window().ok_or("no window")?;
+    for kind in ["dragover", "drop"] {
+        let drag = drag.clone();
+        let on_drag =
+            Closure::<dyn FnMut(web_sys::DragEvent)>::new(move |e: web_sys::DragEvent| {
+                if let Ok(mut d) = drag.lock() {
+                    *d = Some((e.client_x() as f32, e.client_y() as f32));
+                }
+            });
+        // Capture phase: the canvas stops the drag events it handles.
+        window
+            .add_event_listener_with_callback_and_bool(kind, on_drag.as_ref().unchecked_ref(), true)
+            .map_err(|e| format!("{e:?}"))?;
+        on_drag.forget();
+    }
     let input = file_input()?;
     let (slot, ctx, target) = (slot.clone(), ctx.clone(), input.clone());
     let on_change = Closure::<dyn FnMut()>::new(move || {

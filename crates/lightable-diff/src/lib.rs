@@ -898,7 +898,7 @@ fn layer_fields(l: &lightable_dxf::Layer) -> Fields {
     let n = |label: &'static str, v: String| (label.into(), Value::Name(v));
     let yes = |b: bool| if b { "yes".to_owned() } else { "no".to_owned() };
     vec![
-        n("color", features::color_name(l.color)),
+        n("colour", features::color_name(l.color)),
         n("linetype", l.linetype.to_uppercase()),
         n("lineweight", format!("{:?}", l.lineweight)),
         n("on", yes(l.on)),

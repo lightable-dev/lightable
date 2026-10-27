@@ -1,0 +1,69 @@
+name: Demo videos
+
+# Renders the four final demo videos in parallel, on demand only, and
+# uploads them as workflow artifacts. Never deploys or publishes anything.
+#
+# The runners have no GPU: Chrome draws with its software renderer
+# (SwiftShader), so these frames are not pixel-identical to videos made on
+# a Mac, and they do not share its cache. Use them for review, and make the
+# published final on the machine whose stills were approved.
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "One line on what changed (shown in the artifact name)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [normal, narration]
+        format: [landscape, vertical]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: rustup show active-toolchain || rustup toolchain install
+      - run: rustup target add wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      # The version must match wasm-bindgen in Cargo.lock.
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - name: Install binaryen 133
+        env:
+          BINARYEN: version_133
+          SHA256: 2dc9c7813f5375db93d96ead4b78222fcc3e2677bbb832297af4797782a37489
+        run: |
+          file=binaryen-$BINARYEN-x86_64-linux.tar.gz
+          curl -fsSL -o "$RUNNER_TEMP/$file" \
+            "https://github.com/WebAssembly/binaryen/releases/download/$BINARYEN/$file"
+          echo "$SHA256  $RUNNER_TEMP/$file" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$file" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/binaryen-$BINARYEN/bin" >> "$GITHUB_PATH"
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg xvfb
+      - run: WASM_OPT_REQUIRED=1 tools/build_web.sh
+      - run: cargo build --release -p lightable
+      - name: Render
+        run: |
+          python3 tools/web_test_server.py /tmp/server.log &
+          sleep 2
+          CHROME="$(command -v google-chrome)" xvfb-run -a -s "-screen 0 1600x1200x24" \
+            node tools/demo.mjs final --modes ${{ matrix.mode }} --formats ${{ matrix.format }} \
+              --workers 1 --no-review
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo-${{ matrix.mode }}-${{ matrix.format }}
+          path: |
+            out/demo/demo-*.mp4
+            out/demo/*.vtt
+            out/demo/*.srt
+          retention-days: 14

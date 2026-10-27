@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-11.48 -10.48 24.96 12.46" width="800" height="399">
-<rect x="-11.48" y="-10.48" width="24.96" height="12.46" fill="#212121"/>
-<g transform="scale(1 -1)" fill="none" stroke-width="0.0166" stroke-linecap="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.36 -10.36 18.72 10.72" width="800" height="458">
+<rect x="-0.36" y="-10.36" width="18.72" height="10.72" fill="#212121"/>
+<g transform="scale(1 -1)" fill="none" stroke-width="0.0125" stroke-linecap="round">
 <g data-layer="0">
 <path d="M0 0L10 0A7.0711 7.0711 0 0 1 10 10L0 10Z" stroke="#ffffff"/>
 </g>
@@ -8,7 +8,7 @@
 <text transform="translate(1 1) rotate(0) scale(1 -1) skewX(0)" font-size="2.5" font-family="sans-serif" text-anchor="start" dominant-baseline="alphabetic" fill="#ffffff" stroke="none">Room 101</text>
 </g>
 <g data-layer="0">
-<circle cx="5" cy="5" r="0.025" fill="#ffffff"/>
+<circle cx="5" cy="5" r="0.0187" fill="#ffffff"/>
 <path d="M0 0L10 10" stroke="#ffffff"/>
 <path d="M0 0L3 4" stroke="#ffffff"/>
 </g>

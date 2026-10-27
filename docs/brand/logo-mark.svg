@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Lightable</title>
+  <rect x="6" y="8" width="36" height="42" rx="6" fill="#4cb0ff"/>
+  <rect x="22" y="16" width="36" height="42" rx="6" fill="#f5d02a"/>
+  <path d="M22 22a6 6 0 0 1 6-6h14v28a6 6 0 0 1-6 6H22z" fill="#ffffff"/>
+</svg>
